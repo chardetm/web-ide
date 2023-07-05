@@ -1,0 +1,27 @@
+.WebPreviewWindow {
+  --window-icon-color: #D65108;
+  --badge-color: #D65108;
+  --title-color: #D65108;
+  --title-background-color: #f9f0eb;
+}
+
+.live_switch {
+  height: 28px !important;
+  margin: 0 !important;
+  margin-left: -8px !important;
+  overflow: hidden;
+}
+
+.title_error {
+  color: #D65108;
+}
+
+.iframe {
+  width: 100%;
+  height: calc(100% - 4px);
+  border: none;
+  background-color: white;
+  flex-grow: 1;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}

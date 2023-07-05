@@ -1,0 +1,289 @@
+.window {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  border: var(--windows-border);
+  border-radius: var(--windows-border-radius);
+  box-shadow: var(--windows-box-shadows);
+  container-type: size;
+}
+
+.simpleWindow {
+  grid-template-rows: 32px 1fr;
+}
+
+.tabbedWindow {
+  grid-template-rows: 42px 37px 1fr;
+}
+
+.tabbedWindow[no-toolbar="true"] {
+  grid-template-rows: 42px 1fr;
+}
+
+@media (min-width: 992px) {
+  *[has-maximized-window="true"] .window:not(*[is-maximized="true"]) {
+    display: none !important;
+  }
+}
+
+.windowControls {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  height: calc(1.6rem - 4px);
+  top: 2px;
+  right: 2px;
+  gap: 0;
+  z-index: 2;
+}
+
+.toolbar {
+  height: 37px;
+  background-color: white;
+  width: 100%;
+  border-bottom: 1px solid rgb(205, 205, 205);
+  padding-left: 12px;
+  padding-right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: hidden;
+}
+
+.toolbar > * {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.toolbarAddressBar {
+  height: 28px;
+  line-height: 28px;
+  font-size: 14px;
+  background-color: rgb(241, 243, 244);
+  border-radius: 14px;
+  display: flex;
+  flex-grow: 1;
+  overflow-x: hidden;
+  padding: 0 14px;
+  user-select: none;
+}
+
+.withTabs {
+  justify-content: space-between;
+  flex-direction: column;
+}
+
+.windowTab {
+  height: calc(100% - 42px);
+}
+
+.windowIcon {
+  margin-left: 10px;
+  margin-right: -7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--window-icon-color);
+}
+
+.windowContent {
+  overflow: auto;
+}
+
+*[no-toolbar="true"] .windowContent {
+  height: 100%;
+}
+
+.windowTitle {
+  font-size: 16px;
+  background-color: #dee1e6;
+  min-height: 1.6rem;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+  overflow: hidden;
+}
+
+.tabbedWindowTitle {
+  padding: 0 10px;
+  border: 1px solid black;
+  background-color: white;
+  color: var(--title-color);
+  border-color: var(--title-color);
+  background-color: var(--title-background-color);
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  user-select: none;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  height: calc(20px);
+  top: -1px;
+  right: 60px;
+  gap: 0;
+  z-index: 2;
+}
+
+.simpleWindowTitle {
+  color: black;
+}
+
+.simpleWindowContent {
+  overflow: auto;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  padding-left: 8px;
+  max-width: calc(100% - 120px);
+  margin-top: 8px;
+  align-items: center;
+}
+
+.tab {
+  font-size: 12px;
+  height: 34px;
+  padding: 0 12px;
+  width: 240px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  display: flex;
+  align-items: center;
+  border-bottom: none;
+  user-select: none;
+  clip-path: inset(-5px -5px 0 -5px);
+  position: relative;
+  bottom: -1px;
+  transition: background-color 0.3s;
+  flex-shrink: 1;
+  min-width: 40px;
+
+  &:hover[active="false"] {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+
+  &[active="true"] {
+    background-color: white;
+    border: none;
+    z-index: 1;
+  }
+
+  &::before,
+  &::after {
+    // https://itnext.io/how-to-make-a-fancy-inverted-border-radius-in-css-5db048a53f95
+    content: "";
+    position: absolute;
+    bottom: 1px;
+    align-self: flex-end;
+    background-color: transparent;
+    height: 8px;
+    width: 16px;
+    transition: opacity 0.3s;
+  }
+
+  &::before {
+    left: -16px;
+    border-bottom-right-radius: 8px;
+    box-shadow: 8px 0 0 0 white;
+    opacity: 0;
+  }
+
+  &::after {
+    right: -16px;
+    border-bottom-left-radius: 8px;
+    box-shadow: -8px 0 0 0 white;
+    opacity: 0;
+  }
+
+  &[active="true"]::before {
+    opacity: 1;
+  }
+
+  &[active="true"]::after {
+    opacity: 1;
+  }
+}
+
+.tabIcon,
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tabIcon {
+  margin-right: 4px;
+  & :global(.material-symbols) {
+    font-variation-settings: "FILL" 0, "wght" 700, "GRAD" 0, "opsz" 48;
+  }
+}
+
+.closeButton {
+  margin-left: -2px;
+  margin-right: -8px;
+}
+
+.closeButton > * {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+}
+
+.tabIcon > *,
+.closeButton :global(.material-symbols) {
+  font-size: 14px !important;
+}
+
+.tabTitle {
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tabsEndMarker {
+  height: 19px;
+  width: 1px;
+  background-color: rgb(140, 140, 140);
+  border-top: 1px solid rgb(181, 181, 181);
+  border-bottom: 1px solid rgb(181, 181, 181);
+  opacity: 0;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+  z-index: 1;
+  margin: 0 -1px;
+
+  &[visible="true"] {
+    opacity: 1;
+  }
+}
+
+.addTabButton {
+  margin-left: 8px;
+  font-weight: 900;
+  & :global(.material-symbols) {
+    font-variation-settings: "FILL" 0, "wght" 700, "GRAD" 0, "opsz" 48;
+    font-size: 20px !important;
+  }
+}
+
+.topbar {
+  display: flex;
+  width: 100%;
+  min-height: 42px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}

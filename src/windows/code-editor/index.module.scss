@@ -1,0 +1,191 @@
+.codeEditorWindow {
+  --window-icon-color: #4aa5f1;
+  --badge-color: #4aa5f1;
+  --title-color: #4aa5f1;
+  --title-background-color: #eff7fd;
+}
+
+.htmlIcon {
+  color: rgb(225, 124, 51);
+}
+
+.cssIcon {
+  color: rgb(201, 140, 167);
+}
+
+.jsIcon {
+  color: rgb(129, 182, 56);
+}
+
+.imageIcon {
+  color: #4aa5f1;
+}
+
+.unknownIcon {
+  color: #4aa5f1;
+}
+
+.codeWindowContent {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+}
+
+.codeWindowContent.canSetFilesPermissions {
+  grid-template-columns: 270px 1fr;
+}
+
+.codeWindowContent > * {
+  height: 100%;
+}
+
+.codeEditorTabContent {
+  height: 100%;
+}
+
+.filesPane {
+  background-color: rgb(241, 243, 244);
+  border-right: 2px solid rgb(202, 205, 209);
+  overflow-y: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 33px 1fr 40px;
+
+  &.canSetFilesPermissions {
+    grid-template-rows: 33px 33px 1fr 40px;
+    &.permissionsPanelOpen {
+      grid-template-rows: 33px 1fr 33px 1fr 40px;
+    }
+  }
+}
+
+.editorPane {
+  overflow: auto;
+  &:first-child {
+    grid-column: 1 / 3;
+  }
+}
+
+.filesPaneToggle {
+  margin-left: -6px;
+}
+
+.filesPaneHeader {
+  padding: 0 10px;
+  user-select: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(202, 205, 209);
+  &:not(:first-child) {
+    border-top: 1px solid rgb(202, 205, 209);
+  }
+}
+
+.filesPaneFooter {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  & > button {
+    width: calc(100% - 8px);
+    margin-bottom: 4px;
+  }
+}
+
+.filesPaneFileList {
+  padding-top: 4px;
+  overflow-y: auto;
+}
+
+.filesPaneFile {
+  padding: 0 10px;
+  height: 30px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  &:hover,
+  &[menu-open="true"] {
+    background-color: rgb(230, 230, 230);
+  }
+  &[active-file="true"] {
+    background-color: white;
+  }
+  & :global(.material-symbols) {
+    font-variation-settings: "FILL" 0, "wght" 700, "GRAD" 0, "opsz" 48;
+    font-size: 16px !important;
+  }
+}
+
+.filesPaneFileIcon {
+  margin-right: 8px;
+}
+
+.filesPaneFileName {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.filePaneFileButtonGroup {
+  gap: 0;
+  margin-right: -8px;
+  align-items: center;
+}
+
+.filePaneFilePermissionsButtonGroup {
+  gap: 0;
+  border: 1px solid #4aa5f1;
+  border-radius: 50px !important;
+  height: 26px;
+  background-color: rgb(241, 243, 244);
+}
+
+.filePaneFilePermissionsButtonGroup > * {
+  color: #888 !important;
+  &:global(.Mui-selected) {
+    background-color: #cfe4f5 !important;
+    color: #000 !important;
+  }
+}
+
+.filePaneFilePermissionsButtonGroup > *:first-child {
+  border-top-left-radius: 50px !important;
+  border-bottom-left-radius: 50px !important;
+}
+
+.filePaneFilePermissionsButtonGroup > *:not(:first-child) {
+  margin-left: -1px !important; // Fixing size changing
+}
+
+.filePaneFilePermissionsButtonGroup > *:last-child {
+  border-top-right-radius: 50px !important;
+  border-bottom-right-radius: 50px !important;
+}
+
+.filePaneFilePermissionsButtonGroup > button {
+  width: 24px;
+}
+
+.permissionsPanel {
+  overflow-y: auto;
+}
+
+.permissionsPanel :global(.MuiListItemButton-root) {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.backupNoTabContent {
+  background-color: white;
+  overflow: hidden;
+}
+
+.backupNoTabText {
+  padding: 10px;
+}

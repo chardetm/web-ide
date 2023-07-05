@@ -1,0 +1,18 @@
+.image {
+  margin: auto;
+  [zoomedin="false"] & {
+    max-width: 100%;
+    max-height: 100%;
+  }
+}
+
+.imageViewer {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.wrapper {
+  overflow: hidden;
+}

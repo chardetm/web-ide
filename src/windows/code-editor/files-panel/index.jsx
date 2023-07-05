@@ -1,0 +1,179 @@
+import { useMemo, useRef, useState } from "react";
+
+import styles from "../index.module.scss";
+
+import { PermissionsPanel } from "./PermissionsPanel";
+import FileItem from "./FileItem";
+
+import { appendClassnames, getMime } from "../../../utils";
+
+import {
+  allowedTextFileTypes,
+  allowedImageFileTypes,
+} from "../../../appSettings";
+
+import { useIDEChosenState } from "../../../contexts/IDEStateProvider";
+
+import { saveAs } from "file-saver";
+
+import {
+  MaterialIcon,
+  RoundedButton,
+  MaterialButtonGroup,
+} from "../../../features/ui/materialComponents";
+
+import { Button, Typography } from "@mui/material";
+
+export default function FilesPanel({
+  onRequestCreateFile,
+  onRequestRenameFile,
+  onRequestUploadFile,
+  onRequestDeleteFile,
+}) {
+  const ideState = useIDEChosenState();
+  const inputRef = useRef(null);
+  const [permissionsPanelOpen, setPermissionsPanelOpen] = useState(true);
+  const sortedFileNames = useMemo(() => {
+    return Object.keys(ideState.filesData).sort((a, b) => a.localeCompare(b));
+  }, [ideState.filesData]);
+  const acceptedUploadFileTypesStr = useMemo(() => {
+    const acceptedUploadedTextFileTypes = ideState.settings.canUploadTextFiles
+      ? ideState.settings.allowedNewTextFileTypes
+      : [];
+    const acceptedUploadedImageFileTypes = ideState.settings.canUploadImageFiles
+      ? allowedImageFileTypes
+      : [];
+    const acceptedUploadFileTypes = [
+      ...acceptedUploadedTextFileTypes,
+      ...acceptedUploadedImageFileTypes,
+    ];
+    return acceptedUploadFileTypes.join(",");
+  }, [ideState.settings]);
+
+  function downloadAll() {
+    const zip = require("jszip")();
+    for (const [file, fileData] of Object.entries(ideState.filesData)) {
+      if (
+        allowedTextFileTypes.includes(getMime(file)) ||
+        !fileData.content.includes("base64,")
+      ) {
+        zip.file(file, fileData.content);
+      } else {
+        let binaryContentPos =
+          fileData.content.indexOf("base64,") + "base64,".length;
+        let binaryContent = fileData.content.substring(binaryContentPos);
+        zip.file(file, binaryContent, { base64: true });
+      }
+    }
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+      saveAs(content, "exercice.zip");
+    });
+  }
+
+  return (
+    <aside
+      className={appendClassnames(
+        styles.filesPane,
+        ideState.settings.canSetFilesPermissions
+          ? styles.canSetFilesPermissions
+          : null,
+        permissionsPanelOpen ? styles.permissionsPanelOpen : null
+      )}
+    >
+      {ideState.settings.canSetFilesPermissions && (
+        <>
+          <div className={styles.filesPaneHeader}>
+            <Typography variant="h6" component="h2">
+              Permissions élève
+            </Typography>
+            <MaterialButtonGroup>
+              {ideState.settings.allowedNewTextFileTypes.length > 0 && (
+                <RoundedButton
+                  icon={
+                    <MaterialIcon
+                      name={
+                        permissionsPanelOpen
+                          ? "keyboard_arrow_down"
+                          : "keyboard_arrow_left"
+                      }
+                    />
+                  }
+                  round={true}
+                  border={false}
+                  onClick={() => setPermissionsPanelOpen((prev) => !prev)}
+                />
+              )}
+            </MaterialButtonGroup>
+          </div>
+          {permissionsPanelOpen && <PermissionsPanel />}
+        </>
+      )}
+      <div className={styles.filesPaneHeader}>
+        <Typography variant="h6" component="h2">
+          Fichiers
+        </Typography>
+        <MaterialButtonGroup>
+          {acceptedUploadFileTypesStr !== "" && (
+            <>
+              <RoundedButton
+                icon={<MaterialIcon name={"upload"} />}
+                round={true}
+                border={false}
+                onClick={function () {
+                  inputRef.current?.click();
+                }}
+              />
+              <input
+                ref={inputRef}
+                style={{ display: "none" }}
+                type="file"
+                accept={acceptedUploadFileTypesStr}
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  const fileName = e.target.files[0].name;
+                  const fileMime = e.target.files[0].type;
+                  const reader = new FileReader();
+                  reader.onload = (eLoader) => {
+                    onRequestUploadFile(fileName, eLoader.target.result);
+                  };
+                  if (fileMime.startsWith("image/")) {
+                    reader.readAsDataURL(file);
+                  } else {
+                    reader.readAsText(file);
+                  }
+                }}
+              />
+            </>
+          )}
+          {ideState.settings.allowedNewTextFileTypes.length > 0 && (
+            <RoundedButton
+              icon={<MaterialIcon name={"add"} />}
+              round={true}
+              border={false}
+              onClick={onRequestCreateFile}
+            />
+          )}
+        </MaterialButtonGroup>
+      </div>
+      <div className={styles.filesPaneFileList}>
+        {sortedFileNames.map((fileName) => {
+          return (
+            <FileItem
+              key={fileName}
+              fileName={fileName}
+              onRequestRename={() => onRequestRenameFile(fileName)}
+              onRequestDelete={() => onRequestDeleteFile(fileName)}
+            />
+          );
+        })}
+      </div>
+      <div className={styles.filesPaneFooter}>
+        {ideState.settings.canDownloadFiles && (
+          <Button variant="outlined" size="small" onClick={downloadAll}>
+            Tout télécharger
+          </Button>
+        )}
+      </div>
+    </aside>
+  );
+}

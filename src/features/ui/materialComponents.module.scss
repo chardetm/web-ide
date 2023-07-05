@@ -1,0 +1,125 @@
+.roundedButton {
+  position: relative;
+  padding: 0;
+  border: 1px solid transparent;
+  background-color: transparent;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: unset;
+  user-select: none;
+  transition: background-color 0.2s;
+  color: rgb(95, 99, 104);
+  &:hover {
+    background-color: rgb(238, 238, 238);
+  }
+  &:active {
+    background-color: rgb(226, 226, 226);
+  }
+  &:disabled {
+    background-color: transparent;
+    color: rgb(186, 188, 190);
+    cursor: default;
+  }
+  &::after {
+    opacity: 0;
+    content: attr(badge-content);
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background-color: var(--badge-color);
+    color: rgb(255, 255, 255);
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+  &[badge-content="."]::after {
+    content: "";
+    top: 3px;
+    right: 3px;
+    width: 6px;
+    height: 6px;
+  }
+  &[badge-visible="true"]::after {
+    opacity: 1;
+  }
+}
+
+.materialButtonGroup {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.withBorder {
+  border-color: rgb(186, 188, 190);
+  &.withBackground {
+    border-color: rgb(32, 33, 36);
+  }
+}
+
+.withBackground {
+  background-color: rgb(237, 237, 237);
+  &:hover {
+    background-color: rgb(221, 221, 221);
+  }
+  &:active {
+    background-color: rgb(210, 210, 210);
+  }
+}
+
+.roundedButtonIcon {
+  line-height: 28px;
+  height: 28px;
+  width: 28px;
+  font-size: 22px;
+  & > * {
+    font-size: 22px !important;
+  }
+  &:first-child {
+    margin-left: 4px;
+  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.roundedButtonLabel {
+  font-size: 12px;
+  margin-left: 4px;
+  &:first-child {
+    margin-left: 10px;
+  }
+  margin-right: 4px;
+  &:last-child {
+    margin-right: 10px;
+  }
+}
+
+.round {
+  width: 28px;
+  & > * {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+.materialTileSelector {
+  margin: 8px 0;
+}
+
+.materialButtonSeparator {
+  width: 1px;
+  height: 16px;
+  background-color: rgb(207, 208, 209);
+  margin: 0;
+}

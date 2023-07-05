@@ -1,0 +1,41 @@
+@import url(./fonts/material_symbols_outlined.css);
+@import url(./fonts/material_symbols_rounded.css);
+@import url(./fonts/material_symbols_sharp.css);
+
+:root {
+  --windows-border: 1px solid #b8b8b8;
+  --windows-border-radius: 6px;
+  --windows-gap: 0.5rem;
+  --header-gap: 2px;
+  --footer-gap: 2px;
+  --windows-box-shadows: rgba(0, 0, 0, 0.2) 0px 0px 2px;
+  --header-background-color: white;
+  --header-border: none;
+  --footer-background-color: white;
+  --footer-border: none;
+  --color-primary: #3f51b5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.material-symbols {
+  font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 48;
+}
+
+html,
+body,
+#root,
+.App {
+  height: 100%;
+}
+
+.modal-toolbar {
+  display: flex;
+  margin-top: 16px;
+}
+
+.MuiFormControl-root {
+  margin-top: 0.5em !important;
+}
