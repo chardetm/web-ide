@@ -50,9 +50,9 @@ export function FileBackendProvider({ children }) {
 
   function load(data) {
     setActivityData(data);
-    setStatement({
-      ...data.metadata.statement,
-    });
+    setStatement(
+      data.metadata.statement,
+    );
     ideInitialStateDispatch({
       type: "create_initial_state",
       initialData: data.initialState,
