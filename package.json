@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@capytale/activity.ui": "^1.9.3",
+    "@capytale/capytale-rich-text-editor": "file:../capytale-rich-text-editor",
     "@codemirror/lang-css": "^6.0.1",
     "@codemirror/lang-html": "^6.3.1",
     "@codemirror/lang-python": "^6.1.0",

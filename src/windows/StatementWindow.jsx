@@ -1,3 +1,5 @@
+import { CapytaleRichTextEditor } from "@capytale/capytale-rich-text-editor";
+import "@capytale/capytale-rich-text-editor/style.css";
 import { MarkdownViewer } from "../features/viewers/MarkdownViewer";
 import { Window } from "../features/windows/Window";
 
@@ -19,7 +21,10 @@ export function StatementWindow({
       onHide={onHide}
       {...props}
     >
-      <StatementWindowContent statement={statement} />
+      <CapytaleRichTextEditor
+        initialEditorState={statement ? statement : undefined}
+        isEditable={false}
+      />
     </Window>
   );
 }

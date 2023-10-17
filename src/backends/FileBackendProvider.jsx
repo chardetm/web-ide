@@ -50,9 +50,7 @@ export function FileBackendProvider({ children }) {
 
   function load(data) {
     setActivityData(data);
-    setStatement(
-      data.metadata.statement,
-    );
+    setStatement(data.metadata.statement);
     ideInitialStateDispatch({
       type: "create_initial_state",
       initialData: data.initialState,
@@ -154,17 +152,23 @@ export function FileBackendProvider({ children }) {
             <div className={styles.fileBackendProviderMain}>
               {statementIsVisible && (
                 <div className={styles.fileBackendProviderStatement}>
-                  <StatementWindow
-                    statement={statement}
-                    onHide={() => {
-                      setStatementIsVisible(false);
-                    }}
-                  />
+                  {(isAttempt || isPreview) && (
+                    <StatementWindow
+                      statement={statement}
+                      onHide={() => {
+                        setStatementIsVisible(false);
+                      }}
+                    />
+                  )}
+
                   {!isAttempt && !isPreview && (
                     <StatementEditorWindow
                       className={styles.fileBackendProviderStatementEditor}
                       statement={statement}
                       onChange={setStatement}
+                      onHide={() => {
+                        setStatementIsVisible(false);
+                      }}
                     />
                   )}
                 </div>

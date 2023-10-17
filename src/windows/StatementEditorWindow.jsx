@@ -1,3 +1,4 @@
+import { CapytaleRichTextEditor } from "@capytale/capytale-rich-text-editor";
 import { MDCodeEditor } from "../features/code-editor/MDCodeEditor";
 import { Window } from "../features/windows/Window";
 import { appendClassnames } from "../utils";
@@ -10,6 +11,7 @@ export function StatementEditorWindow({
   onDemaximize,
   statement,
   onChange,
+  onHide,
 }) {
   return (
     <Window
@@ -18,11 +20,12 @@ export function StatementEditorWindow({
       aria-label="Éditeur d'énoncé"
       onMaximize={onMaximize}
       onDemaximize={onDemaximize}
+      onHide={onHide}
     >
-      <MDCodeEditor
-        className={styles.codeEditor}
-        code={statement}
-        onChange={onChange}
+      <CapytaleRichTextEditor
+        initialEditorState={statement ? statement : undefined}
+        isEditable={true}
+        onJsonChange={onChange}
       />
     </Window>
   );
