@@ -5,7 +5,7 @@
   grid-template-columns: 1fr;
   border: var(--windows-border);
   border-radius: var(--windows-border-radius);
-  box-shadow: var(--windows-box-shadows);
+  box-shadow: var(--windows-box-shadow);
   container-type: size;
 }
 
@@ -89,6 +89,7 @@
 }
 
 .windowContent {
+  display: grid;
   overflow: auto;
 }
 

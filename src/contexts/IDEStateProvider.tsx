@@ -11,13 +11,13 @@ import {
   splitFileNameExtension,
 } from "../utils";
 
-const IDEStateContext = createContext();
-const IDEStateDispatchContext = createContext();
-const IDEInitialStateContext = createContext();
-const IDEInitialStateDispatchContext = createContext();
-const IDEChosenStateContext = createContext();
-const IDEChosenStateDispatchContext = createContext();
-const IDEGetExportDataContext = createContext();
+const IDEStateContext = createContext(undefined);
+const IDEStateDispatchContext = createContext(undefined);
+const IDEInitialStateContext = createContext(undefined);
+const IDEInitialStateDispatchContext = createContext(undefined);
+const IDEChosenStateContext = createContext(undefined);
+const IDEChosenStateDispatchContext = createContext(undefined);
+const IDEGetExportDataContext = createContext(undefined);
 
 function getDefaultFilePermissions(initialContent) {
   return {
@@ -192,7 +192,11 @@ function getExportData(ideInitialState, ideState, isAttempt) {
   return data;
 }
 
-export function IDEStateProvider({ children }) {
+interface IDEStateProviderProps {
+    children: React.ReactNode;
+}
+
+export function IDEStateProvider({ children }: IDEStateProviderProps) {
   const [initialState, initialDispatch] = useReducer(ideStateReducer, null);
   const [state, dispatch] = useReducer(ideStateReducer, null);
 

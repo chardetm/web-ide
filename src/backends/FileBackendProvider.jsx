@@ -141,9 +141,6 @@ export function FileBackendProvider({ children }) {
         <BackendProvider
           isAttempt={isAttempt || isPreview}
           markDirty={markDirty}
-          setStatement={(statement) => {
-            setStatement(statement);
-          }}
         >
           <div
             className={styles.fileBackendProviderRoot}

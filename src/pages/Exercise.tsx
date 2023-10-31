@@ -1,14 +1,28 @@
 import { useState, useEffect, useCallback } from "react";
 
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+
+import "./Exercise.scss";
+import styles from "./Exercise.module.scss";
+
 import CodeEditorWindow from "../windows/code-editor";
 import { WebPreviewWindow } from "../windows/WebPreviewWindow";
-
-import styles from "./Exercise.module.scss";
 
 import { IDEChosenStateProvider } from "../contexts/IDEStateProvider";
 import { useBackendIsAttempt } from "../contexts/BackendProvider";
 
-function Exercise({ ...props }) {
+import { DivProps } from "react-html-props";
+import { appendClassnames } from "../utils";
+
+interface ExerciseProps {
+  className?: string;
+  props?: DivProps;
+}
+
+function Exercise({ className, ...props }: ExerciseProps) {
   const isAttempt = useBackendIsAttempt();
   const [mode, setMode] = useState("attempt");
   const [maximizedWindow, setMaximizedWindow] = useState(null);
@@ -24,11 +38,9 @@ function Exercise({ ...props }) {
 
   return (
     <div
-      className={styles.exercise}
-      mode={mode}
-      edit={(!isAttempt).toString()}
-      has-maximized-window={maximizedWindow === null ? "false" : "true"}
       {...props}
+      has-maximized-window={maximizedWindow === null ? "false" : "true"}
+      className={appendClassnames(className, styles.exercise)}
     >
       <main className={styles.exerciseContent}>
         <IDEChosenStateProvider initial={mode === "content"}>

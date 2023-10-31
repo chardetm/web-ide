@@ -1,12 +1,8 @@
 import { CapytaleRichTextEditor } from "@capytale/capytale-rich-text-editor";
-import { MDCodeEditor } from "../features/code-editor/MDCodeEditor";
 import { Window } from "../features/windows/Window";
-import { appendClassnames } from "../utils";
-
-import styles from "./StatementEditorWindow.module.scss";
 
 export function StatementEditorWindow({
-  className,
+  className="",
   onMaximize,
   onDemaximize,
   statement,
@@ -15,7 +11,7 @@ export function StatementEditorWindow({
 }) {
   return (
     <Window
-      className={appendClassnames(styles.statementEditorWindow, className)}
+      className={className}
       windowTitle="Éditeur d'énoncé"
       aria-label="Éditeur d'énoncé"
       onMaximize={onMaximize}
