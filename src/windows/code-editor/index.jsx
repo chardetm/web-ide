@@ -173,7 +173,7 @@ export default function CodeEditorWindow({
                       icon={<MaterialIcon.Rounded name="visibility" />}
                       border={true}
                       onClick={function () {
-                        console.log(editorRef);
+                        console.log(editorRef); // TODO: remove
                         const from =
                           editorRef.current.view.viewState.state.selection
                             .ranges[0].from;
@@ -183,11 +183,11 @@ export default function CodeEditorWindow({
                         const firstLine =
                           editorRef.current.state.doc.lineAt(from);
                         const lastLine = editorRef.current.state.doc.lineAt(to);
-                        console.log(
+                        console.log( // TODO: remove
                           editorRef.current.view.viewState.state.selection
                             .ranges[0]
                         );
-                        console.log(firstLine, lastLine);
+                        console.log(firstLine, lastLine); // TODO: remove
                       }}
                     />
                   </MaterialButtonGroup>
