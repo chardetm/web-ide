@@ -24,13 +24,8 @@ interface ExerciseProps {
 
 function Exercise({ className, ...props }: ExerciseProps) {
   const isAttempt = useBackendIsAttempt();
-  const [mode, setMode] = useState("attempt");
   const [maximizedWindow, setMaximizedWindow] = useState(null);
-
-  useEffect(() => {
-    setMaximizedWindow(null);
-    setMode(isAttempt ? "attempt" : "content");
-  }, [isAttempt]);
+  const mode = isAttempt ? "attempt" : "content";
 
   const onDemaximize = useCallback(function () {
     setMaximizedWindow(null);
