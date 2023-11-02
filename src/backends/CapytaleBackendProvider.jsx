@@ -72,8 +72,8 @@ function CapytaleBackendProviderContent({ children }) {
   function load(data) {
     setActivityData(data);
     ideInitialStateDispatch({
-      type: "create_initial_state",
-      initialData: data.initialState,
+      type: "import_initial_state",
+      exportedData: data,
     });
     setLoadingStage(LOADING);
   }
@@ -96,8 +96,8 @@ function CapytaleBackendProviderContent({ children }) {
   useEffect(() => {
     if (loadingStage === LOADING) {
       ideStateDispatch({
-        type: "create_current_state",
-        currentData: activityData.attemptState,
+        type: "import_current_state",
+        exportedData: activityData,
         initialState: ideInitialState,
       });
       setLoadingStage(LOADED);

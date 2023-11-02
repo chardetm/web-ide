@@ -25,6 +25,8 @@ import { StatementWindow } from "../windows/StatementWindow";
 import { StatementEditorWindow } from "../windows/StatementEditorWindow";
 import { PreviewModeInfoDialog } from "../windows/dialogs/PreviewModeInfoDialog";
 
+import v2attempt from "../content/v2attempt.json";
+
 const NOT_LOADED = 0;
 const LOADING = 1;
 const LOADED = 2;
@@ -52,15 +54,15 @@ export function FileBackendProvider({ children }) {
     setActivityData(data);
     setStatement(data.metadata.statement);
     ideInitialStateDispatch({
-      type: "create_initial_state",
-      initialData: data.initialState,
+      type: "import_initial_state",
+      exportedData: data,
     });
     setLoadingStage(LOADING);
   }
 
   async function save() {
     const data = {
-      ...ideGetExportData(true),
+      ...ideGetExportData(isAttempt),
       metadata: {
         statement: statement,
       },
@@ -72,8 +74,8 @@ export function FileBackendProvider({ children }) {
   useEffect(() => {
     if (loadingStage === LOADING) {
       ideStateDispatch({
-        type: "create_current_state",
-        currentData: activityData.attemptState,
+        type: "import_current_state",
+        exportedData: activityData,
         initialState: ideInitialState,
       });
       setLoadingStage(LOADED);
@@ -130,7 +132,7 @@ export function FileBackendProvider({ children }) {
           <Button
             variant="outlined"
             onClick={() => {
-              load(getJSONExample());
+              load(v2attempt);
             }}
           >
             Charger exemple
@@ -219,12 +221,11 @@ export function FileBackendProvider({ children }) {
                     variant="outlined"
                     size="small"
                     endIcon={isPreview ? <Edit /> : <Preview />}
-                    disabled={!dirty}
                     onClick={() => {
                       if (!isPreview) {
                         ideStateDispatch({
-                          type: "reset_from_teacher_state",
-                          teacherState: ideInitialState,
+                          type: "reset_from_initial_state",
+                          initialState: ideInitialState,
                         });
                       }
                       setIsPreview((prev) => !prev);

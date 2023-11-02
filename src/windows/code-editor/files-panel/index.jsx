@@ -133,10 +133,11 @@ export default function FilesPanel({
                   const fileName = e.target.files[0].name;
                   const fileMime = e.target.files[0].type;
                   const reader = new FileReader();
+                  const isBinary = fileMime.startsWith("image/");
                   reader.onload = (eLoader) => {
-                    onRequestUploadFile(fileName, eLoader.target.result);
+                    onRequestUploadFile(fileName, eLoader.target.result, isBinary ? "binary" : "text");
                   };
-                  if (fileMime.startsWith("image/")) {
+                  if (isBinary) {
                     reader.readAsDataURL(file);
                   } else {
                     reader.readAsText(file);

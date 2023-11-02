@@ -66,6 +66,7 @@ export function CreateFileDialog({ open, onClose }) {
       type: "create_new_file",
       fileName: filenameNoExtension + "." + getExtension(selectedFileTypeMime),
       initialContent: "",
+      contentType: "text",
       open: true,
     });
     onClose();

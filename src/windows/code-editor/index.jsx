@@ -221,7 +221,7 @@ export default function CodeEditorWindow({
             setDeleteFileDialogFileName(fileName);
             setDeleteFileDialogOpen(true);
           }}
-          onRequestUploadFile={(fileName, fileContent) => {
+          onRequestUploadFile={(fileName, fileContent, contentType) => {
             const mime = getMime(fileName);
             if (
               !ideState.settings.allowedNewTextFileTypes.includes(mime) &&
@@ -237,6 +237,7 @@ export default function CodeEditorWindow({
               type: "create_new_file",
               fileName: fileName,
               initialContent: fileContent,
+              contentType: contentType,
               open: true,
             });
           }}

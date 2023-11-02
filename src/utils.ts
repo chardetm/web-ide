@@ -59,9 +59,25 @@ export function appendClassnames(...classNames) {
   return classNames.filter((c) => c).join(" ");
 }
 
-export function objectMap(obj, map_fn) {
+export function objectMap<
+  SourceKey extends string,
+  SourceValue,
+  TargetKey extends string,
+  TargetValue,
+>(
+  obj: { [key in SourceKey]: SourceValue },
+  map_fn: (
+    key: SourceKey,
+    value: SourceValue,
+    index: number
+  ) => [TargetKey, TargetValue] | null
+): { [key in TargetKey]: TargetValue } {
+  //@ts-ignore
   return Object.fromEntries(
-    Object.entries(obj).map(([k, v], i) => map_fn(k, v, i))
+    Object.entries(obj)
+      //@ts-ignore
+      .map(([k, v], i) => map_fn(k, v, i))
+      .filter((x) => x)
   );
 }
 
@@ -92,7 +108,7 @@ export function downloadBase64File(fileName, fileContent) {
 
 export function downloadFile(fileName, fileContent) {
   if (
-    allowedTextFileTypes.includes(getMime(fileName)) ||
+    (allowedTextFileTypes as string[]).includes(getMime(fileName)) ||
     !fileContent.includes("base64,")
   ) {
     downloadTextFile(fileName, fileContent);

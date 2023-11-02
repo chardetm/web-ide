@@ -63,7 +63,9 @@ export const fileTypesInfo = {
   },
 };
 
-export const allowedTextFileTypes = [
+export type FileType = keyof typeof fileTypesInfo;
+
+export const allowedTextFileTypes: FileType[] = [
   "text/html",
   "text/css",
   "application/javascript",
