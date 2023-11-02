@@ -1,6 +1,5 @@
 import { Alert, Button, FormControlLabel, Switch } from "@mui/material";
 import { useRef, useState } from "react";
-import { getJSONExample } from "../content/files";
 import { BackendProvider } from "../contexts/BackendProvider";
 import { downloadTextFile } from "../utils";
 

@@ -19,6 +19,7 @@ import {
   ExportV2FileData,
   ExportV2Content,
   ContentType,
+  ExportV2FilePreview,
 } from "./types";
 
 function getDefaultFilePermissions(initialContent: string): FilePermissions {
@@ -42,16 +43,6 @@ export function getDefaultFileData(
     permissions: getDefaultFilePermissions(initialContent),
     studentPermissions: getDefaultFilePermissions(initialContent),
     initialName: initialName,
-  };
-}
-
-export function getDefaultFilePreview(
-  initialContent: string,
-  upToDate: boolean = true
-): FilePreview {
-  return {
-    content: initialContent,
-    upToDate: upToDate,
   };
 }
 
@@ -161,10 +152,15 @@ export function importV2CurrentState(
       ]),
     },
     filesPreview: {
-      ...objectMap(attempt.filesState, (fileName, fileState) => [
+      ...objectMap(attempt.previewState, (fileName, previewState) => [
         fileName,
         {
-          ...fileState.preview,
+          content:
+            exportedData.content[previewState.contentType][
+              previewState.contentIndex
+            ],
+          contentType: previewState.contentType,
+          upToDate: previewState.upToDate,
         },
       ]),
     },
@@ -202,10 +198,13 @@ export function importV2InitialState(exportedData: ExportV2): IDEState {
     ]),
     filesPreview: objectMap(activity.filesData, (fileName, fileData) => [
       fileName,
-      getDefaultFilePreview(
-        exportedData.content[fileData.contentType][fileData.contentIndex],
-        true
-      ),
+
+      {
+        content:
+          exportedData.content[fileData.contentType][fileData.contentIndex],
+        contentType: fileData.contentType,
+        upToDate: true,
+      },
     ]),
   };
 }
@@ -217,6 +216,7 @@ export function exportV2(
 ): ExportV2 {
   let activityFilesData: { [fileName: string]: ExportV2FileData } = {};
   let attemptFilesState: { [fileName: string]: ExportV2FileState } = {};
+  let attemptPreviewState: { [fileName: string]: ExportV2FilePreview } = {};
   let content: ExportV2Content = {
     text: [],
     base64: [],
@@ -252,7 +252,27 @@ export function exportV2(
         contentIndex: contentIndex,
         contentType: fileData.contentType,
         initialName: fileData.initialName,
-        preview: { ...currentState.filesPreview[fileName] },
+      };
+    }
+
+    // Current state preview
+    for (const [fileName, previewData] of Object.entries(
+      currentState.filesPreview
+    )) {
+      const foundIndex = content[previewData.contentType].indexOf(
+        previewData.content
+      );
+      const contentIndex =
+        foundIndex !== -1
+          ? foundIndex
+          : content[previewData.contentType].length;
+      if (foundIndex === -1) {
+        content[previewData.contentType].push(previewData.content);
+      }
+      attemptPreviewState[fileName] = {
+        contentIndex: contentIndex,
+        contentType: previewData.contentType,
+        upToDate: previewData.upToDate,
       };
     }
   }
@@ -276,6 +296,7 @@ export function exportV2(
         filesState: attemptFilesState,
         openedFiles: currentState.openedFiles,
         previewIsLive: currentState.settings.previewIsLive,
+        previewState: attemptPreviewState,
       },
     }),
     content: content,

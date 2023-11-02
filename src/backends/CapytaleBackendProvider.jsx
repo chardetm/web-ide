@@ -13,8 +13,9 @@ import {
   useCapytaleDispatch,
 } from "@capytale/activity.ui/lib/CapytaleProvider";
 import { CapytaleUIProvider } from "@capytale/activity.ui/lib/CapytaleUIProvider";
-import { getDefaultInitialContent } from "../content/files";
 import StandardLayout from "@capytale/activity.ui/lib/layouts/StandardLayout";
+
+import v2attempt from "../content/v2attempt.json";
 
 const NOT_LOADED = 0;
 const LOADING = 1;
@@ -86,7 +87,7 @@ function CapytaleBackendProviderContent({ children }) {
             initialState: capytaleData.activity.content,
             attemptState: capytaleData.assignment.content,
           }
-        : getDefaultInitialContent();
+        : v2attempt;
       load(data);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

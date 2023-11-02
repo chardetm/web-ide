@@ -40,9 +40,9 @@
     "@mui/icons-material": "^5.14.16",
     "@mui/material": "^5.14.16",
     "@uiw/react-codemirror": "^4.21.20",
+    "client-zip": "^2.4.4",
     "codemirror-readonly-ranges": "^0.1.0-alpha.1",
     "file-saver": "^2.0.5",
-    "jszip": "^3.10.1",
     "mime": "^3.0.0",
     "uuid": "^9.0.1"
   },

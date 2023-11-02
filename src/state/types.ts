@@ -20,6 +20,7 @@ export type FileData = {
 
 export type FilePreview = {
   content: string;
+  contentType: ContentType;
   upToDate: boolean;
 };
 
@@ -87,11 +88,16 @@ export type ExportV2Activity = {
   filesData: { [fileName: string]: ExportV2FileData };
 };
 
+export type ExportV2FilePreview = {
+    contentIndex: number;
+    contentType: ContentType;
+    upToDate: boolean;
+};
+
 export type ExportV2FileState = {
   contentIndex: number;
   contentType: ContentType;
   initialName: string | null;
-  preview: FilePreview;
 };
 
 export type ExportV2Attempt = {
@@ -100,6 +106,7 @@ export type ExportV2Attempt = {
   filesState: { [fileName: string]: ExportV2FileState };
   openedFiles: string[];
   previewIsLive: boolean;
+  previewState: { [fileName: string]: ExportV2FilePreview };
 };
 
 export type ExportV2Content = {

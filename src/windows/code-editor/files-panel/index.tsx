@@ -14,6 +14,7 @@ import {
 
 import { useIDEChosenState } from "../../../contexts/IDEStateProvider";
 
+import { downloadZip } from "client-zip";
 import { saveAs } from "file-saver";
 
 import {
@@ -23,13 +24,25 @@ import {
 } from "../../../features/ui/materialComponents";
 
 import { Button, Typography } from "@mui/material";
+import { ContentType } from "src/state/types";
+
+type FilesPanelProps = {
+  onRequestCreateFile: () => void;
+  onRequestRenameFile: (fileName: string) => void;
+  onRequestUploadFile: (
+    fileName: string,
+    fileContent: string,
+    contentType: ContentType
+  ) => void;
+  onRequestDeleteFile: (fileName: string) => void;
+};
 
 export default function FilesPanel({
   onRequestCreateFile,
   onRequestRenameFile,
   onRequestUploadFile,
   onRequestDeleteFile,
-}) {
+}: FilesPanelProps) {
   const ideState = useIDEChosenState();
   const inputRef = useRef(null);
   const [permissionsPanelOpen, setPermissionsPanelOpen] = useState(true);
@@ -50,26 +63,26 @@ export default function FilesPanel({
     return acceptedUploadFileTypes.join(",");
   }, [ideState.settings]);
 
-  function downloadAll() {
-    const zip = require("jszip")();
+  async function downloadAll() {
+    let filesToZip = [];
     for (const [file, fileData] of Object.entries(ideState.filesData)) {
-      if (
-        allowedTextFileTypes.includes(getMime(file)) ||
-        !fileData.content.includes("base64,")
-      ) {
-        zip.file(file, fileData.content);
+      if (fileData.contentType === "text") {
+        filesToZip.push({
+          name: file,
+          input: fileData.content,
+        });
       } else {
-        let binaryContentPos =
-          fileData.content.indexOf("base64,") + "base64,".length;
-        let binaryContent = fileData.content.substring(binaryContentPos);
-        zip.file(file, binaryContent, { base64: true });
+        const fileBlob = await (await fetch(fileData.content)).blob();
+        filesToZip.push({
+          name: file,
+          input: fileBlob,
+        });
       }
     }
-    zip.generateAsync({ type: "blob" }).then(function (content) {
-      saveAs(content, "exercice.zip");
-    });
+    const zipBlob = await downloadZip(filesToZip).blob();
+    saveAs(zipBlob, "exercice.zip");
   }
-
+  
   return (
     <aside
       className={appendClassnames(
@@ -135,7 +148,11 @@ export default function FilesPanel({
                   const reader = new FileReader();
                   const isBinary = fileMime.startsWith("image/");
                   reader.onload = (eLoader) => {
-                    onRequestUploadFile(fileName, eLoader.target.result, isBinary ? "binary" : "text");
+                    onRequestUploadFile(
+                      fileName,
+                      eLoader.target.result as string,
+                      isBinary ? "base64" : "text"
+                    );
                   };
                   if (isBinary) {
                     reader.readAsDataURL(file);

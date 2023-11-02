@@ -1,11 +1,12 @@
-import { getJSONExample } from "../content/files";
 import { BackendProvider } from "../contexts/BackendProvider";
 import { downloadTextFile } from "../utils";
+
+import attemptData from "../content/v2attempt.json";
 
 
 export function DummyBackendProvider({ children }) {
   async function load() {
-    return getJSONExample();
+    return attemptData;
   }
   async function save(data) {
     downloadTextFile("export.json", JSON.stringify(data, null, 2));

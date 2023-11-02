@@ -1,13 +1,14 @@
-import { createContext, useContext, useReducer } from "react";
-import ideStateReducer from "../state/reducer";
+import React, { createContext, useContext, useReducer } from "react";
+import ideStateReducer, { IDEStateAction } from "../state/reducer";
 import { exportV2 } from "../state/state";
+import { IDEState } from "src/state/types";
 
-const IDEStateContext = createContext(undefined);
-const IDEStateDispatchContext = createContext(undefined);
-const IDEInitialStateContext = createContext(undefined);
-const IDEInitialStateDispatchContext = createContext(undefined);
-const IDEChosenStateContext = createContext(undefined);
-const IDEChosenStateDispatchContext = createContext(undefined);
+const IDEStateContext = createContext<IDEState>(undefined);
+const IDEStateDispatchContext = createContext<React.Dispatch<IDEStateAction>>(undefined);
+const IDEInitialStateContext = createContext<IDEState>(undefined);
+const IDEInitialStateDispatchContext = createContext<React.Dispatch<IDEStateAction>>(undefined);
+const IDEChosenStateContext = createContext<IDEState>(undefined);
+const IDEChosenStateDispatchContext = createContext<React.Dispatch<IDEStateAction>>(undefined);
 const IDEGetExportDataContext = createContext(undefined);
 
 interface IDEStateProviderProps {

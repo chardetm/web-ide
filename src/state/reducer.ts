@@ -2,7 +2,6 @@ import { FileType } from "../appSettings";
 
 import {
   getDefaultFileData,
-  getDefaultFilePreview,
   getInitialCurrentState,
   importV2CurrentState,
   importV2InitialState,
@@ -104,10 +103,13 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
                     action.initialContent ===
                     state.filesPreview.newFileName.content,
                 }
-              : getDefaultFilePreview(
-                  state.settings.previewIsLive ? action.initialContent : null,
-                  state.settings.previewIsLive
-                ),
+              : {
+                  content: state.settings.previewIsLive
+                    ? action.initialContent
+                    : null,
+                  contentType: action.contentType,
+                  upToDate: state.settings.previewIsLive,
+                },
         },
       };
       return action.open
@@ -474,6 +476,7 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
           fileName,
           {
             content: fileData.content,
+            contentType: fileData.contentType,
             upToDate: true,
           },
         ]),
