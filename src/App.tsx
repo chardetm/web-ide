@@ -1,5 +1,5 @@
 import "./App.scss";
-import { FileBackendProvider } from "./backends/FileBackendProvider";
+import FileBackendProvider from "./backends/BasicFileBackendProvider";
 
 import { IDEStateProvider } from "./contexts/IDEStateProvider";
 import WebIDE from "./pages/WebIDE";

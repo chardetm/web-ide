@@ -30,17 +30,6 @@
 
 }
 
-.fileBackendProviderStatement {
-  display: grid;
-  gap: var(--web-ide-windows-gap);
-  overflow-y: hidden;
-  & > * {
-    --windows-border: var(--web-ide-windows-border);
-    --windows-box-shadow: var(--web-ide-windows-box-shadow);
-    --windows-border-radius: var(--web-ide-windows-border-radius);
-  }
-}
-
 .fileBackendProviderPreviewModeAlert {
   padding-top: 0;
   padding-bottom: 1px;
@@ -50,18 +39,8 @@
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
-  gap: var(--web-ide-windows-gap);
   padding: var(--web-ide-windows-gap);
   padding-bottom: 0;
-  overflow: hidden;
-  *[statement-visible="true"] > & {
-    grid-template-columns: calc(300px + 20%) 1fr;
-  }
-}
-
-.fileBackendProviderContent {
-  width: 100%;
-  height: 100%;
   overflow: hidden;
 }
 

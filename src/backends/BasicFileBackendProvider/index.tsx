@@ -1,35 +1,28 @@
 import { useRef, useState, useEffect } from "react";
 
 import { Alert, Button, FormControlLabel, Switch } from "@mui/material";
-import {
-  CloudDownloadOutlined,
-  Edit,
-  OpenInNew,
-  Preview,
-} from "@mui/icons-material";
+import { CloudDownloadOutlined, Edit, Preview } from "@mui/icons-material";
 
-import { MaterialButtonGroup } from "../features/ui/materialComponents";
-import { Spacer } from "../features/ui/basicComponents";
+import { MaterialButtonGroup } from "../../features/ui/materialComponents";
+import { Spacer } from "../../features/ui/basicComponents";
 
-import { BackendProvider } from "../contexts/BackendProvider";
+import { BackendProvider } from "../../contexts/BackendProvider";
 
 import {
   useIDEGetExportData,
   useIDEInitialState,
   useIDEState,
   useIDEStateDispatch,
-} from "../contexts/IDEStateProvider";
+} from "../../contexts/IDEStateProvider";
 
-import { StatementWindow } from "../windows/StatementWindow";
-import { StatementEditorWindow } from "../windows/StatementEditorWindow";
-import { PreviewModeInfoDialog } from "../windows/dialogs/PreviewModeInfoDialog";
+import { PreviewModeInfoDialog } from "./PreviewModeInfoDialog";
 
-import { downloadTextFile } from "../utils";
-import exampleAttempt from "../content/example1.json";
+import { downloadTextFile } from "../../utils";
+import exampleAttempt from "../../content/example1.json";
 
-import styles from "./FileBackendProvider.module.scss";
+import styles from "./index.module.scss";
 
-export function FileBackendProvider({ children }) {
+function FileBackendProvider({ children }) {
   const ideState = useIDEState();
   const ideStateDispatch = useIDEStateDispatch();
   const ideInitialState = useIDEInitialState();
@@ -41,31 +34,22 @@ export function FileBackendProvider({ children }) {
   const [isAttempt, setIsAttempt] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
   const [activityData, setActivityData] = useState(null);
-  const [statementIsVisible, setStatementIsVisible] = useState(true);
-  const [statement, setStatement] = useState(null);
   const [previewModeInfoDialogOpen, setPreviewModeInfoDialogOpen] =
     useState(false);
 
   function load(data) {
     setActivityData(data);
-    setStatement(data.metadata.statement);
-    setStatementIsVisible(isAttempt);
   }
 
   async function save() {
-    const data = {
-      ...ideGetExportData(isAttempt),
-      metadata: {
-        statement: statement,
-      },
-    };
+    const data = ideGetExportData(isAttempt);
     downloadTextFile("export.json", JSON.stringify(data, null, 2));
     setDirty(false);
   }
 
   useEffect(() => {
     setDirty(true);
-  }, [statement, ideInitialState, ideState]);
+  }, [ideInitialState, ideState]);
 
   function markDirty() {
     setDirty(true);
@@ -124,53 +108,9 @@ export function FileBackendProvider({ children }) {
           isAttempt={isAttempt || isPreview}
           markDirty={markDirty}
         >
-          <div
-            className={styles.fileBackendProviderRoot}
-            statement-visible={statementIsVisible ? "true" : "false"}
-          >
-            <div className={styles.fileBackendProviderMain}>
-              {statementIsVisible && (
-                <div className={styles.fileBackendProviderStatement}>
-                  {(isAttempt || isPreview) && (
-                    <StatementWindow
-                      statement={statement}
-                      onHide={() => {
-                        setStatementIsVisible(false);
-                      }}
-                    />
-                  )}
-
-                  {!isAttempt && !isPreview && (
-                    <StatementEditorWindow
-                      className={styles.fileBackendProviderStatementEditor}
-                      statement={statement}
-                      onChange={setStatement}
-                      onHide={() => {
-                        setStatementIsVisible(false);
-                      }}
-                    />
-                  )}
-                </div>
-              )}
-              <div className={styles.fileBackendProviderContent}>
-                {children}
-              </div>
-            </div>
+          <div className={styles.fileBackendProviderRoot}>
+            <div className={styles.fileBackendProviderMain}>{children}</div>
             <div className={styles.fileBackendProviderToolbar}>
-              <MaterialButtonGroup>
-                {!statementIsVisible && (
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    endIcon={<OpenInNew />}
-                    onClick={function () {
-                      setStatementIsVisible(true);
-                    }}
-                  >
-                    Afficher l'énoncé
-                  </Button>
-                )}
-              </MaterialButtonGroup>
               {isPreview && (
                 <>
                   <Spacer />
@@ -239,3 +179,5 @@ export function FileBackendProvider({ children }) {
     </>
   );
 }
+
+export default FileBackendProvider;

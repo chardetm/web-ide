@@ -28,7 +28,6 @@
     "react-dom": "^18.2.0"
   },
   "dependencies": {
-    "@capytale/capytale-rich-text-editor": "file:../capytale-rich-text-editor",
     "@codemirror/lang-css": "^6.2.1",
     "@codemirror/lang-html": "^6.4.6",
     "@codemirror/lang-python": "^6.1.3",
