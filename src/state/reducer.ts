@@ -591,7 +591,6 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
 
     case "import_initial_state": {
       const state = importV2InitialState(action.exportedData);
-      console.log("Initial state:", state);
       return state;
     }
 
@@ -600,7 +599,6 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
         action.exportedData,
         action.initialState
       );
-      console.log("Current state:", state);
       return state;
     }
 
