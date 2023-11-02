@@ -1,4 +1,4 @@
-export const dataFormatVersion = 1;
+export const dataFormatVersion = 2;
 
 export const fileTypesInfo = {
   "text/html": {
