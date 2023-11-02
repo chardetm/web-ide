@@ -1,45 +1,42 @@
-import { Alert, Button, FormControlLabel, Switch } from "@mui/material";
-import { useRef, useState } from "react";
-import { BackendProvider } from "../contexts/BackendProvider";
-import { downloadTextFile } from "../utils";
+import { useRef, useState, useEffect } from "react";
 
-import styles from "./FileBackendProvider.module.scss";
-import { MaterialButtonGroup } from "../features/ui/materialComponents";
+import { Alert, Button, FormControlLabel, Switch } from "@mui/material";
 import {
   CloudDownloadOutlined,
   Edit,
   OpenInNew,
   Preview,
 } from "@mui/icons-material";
+
+import { MaterialButtonGroup } from "../features/ui/materialComponents";
 import { Spacer } from "../features/ui/basicComponents";
+
+import { BackendProvider } from "../contexts/BackendProvider";
+
 import {
   useIDEGetExportData,
   useIDEInitialState,
-  useIDEInitialStateDispatch,
   useIDEState,
   useIDEStateDispatch,
 } from "../contexts/IDEStateProvider";
-import { useEffect } from "react";
+
 import { StatementWindow } from "../windows/StatementWindow";
 import { StatementEditorWindow } from "../windows/StatementEditorWindow";
 import { PreviewModeInfoDialog } from "../windows/dialogs/PreviewModeInfoDialog";
 
+import { downloadTextFile } from "../utils";
 import v2attempt from "../content/v2attempt.json";
 
-const NOT_LOADED = 0;
-const LOADING = 1;
-const LOADED = 2;
+import styles from "./FileBackendProvider.module.scss";
 
 export function FileBackendProvider({ children }) {
   const ideState = useIDEState();
   const ideStateDispatch = useIDEStateDispatch();
   const ideInitialState = useIDEInitialState();
-  const ideInitialStateDispatch = useIDEInitialStateDispatch();
   const ideGetExportData = useIDEGetExportData();
 
   const inputRef = useRef(null);
 
-  const [loadingStage, setLoadingStage] = useState(NOT_LOADED);
   const [dirty, setDirty] = useState(false);
   const [isAttempt, setIsAttempt] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
@@ -52,11 +49,7 @@ export function FileBackendProvider({ children }) {
   function load(data) {
     setActivityData(data);
     setStatement(data.metadata.statement);
-    ideInitialStateDispatch({
-      type: "import_initial_state",
-      exportedData: data,
-    });
-    setLoadingStage(LOADING);
+    setStatementIsVisible(isAttempt);
   }
 
   async function save() {
@@ -71,19 +64,6 @@ export function FileBackendProvider({ children }) {
   }
 
   useEffect(() => {
-    if (loadingStage === LOADING) {
-      ideStateDispatch({
-        type: "import_current_state",
-        exportedData: activityData,
-        initialState: ideInitialState,
-      });
-      setLoadingStage(LOADED);
-      setStatementIsVisible(isAttempt);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadingStage]);
-
-  useEffect(() => {
     setDirty(true);
   }, [statement, ideInitialState, ideState]);
 
@@ -93,7 +73,7 @@ export function FileBackendProvider({ children }) {
 
   return (
     <>
-      {loadingStage === NOT_LOADED && (
+      {!activityData && (
         <div className={styles.backupProviderButtons}>
           <FormControlLabel
             control={
@@ -115,7 +95,7 @@ export function FileBackendProvider({ children }) {
               const file = e.target.files[0];
               const reader = new FileReader();
               reader.onload = (eLoader) => {
-                load(JSON.parse(eLoader.target.result));
+                load(JSON.parse(eLoader.target.result as string));
               };
               reader.readAsText(file);
             }}
@@ -138,8 +118,9 @@ export function FileBackendProvider({ children }) {
           </Button>
         </div>
       )}
-      {loadingStage === LOADED && (
+      {activityData && (
         <BackendProvider
+          initialData={activityData}
           isAttempt={isAttempt || isPreview}
           markDirty={markDirty}
         >

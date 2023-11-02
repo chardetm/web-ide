@@ -2,14 +2,14 @@ import "./App.scss";
 import { FileBackendProvider } from "./backends/FileBackendProvider";
 
 import { IDEStateProvider } from "./contexts/IDEStateProvider";
-import Exercise from "./pages/Exercise";
+import WebIDE from "./pages/WebIDE";
 
 function App() {
   return (
     <div className="App" id="app">
       <IDEStateProvider>
         <FileBackendProvider>
-          <Exercise />
+          <WebIDE />
         </FileBackendProvider>
       </IDEStateProvider>
     </div>
