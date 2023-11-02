@@ -1,7 +1,7 @@
 {
   "name": "web-ide",
   "author": "Maverick Chardet",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "type": "module",
   "main": "dist/web-ide.umd.cjs",
   "module": "dist/web-ide.js",
