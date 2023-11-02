@@ -1,8 +1,9 @@
+import React from "react";
 import styles from "./style.module.scss";
-import { React } from "react";
 import { BasicButton } from "../ui/basicComponents";
 import { MaterialIcon, RoundedButton } from "../ui/materialComponents";
 import { appendClassnames } from "../../utils";
+import { SectionProps } from "react-html-props";
 
 export function WindowButton({ children, ...props }) {
   return (
@@ -12,6 +13,15 @@ export function WindowButton({ children, ...props }) {
   );
 }
 
+type BaseWindowProps = {
+  children?: React.ReactNode;
+  onHide?: () => void;
+  onDemaximize?: () => void;
+  onMaximize?: () => void;
+  className?: string;
+  props?: SectionProps;
+};
+
 export function BaseWindow({
   children,
   onHide,
@@ -19,7 +29,7 @@ export function BaseWindow({
   onMaximize,
   className,
   ...props
-}) {
+}: BaseWindowProps) {
   return (
     <section
       className={appendClassnames(styles.window, className)}
@@ -44,11 +54,7 @@ export function BaseWindow({
         {onMaximize && (
           <RoundedButton
             className={styles.addTabButton}
-            icon={
-              <MaterialIcon.Rounded
-                name="fullscreen"
-              />
-            }
+            icon={<MaterialIcon.Rounded name="fullscreen" />}
             round={true}
             onClick={onMaximize}
           />
@@ -56,11 +62,7 @@ export function BaseWindow({
         {onDemaximize && (
           <RoundedButton
             className={styles.addTabButton}
-            icon={
-              <MaterialIcon.Rounded
-                name="fullscreen_exit"
-              />
-            }
+            icon={<MaterialIcon.Rounded name="fullscreen_exit" />}
             round={true}
             onClick={onDemaximize}
           />

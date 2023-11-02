@@ -29,7 +29,7 @@ export type IDEStateAction = {
   language?: string;
   open?: boolean;
   value?: boolean;
-  settings?: Settings;
+  settings?: Partial<Settings>;
   settingsKey?: string;
   exportedData?: ExportV2;
   initialState?: IDEState;

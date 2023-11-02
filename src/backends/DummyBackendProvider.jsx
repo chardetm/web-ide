@@ -1,9 +1,9 @@
 import { BackendProvider } from "../contexts/BackendProvider";
-import attemptData from "../content/v2attempt.json";
+import exampleAttempt from "../content/example1.json";
 
 export function DummyBackendProvider({ children }) {
   return (
-    <BackendProvider initialData={attemptData} isAttempt={false}>
+    <BackendProvider initialData={exampleAttempt} isAttempt={false}>
       {children}
     </BackendProvider>
   );

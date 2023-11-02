@@ -25,7 +25,7 @@ import { StatementEditorWindow } from "../windows/StatementEditorWindow";
 import { PreviewModeInfoDialog } from "../windows/dialogs/PreviewModeInfoDialog";
 
 import { downloadTextFile } from "../utils";
-import v2attempt from "../content/v2attempt.json";
+import exampleAttempt from "../content/example1.json";
 
 import styles from "./FileBackendProvider.module.scss";
 
@@ -111,7 +111,7 @@ export function FileBackendProvider({ children }) {
           <Button
             variant="outlined"
             onClick={() => {
-              load(v2attempt);
+              load(exampleAttempt);
             }}
           >
             Charger exemple

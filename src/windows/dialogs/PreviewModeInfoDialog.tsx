@@ -8,7 +8,15 @@ import {
 } from "@mui/material";
 import { MaterialButtonGroup } from "../../features/ui/materialComponents";
 
-export function PreviewModeInfoDialog({ open, onClose }) {
+type PreviewModeInfoDialogProps = {
+  open: boolean;
+  onClose: () => void;
+};
+
+export function PreviewModeInfoDialog({
+  open,
+  onClose,
+}: PreviewModeInfoDialogProps) {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Mode prévisualisation</DialogTitle>
