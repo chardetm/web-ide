@@ -34,3 +34,5 @@ export {
   useIDEGetExportData as useWebIDEGetExportData,
   webIDEExamples as webIDEExamples,
 };
+
+export type WebIDEExport = ExportV2;
