@@ -4,7 +4,11 @@ import { ExportV2 } from "src/state/types";
 
 function DummyBackendProvider({ children }) {
   return (
-    <BackendProvider initialData={exampleAttempt as ExportV2} isAttempt={false}>
+    <BackendProvider
+      initialData={exampleAttempt as ExportV2}
+      isAttempt={false}
+      markDirty={() => console.log("State changed")}
+    >
       {children}
     </BackendProvider>
   );

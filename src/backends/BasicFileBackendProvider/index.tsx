@@ -47,10 +47,6 @@ function FileBackendProvider({ children }) {
     setDirty(false);
   }
 
-  useEffect(() => {
-    setDirty(true);
-  }, [ideInitialState, ideState]);
-
   function markDirty() {
     setDirty(true);
   }

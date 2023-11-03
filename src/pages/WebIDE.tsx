@@ -15,9 +15,14 @@ import {
   IDEChosenStateProvider,
   useIDEInitialState,
   useIDEInitialStateDispatch,
+  useIDEState,
   useIDEStateDispatch,
 } from "../contexts/IDEStateProvider";
-import { useBackendInitialdata, useBackendIsAttempt } from "../contexts/BackendProvider";
+import {
+  useBackendInitialdata,
+  useBackendIsAttempt,
+  useBackendMarkDirty,
+} from "../contexts/BackendProvider";
 
 import { DivProps } from "react-html-props";
 import { appendClassnames } from "../utils";
@@ -73,6 +78,20 @@ function WebIDEContent({ className, ...props }: WebIDEContentProps) {
   const isAttempt = useBackendIsAttempt();
   const [maximizedWindow, setMaximizedWindow] = useState(null);
   const mode = isAttempt ? "attempt" : "content";
+
+  // Set backend dirty state
+  const ideState = useIDEState();
+  const ideInitialState = useIDEInitialState();
+  const backendMarkDirty = useBackendMarkDirty();
+
+  const [firstLoad, setFirstLoad] = useState(true);
+  useEffect(() => {
+    if (firstLoad) {
+      setFirstLoad(false);
+    } else {
+      backendMarkDirty();
+    }
+  }, [ideInitialState, ideState]);
 
   const onDemaximize = useCallback(function () {
     setMaximizedWindow(null);
