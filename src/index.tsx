@@ -11,6 +11,7 @@ import {
   useIDEGetExportData,
 } from "./contexts/IDEStateProvider";
 
+import base from "./content/base.json";
 import example1 from "./content/example1.json";
 import { ExportV2 } from "./state/types";
 
@@ -19,6 +20,7 @@ type ExamplesType = {
 };
 
 const webIDEExamples: ExamplesType = {
+  base: base as ExportV2,
   example1: example1 as ExportV2,
 };
 

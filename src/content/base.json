@@ -1,0 +1,59 @@
+{
+  "dataFormatVersion": 2,
+  "type": "exercise",
+  "activity": {
+    "activeFile": "index.html",
+    "activeHtmlFile": "index.html",
+    "openedFiles": ["index.html", "style.css"],
+    "studentSettings": {
+      "previewIsLive": true,
+      "allowedNewTextFileTypes": [
+        "text/html",
+        "text/css",
+        "application/javascript"
+      ],
+      "canUploadTextFiles": true,
+      "canUploadImageFiles": true,
+      "canDownloadFiles": true,
+      "canSeeFilesList": true,
+      "canSetVisibilityBounds": true,
+      "canSetFilesPermissions": true,
+      "canSeeOutOfBounds": true,
+      "canOpenAndCloseTabs": true,
+      "canChangePreviewMode": true,
+      "allowedSyntaxCheckers": ["text/html"],
+      "isCustomSettings": false
+    },
+    "filesData": {
+      "style.css": {
+        "contentIndex": 0,
+        "contentType": "text",
+        "studentPermissions": {
+          "firstVisibleLine": 1,
+          "lastVisibleLine": 4,
+          "canEdit": true,
+          "canRename": true,
+          "canDelete": true
+        }
+      },
+      "index.html": {
+        "contentIndex": 1,
+        "contentType": "text",
+        "studentPermissions": {
+          "firstVisibleLine": 1,
+          "lastVisibleLine": 16,
+          "canEdit": true,
+          "canRename": true,
+          "canDelete": true
+        }
+      }
+    }
+  },
+  "content": {
+    "text": [
+      "",
+      "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <link rel=\"stylesheet\" href=\"style.css\">\n  <title>Titre de la page</title>\n</head>\n<body>\n  \n</body>\n</html>"
+    ],
+    "base64": []
+  }
+}
