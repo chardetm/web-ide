@@ -1,6 +1,8 @@
 {
-  "name": "web-ide",
+  "name": "@chardetm/web-ide",
   "author": "Maverick Chardet",
+  "description": "A simple web development IDE with teacher/student features to teach HTML, CSS and Javascript.",
+  "license": "CC-BY-SA-4.0",
   "version": "0.2.0",
   "type": "module",
   "main": "dist/web-ide.umd.cjs",
