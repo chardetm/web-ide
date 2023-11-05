@@ -46,6 +46,10 @@ function WebIDE({ className, ...props }: WebIDEProps) {
   const [loadStatus, setLoadStatus] = useState<LoadStatus>(LoadStatus.INITIAL);
 
   useEffect(() => {
+    setLoadStatus(LoadStatus.INITIAL);
+  }, [backendInitialData]);
+
+  useEffect(() => {
     if (loadStatus === LoadStatus.INITIAL) {
       ideInitialStateDispatch({
         type: "import_initial_state",
