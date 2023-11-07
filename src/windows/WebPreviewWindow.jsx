@@ -294,7 +294,7 @@ export function WebPreviewWindow({
               />
             </MaterialButtonGroup>
 
-            <ToolbarAddressBar>.../{ideState.activeHtmlFile}</ToolbarAddressBar>
+            <ToolbarAddressBar>~/{ideState.activeHtmlFile}</ToolbarAddressBar>
             <FormControlLabel
               className={styles.live_switch}
               control={
