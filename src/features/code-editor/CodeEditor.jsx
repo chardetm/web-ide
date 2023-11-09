@@ -50,7 +50,8 @@ const CodeEditor = React.forwardRef(
     }, [firstEditableLine, lastEditableLine]);
     const onChangeFunction = onChange;
     let all_extensions = [...extensions];
-    all_extensions.push(readOnlyRangesExtension(readOnlyRanges));
+    // TODO: find an alternative (double paste issue: https://github.com/andrebnassis/codemirror-readonly-ranges/issues/6)
+    //all_extensions.push(readOnlyRangesExtension(readOnlyRanges));
     if (indent) {
       all_extensions.push(indentUnit.of(indent));
       all_extensions.push(keymap.of([indentWithTab]));
