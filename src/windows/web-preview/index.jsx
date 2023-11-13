@@ -168,12 +168,12 @@ export default function WebPreviewWindow({
       if (data.type === "set_active_file") {
         ideStateDispatch({
           type: "set_active_file",
-          fileName: data.fileName,
+          fileName: data.fileName || ideState.activeHtmlFile,
           anchor: data.anchor,
         });
       }
     },
-    [ideStateDispatch]
+    [ideStateDispatch, ideState.activeHtmlFile]
   );
   useEffect(
     function () {
@@ -199,12 +199,18 @@ export default function WebPreviewWindow({
 
   useEffect(() => {
     if (ideState.previewAnchor) {
-      console.log("Should go to anchor: " + ideState.previewAnchor);
+      if (htmlIframeNode) {
+        const doc = htmlIframeNode?.contentWindow.document;
+        const element = doc?.getElementById(ideState.previewAnchor);
+        if (element) {
+          element.scrollIntoView(true);
+        }
+      }
       ideStateDispatch({
         type: "remove_preview_anchor",
       });
     }
-  });
+  }, [ideState.previewAnchor, htmlIframeNode, ideStateDispatch]);
 
   return (
     <TabbedWindow

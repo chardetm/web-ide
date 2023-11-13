@@ -33,6 +33,8 @@ export function scriptInjection(
             const linkAnchor = pathAndAnchor.length > 1 ? pathAndAnchor[1] : null;
             if (allowedLinks.includes(linkPath)) {
               makeParentSetFile(linkPath, linkAnchor);
+            } else if (linkPath === "") {
+                makeParentSetFile(null, linkAnchor);
             } else if ((linkPath === "/" || linkPath === "./") && allowedLinks.includes("index.html")) {
               makeParentSetFile("index.html", linkAnchor);
             } else {
