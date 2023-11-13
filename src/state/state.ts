@@ -11,8 +11,6 @@ import {
   FileData,
   FilePermissions,
   Settings,
-  AttemptStateExport,
-  FilePreview,
   ExportV2Type,
   ExportV2,
   ExportV2FileState,
@@ -189,6 +187,7 @@ export function importV2InitialState(exportedData: ExportV2): IDEState {
   return {
     activeFile: activity.activeFile,
     activeHtmlFile: activity.activeHtmlFile,
+    previewAnchor: null,
     openedFiles: activity.openedFiles,
     settings: getDefaultSettings(),
     studentSettings: activity.studentSettings,

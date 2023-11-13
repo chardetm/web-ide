@@ -43,6 +43,7 @@ export type Settings = {
 export type IDEState = {
   activeFile: string | null;
   activeHtmlFile: string | null;
+  previewAnchor: string | null;
   openedFiles: string[];
   settings: Settings;
   studentSettings: Settings;

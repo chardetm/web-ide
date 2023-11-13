@@ -1,95 +1,27 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 
-import { TabbedWindow } from "../features/windows/WindowWithTabs";
-import { ToolbarAddressBar } from "../features/windows/contents";
+import { TabbedWindow } from "../../features/windows/WindowWithTabs";
+import { ToolbarAddressBar } from "../../features/windows/contents";
 import {
   RoundedButton,
   MaterialButtonGroup,
   MaterialIcon,
-} from "../features/ui/materialComponents";
+} from "../../features/ui/materialComponents";
 
-import styles from "./WebPreviewWindow.module.scss";
+import styles from "./index.module.scss";
 import {
   useIDEChosenState,
   useIDEChosenStateDispatch,
-} from "../contexts/IDEStateProvider";
-import { noPageSelectedHTML } from "../content/files";
+} from "../../contexts/IDEStateProvider";
+import { noPageSelectedHTML } from "../../content/files";
 import { FormControlLabel, Switch } from "@mui/material";
+
+import { scriptInjection } from "./codeInjection";
 
 function simplifyRelativePath(path) {
   path = path.replace(/^(\.\/)+/g, "");
   path = path.replace(/\/(\.\/)+/g, "/");
   return path;
-}
-
-function scriptInjection(assetsLocation = "", allowedLinks = []) {
-  return `<!-- Début du script inséré pour le fonctionnement de la prévisualisation -->
-<script>
-  function messageParent(message) {
-    window.parent.postMessage(message, "*");
-  }
-  function makeParentSetFile(fileName) {
-    messageParent({ type: "set_active_file", fileName: fileName });
-  }
-  var anchors = document.getElementsByTagName('a');
-  var allowedLinks = ${JSON.stringify(allowedLinks)};
-  for (const a of anchors) {
-      a.addEventListener('click', function(e) {
-        e.preventDefault();
-        const href = e?.target.getAttribute('href');
-        const resolvedHref = e?.target?.href;
-        const target = e?.target?.href;
-        if (!target) {
-          alert("Lien vide !");
-        } else if (e?.target?.host !== window.location.host) {
-          confirm("Ce lien externe ne peut pas être ouvert dans la prévisualisation. Voulez-vous ouvrir la page suivante dans un nouvel onglet ?\\n\\n" + resolvedHref) && window.open(resolvedHref, '_blank');
-        } else if (allowedLinks.includes(href)) {
-          makeParentSetFile(href);
-        } else if ((href === "/" || href === "./") && allowedLinks.includes("index.html")) {
-          makeParentSetFile("index.html");
-        } else {
-          alert("Ce lien ne mène pas vers un fichier du projet (erreur 404) !");
-        }
-      });
-  }
-  var isAbsoluteRegex = new RegExp('^(?:[a-z]+:)?//', 'i');
-  var images = document.getElementsByTagName('img');
-  for (const img of images) {
-    src = img.getAttribute('src');
-    if (!isAbsoluteRegex.test(src)) {
-      img.setAttribute('src', \`${assetsLocation}\` + src);
-    }
-  }
-
-  function treatCssRule(rule) {
-    if (rule.type == CSSRule.MEDIA_RULE) {
-      for (const subrule of rule.cssRules) {
-        treatCssRime(subrule);
-      }
-    } else if (rule.type == CSSRule.STYLE_RULE) {
-      const styleMap = rule.styleMap;
-      for (const [key, value] of styleMap.entries()) {
-        if (key == "background-image") {
-          const strVal = value.toString();
-          if (strVal.startsWith("url")) {
-            const path = strVal.substring(5, strVal.length-2);
-            if (!isAbsoluteRegex.test(path)) {
-              const newStrVal = \`url('${assetsLocation}\${path}')\`;
-              styleMap.set("background-image", newStrVal);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  for (const sheet of document.styleSheets) {
-    for (const rule of sheet.cssRules) {
-      treatCssRule(rule);
-    }
-  }
-</script>
-<!-- Fin du script inséré pour le fonctionnement de la prévisualisation -->`;
 }
 
 function performHtmlUpdate(
@@ -167,7 +99,7 @@ const Iframe = React.forwardRef(({ title, sandbox }, ref) => {
   );
 });
 
-export function WebPreviewWindow({
+export default function WebPreviewWindow({
   assetsLocation = "",
   onMaximize,
   onDemaximize,
@@ -234,7 +166,11 @@ export function WebPreviewWindow({
     (event) => {
       const { data } = event;
       if (data.type === "set_active_file") {
-        ideStateDispatch({ type: "set_active_file", fileName: data.fileName });
+        ideStateDispatch({
+          type: "set_active_file",
+          fileName: data.fileName,
+          anchor: data.anchor,
+        });
       }
     },
     [ideStateDispatch]
@@ -260,6 +196,15 @@ export function WebPreviewWindow({
       return [];
     }
   }, [ideState.activeHtmlFile, tabTitle]);
+
+  useEffect(() => {
+    if (ideState.previewAnchor) {
+      console.log("Should go to anchor: " + ideState.previewAnchor);
+      ideStateDispatch({
+        type: "remove_preview_anchor",
+      });
+    }
+  });
 
   return (
     <TabbedWindow
