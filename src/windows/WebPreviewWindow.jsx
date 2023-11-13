@@ -32,7 +32,7 @@ function scriptInjection(assetsLocation = "", allowedLinks = []) {
     messageParent({ type: "set_active_file", fileName: fileName });
   }
   var anchors = document.getElementsByTagName('a');
-  var alowedLinks = ${JSON.stringify(allowedLinks)};
+  var allowedLinks = ${JSON.stringify(allowedLinks)};
   for (const a of anchors) {
       a.addEventListener('click', function(e) {
         e.preventDefault();
@@ -43,9 +43,9 @@ function scriptInjection(assetsLocation = "", allowedLinks = []) {
           alert("Lien vide !");
         } else if (e?.target?.host !== window.location.host) {
           confirm("Ce lien externe ne peut pas être ouvert dans la prévisualisation. Voulez-vous ouvrir la page suivante dans un nouvel onglet ?\\n\\n" + resolvedHref) && window.open(resolvedHref, '_blank');
-        } else if (alowedLinks.includes(href)) {
+        } else if (allowedLinks.includes(href)) {
           makeParentSetFile(href);
-        } else if ((href === "/" || href === "./") && alowedLinks.includes("index.html")) {
+        } else if ((href === "/" || href === "./") && allowedLinks.includes("index.html")) {
           makeParentSetFile("index.html");
         } else {
           alert("Ce lien ne mène pas vers un fichier du projet (erreur 404) !");
