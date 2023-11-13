@@ -9,7 +9,7 @@ import "./WebIDE.scss";
 import styles from "./WebIDE.module.scss";
 
 import CodeEditorWindow from "../windows/code-editor";
-import { WebPreviewWindow } from "../windows/WebPreviewWindow";
+import WebPreviewWindow from "../windows/web-preview";
 
 import {
   IDEChosenStateProvider,

@@ -17,6 +17,7 @@ export type IDEStateAction = {
   fileType?: FileType;
   contentType?: ContentType;
   fileName?: string;
+  anchor?: string | null;
   oldFileName?: string;
   newFileName?: string;
   content?: string;
@@ -211,12 +212,20 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
           action.fileName && getMime(action.fileName) === "text/html"
             ? action.fileName
             : state.activeHtmlFile,
+        previewAnchor: action.anchor ? action.anchor : null,
         openedFiles:
           action.fileName && !state.openedFiles.includes(action.fileName)
             ? [...state.openedFiles, action.fileName]
             : state.openedFiles,
       };
       return finalState;
+    }
+
+    case "remove_preview_anchor": {
+      return {
+        ...state,
+        previewAnchor: null,
+      };
     }
 
     case "rename_file": {

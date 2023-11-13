@@ -1,18 +1,21 @@
-import React, { createContext, useContext, useReducer } from "react";
+import React, { ReactNode, createContext, useContext, useReducer } from "react";
 import ideStateReducer, { IDEStateAction } from "../state/reducer";
 import { exportV2 } from "../state/state";
 import { IDEState } from "src/state/types";
 
 const IDEStateContext = createContext<IDEState>(undefined);
-const IDEStateDispatchContext = createContext<React.Dispatch<IDEStateAction>>(undefined);
+const IDEStateDispatchContext =
+  createContext<React.Dispatch<IDEStateAction>>(undefined);
 const IDEInitialStateContext = createContext<IDEState>(undefined);
-const IDEInitialStateDispatchContext = createContext<React.Dispatch<IDEStateAction>>(undefined);
+const IDEInitialStateDispatchContext =
+  createContext<React.Dispatch<IDEStateAction>>(undefined);
 const IDEChosenStateContext = createContext<IDEState>(undefined);
-const IDEChosenStateDispatchContext = createContext<React.Dispatch<IDEStateAction>>(undefined);
+const IDEChosenStateDispatchContext =
+  createContext<React.Dispatch<IDEStateAction>>(undefined);
 const IDEGetExportDataContext = createContext(undefined);
 
 interface IDEStateProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function IDEStateProvider({ children }: IDEStateProviderProps) {
@@ -58,7 +61,13 @@ export function useIDEInitialStateDispatch() {
   return useContext(IDEInitialStateDispatchContext);
 }
 
-export function IDEChosenStateProvider({ children, initial }) {
+export function IDEChosenStateProvider({
+  children,
+  initial,
+}: {
+  children?: ReactNode;
+  initial: boolean;
+}) {
   const initialState = useIDEInitialState();
   const state = useIDEState();
   const chosenState = initial ? initialState : state;
