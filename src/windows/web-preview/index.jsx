@@ -30,9 +30,26 @@ function performHtmlUpdate(
   assetsLocation,
   htmlIframeNode
 ) {
+  const isAbsoluteRegex = new RegExp("^(?:[a-z]+:)?//", "i");
   const htmlDocument = new DOMParser().parseFromString(htmlCode, "text/html");
   const titleElement = htmlDocument.head?.querySelector("title");
   const title = titleElement ? titleElement.textContent : null;
+  const linkIconElement = htmlDocument.head?.querySelector('link[rel="icon"]');
+  let linkIconData = null;
+  if (linkIconElement) {
+    const hrefAtt = linkIconElement.getAttribute("href");
+    if (hrefAtt) {
+      if (isAbsoluteRegex.test(hrefAtt)) {
+        linkIconData = hrefAtt;
+      } else {
+        const href = simplifyRelativePath(hrefAtt);
+        if (href in filesPreviewData) {
+          linkIconData = filesPreviewData[href].content;
+        }
+      }
+    }
+  }
+
   if (Object.keys(filesPreviewData).length > 0) {
     // Replace all links to css files with inline css
     const cssLinks = htmlDocument.querySelectorAll('link[rel="stylesheet"]');
@@ -85,7 +102,10 @@ function performHtmlUpdate(
   doc.open();
   doc.write(newHtmlCodeNoLink);
   doc.close();
-  return title;
+  return {
+    title: title,
+    linkIconData: linkIconData,
+  };
 }
 
 const Iframe = React.forwardRef(({ title, sandbox }, ref) => {
@@ -107,6 +127,7 @@ export default function WebPreviewWindow({
   const ideState = useIDEChosenState();
   const ideStateDispatch = useIDEChosenStateDispatch();
   const [tabTitle, setTabTitle] = useState(ideState.activeHtmlFile);
+  const [linkIcon, setLinkIcon] = useState(null);
   const [htmlIframeNode, setHtmlIframeNode] = useState(null);
   const htmlIframeRef = useCallback((node) => {
     setHtmlIframeNode(node);
@@ -129,7 +150,7 @@ export default function WebPreviewWindow({
 
   useEffect(() => {
     if (htmlIframeNode != null) {
-      const title = performHtmlUpdate(
+      const { title, linkIconData } = performHtmlUpdate(
         htmlCode,
         ideState.filesPreview,
         assetsLocation,
@@ -151,6 +172,13 @@ export default function WebPreviewWindow({
             {ideState.activeHtmlFile} (pas de titre)
           </span>
         );
+      }
+      if (linkIconData !== null) {
+        setLinkIcon(linkIconData);
+        console.log(linkIconData);
+      } else {
+        setLinkIcon(null);
+        console.log(null);
       }
     }
   }, [
@@ -190,12 +218,15 @@ export default function WebPreviewWindow({
       return {
         1: {
           title: tabTitle,
+          icon: linkIcon ? (
+            <img src={linkIcon} className={styles.link_icon} />
+          ) : null,
         },
       };
     } else {
       return [];
     }
-  }, [ideState.activeHtmlFile, tabTitle]);
+  }, [ideState.activeHtmlFile, tabTitle, linkIcon]);
 
   useEffect(() => {
     if (ideState.previewAnchor) {
