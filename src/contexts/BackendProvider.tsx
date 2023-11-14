@@ -1,5 +1,9 @@
-import { createContext, useContext } from "react";
-import { ExportV2 } from "src/state/types";
+import { createContext, useContext, useMemo } from "react";
+import { ExportV2 } from "../state/types";
+import {
+  PartialExportV2Data,
+  dataWithMissingFields,
+} from "../state/versionCompatibility";
 
 const BackendMarkDirtyContext = createContext(() => {});
 const BackendIsAttemptContext = createContext(false);
@@ -18,10 +22,15 @@ export function BackendProvider({
   isAttempt,
   markDirty = () => {},
 }: BackendProviderProps) {
+  const checkedInitialData = useMemo(
+    () => dataWithMissingFields(initialData as PartialExportV2Data),
+    [initialData]
+  );
+
   return (
     <BackendMarkDirtyContext.Provider value={markDirty}>
       <BackendIsAttemptContext.Provider value={isAttempt}>
-        <BackendInitialDataContext.Provider value={initialData}>
+        <BackendInitialDataContext.Provider value={checkedInitialData}>
           {children}
         </BackendInitialDataContext.Provider>
       </BackendIsAttemptContext.Provider>
