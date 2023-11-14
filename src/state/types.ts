@@ -26,6 +26,8 @@ export type FilePreview = {
 
 export type Settings = {
   previewIsLive: boolean;
+  lineWrap: boolean;
+  autoCloseTags: boolean;
   allowedNewTextFileTypes: FileType[];
   canUploadTextFiles: boolean;
   canUploadImageFiles: boolean;

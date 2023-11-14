@@ -11,7 +11,7 @@ import {
 
 import styles from "./index.module.scss";
 
-import { Typography } from "@mui/material";
+import { Typography, FormControlLabel, Switch } from "@mui/material";
 
 import { appendClassnames, downloadFile, getMime } from "../../utils";
 import { allowedImageFileTypes } from "../../appSettings";
@@ -183,7 +183,8 @@ export default function CodeEditorWindow({
                         const firstLine =
                           editorRef.current.state.doc.lineAt(from);
                         const lastLine = editorRef.current.state.doc.lineAt(to);
-                        console.log( // TODO: remove
+                        console.log(
+                          // TODO: remove
                           editorRef.current.view.viewState.state.selection
                             .ranges[0]
                         );
@@ -206,6 +207,23 @@ export default function CodeEditorWindow({
                 />
               )}
             </MaterialButtonGroup>
+            <Spacer />
+            {allowedTextFileTypes.includes(activeFileMime) && (
+              <FormControlLabel
+                className={styles.wrap_switch}
+                control={
+                  <Switch
+                    checked={ideState.settings.lineWrap}
+                    onChange={() => {
+                      ideStateDispatch({
+                        type: "toggle_line_wrap",
+                      });
+                    }}
+                  />
+                }
+                label={"Ret. ligne auto."}
+              />
+            )}
           </>
         )
       }
@@ -252,6 +270,7 @@ export default function CodeEditorWindow({
           grayed={!ideState.filesData[ideState.activeFile].permissions.canEdit}
           className={styles.editorPane}
           value={ideState.filesData[ideState.activeFile].content}
+          lineWrapping={ideState.settings.lineWrap}
           onChange={(content) =>
             ideStateDispatch({
               type: "set_file_content",
@@ -260,7 +279,9 @@ export default function CodeEditorWindow({
             })
           }
           // TODO: Move the language-specific settings to the state
-          {...(activeFileMime === "text/html" ? { autoCloseTags: false } : {})}
+          {...(activeFileMime === "text/html"
+            ? { autoCloseTags: ideState.settings.autoCloseTags }
+            : {})}
         />
       )}
       {!ideState.activeFile && (

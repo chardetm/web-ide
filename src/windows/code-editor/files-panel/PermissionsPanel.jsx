@@ -168,6 +168,30 @@ export function PermissionsPanel() {
             />
           </ListItemButton>
         </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() =>
+              ideInitialStateDispatch({
+                type: "set_student_settings",
+                settings: {
+                  autoCloseTags: !ideInitialState.studentSettings.autoCloseTags,
+                },
+              })
+            }
+          >
+            <ListItemText
+              id="switch-list-label-see-files"
+              primary="Fermeture auto. balises"
+            />
+            <Switch
+              edge="end"
+              checked={ideInitialState.studentSettings.autoCloseTags}
+              inputProps={{
+                "aria-labelledby": "switch-list-label-see-files",
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
       </List>
     </div>
   );

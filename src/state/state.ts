@@ -47,6 +47,8 @@ export function getDefaultFileData(
 function getDefaultSettings(): Settings {
   return {
     previewIsLive: true,
+    lineWrap: true,
+    autoCloseTags: true,
     allowedNewTextFileTypes: [...allowedTextFileTypes],
     canUploadTextFiles: true,
     canUploadImageFiles: true,

@@ -456,6 +456,40 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
       return finalState;
     }
 
+    case "set_auto_close_tabs": {
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          autoCloseTags: action.value,
+        },
+      };
+    }
+
+    case "toggle_auto_close_tabs": {
+      return ideStateReducer(state, {
+        type: "set_auto_close_tabs",
+        value: !state.settings.autoCloseTags,
+      });
+    }
+
+    case "set_line_wrap": {
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          lineWrap: action.value,
+        },
+      };
+    }
+
+    case "toggle_line_wrap": {
+      return ideStateReducer(state, {
+        type: "set_line_wrap",
+        value: !state.settings.lineWrap,
+      });
+    }
+
     case "set_preview_auto_refresh": {
       const valueUpdatedState = {
         ...state,

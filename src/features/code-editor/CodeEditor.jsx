@@ -22,6 +22,7 @@ const CodeEditor = React.forwardRef(
       className = null,
       firstEditableLine,
       lastEditableLine,
+      lineWrapping = false,
       ...props
     },
     ref
@@ -58,6 +59,9 @@ const CodeEditor = React.forwardRef(
     }
     if (cmLanguage) {
       all_extensions.push(cmLanguage);
+    }
+    if (lineWrapping) {
+        all_extensions.push(EditorView.lineWrapping);
     }
     if (onChange) {
       all_extensions.push(

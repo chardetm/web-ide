@@ -7,6 +7,8 @@
     "openedFiles": ["page.html"],
     "studentSettings": {
       "previewIsLive": true,
+      "lineWrap": true,
+      "autoCloseTags": true,
       "allowedNewTextFileTypes": [
         "text/html",
         "text/css",
