@@ -11,7 +11,9 @@ import {
 
 import styles from "./index.module.scss";
 
-import { Typography, FormControlLabel, Switch } from "@mui/material";
+import Typography from "@mui/material/Typography";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 
 import { appendClassnames, downloadFile, getMime } from "../../utils";
 import { allowedImageFileTypes } from "../../appSettings";

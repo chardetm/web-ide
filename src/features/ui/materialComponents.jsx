@@ -1,8 +1,9 @@
 import styles from "./materialComponents.module.scss";
 
 import { BasicButton } from "./basicComponents";
-import { ButtonGroup } from "@mui/material";
-import { Button } from "@mui/material";
+
+import ButtonGroup from "@mui/material/ButtonGroup";
+import Button from "@mui/material/Button";
 
 export function RoundedButton({
   className = null,

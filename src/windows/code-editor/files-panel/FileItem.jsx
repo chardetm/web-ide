@@ -14,17 +14,17 @@ import {
   getMime,
 } from "../../../utils";
 
-import {
-  ListItemIcon,
-  ListItemText,
-  Menu,
-  MenuItem,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-} from "@mui/material";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import Typography from "@mui/material/Typography";
 
-import { Delete, Download, Edit } from "@mui/icons-material";
+import Delete from "@mui/icons-material/Delete";
+import Download from "@mui/icons-material/Download";
+import Edit from "@mui/icons-material/Edit";
 
 import { v4 as uuid } from "uuid";
 import { mimeToIcon } from "../utils";

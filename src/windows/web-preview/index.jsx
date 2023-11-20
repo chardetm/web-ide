@@ -14,7 +14,12 @@ import {
   useIDEChosenStateDispatch,
 } from "../../contexts/IDEStateProvider";
 import { noPageSelectedHTML } from "../../content/files";
-import { FormControlLabel, Switch, Snackbar, IconButton } from "@mui/material";
+
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+import Snackbar from "@mui/material/Snackbar";
+import IconButton from "@mui/material/IconButton";
+
 import CloseIcon from "@mui/icons-material/Close";
 
 import { scriptInjection } from "./codeInjection";

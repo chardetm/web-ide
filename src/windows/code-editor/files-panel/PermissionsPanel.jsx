@@ -11,13 +11,11 @@ import {
 import { FileCreationPermissionDialog } from "../../dialogs/FileCreationPermissionDialog";
 import { PreviewModeDialog } from "../../dialogs/PreviewModeDialog";
 
-import {
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Switch,
-} from "@mui/material";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import Switch from "@mui/material/Switch";
 
 export function PermissionsPanel() {
   const ideInitialState = useIDEInitialState();

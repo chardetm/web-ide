@@ -1,7 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 
-import { Alert, Button, FormControlLabel, Switch } from "@mui/material";
-import { CloudDownloadOutlined, Edit, Preview } from "@mui/icons-material";
+import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+
+import CloudDownloadOutlined from "@mui/icons-material/CloudDownloadOutlined";
+import Edit from "@mui/icons-material/Edit";
+import Preview from "@mui/icons-material/Preview";
 
 import { MaterialButtonGroup } from "../../features/ui/materialComponents";
 import { Spacer } from "../../features/ui/basicComponents";
