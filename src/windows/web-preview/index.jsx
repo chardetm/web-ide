@@ -17,6 +17,7 @@ import { noPageSelectedHTML } from "../../content/files";
 import { FormControlLabel, Switch } from "@mui/material";
 
 import { scriptInjection } from "./codeInjection";
+import { getMime, objectMap, stringToUrlBase64 } from "../../utils";
 
 function simplifyRelativePath(path) {
   path = path.replace(/^(\.\/)+/g, "");
@@ -24,12 +25,14 @@ function simplifyRelativePath(path) {
   return path;
 }
 
-function performHtmlUpdate(
-  htmlCode,
-  filesPreviewData,
-  assetsLocation,
-  htmlIframeNode
-) {
+function getFilesFromFilesPreviewData(filesPreviewData) {
+  return objectMap(filesPreviewData, (fileName, previewData) => {
+    return [fileName, previewData.base64Url];
+  });
+}
+
+function performHtmlUpdate(htmlCode, filesPreviewData, htmlIframeNode) {
+  const filesBase64 = getFilesFromFilesPreviewData(filesPreviewData);
   const isAbsoluteRegex = new RegExp("^(?:[a-z]+:)?//", "i");
   const htmlDocument = new DOMParser().parseFromString(htmlCode, "text/html");
   const titleElement = htmlDocument.head?.querySelector("title");
@@ -44,24 +47,21 @@ function performHtmlUpdate(
       } else {
         const href = simplifyRelativePath(hrefAtt);
         if (href in filesPreviewData) {
-          linkIconData = filesPreviewData[href].content;
+          linkIconData = filesBase64[href];
         }
       }
     }
   }
 
-  if (Object.keys(filesPreviewData).length > 0) {
+  if (Object.keys(filesBase64).length > 0) {
     // Replace all links to css files with inline css
     const cssLinks = htmlDocument.querySelectorAll('link[rel="stylesheet"]');
     for (const link of cssLinks) {
       const hrefAtt = link.getAttribute("href");
       if (hrefAtt) {
-        const styleNode = htmlDocument.createElement("style");
         const href = simplifyRelativePath(hrefAtt);
-        if (href in filesPreviewData) {
-          styleNode.innerHTML = filesPreviewData[href].content;
-          link.parentNode.insertBefore(styleNode, link);
-          link.parentNode.removeChild(link);
+        if (href in filesBase64) {
+          link.setAttribute("href", filesBase64[href]);
         }
       }
     }
@@ -73,7 +73,7 @@ function performHtmlUpdate(
       if (srcAtt) {
         const src = simplifyRelativePath(srcAtt);
         if (src in filesPreviewData) {
-          image.setAttribute("src", filesPreviewData[src].content);
+          image.setAttribute("src", filesBase64[src]);
         }
       }
     }
@@ -84,9 +84,8 @@ function performHtmlUpdate(
       const srcAtt = script.getAttribute("src");
       if (srcAtt) {
         const src = simplifyRelativePath(srcAtt);
-        if (src in filesPreviewData) {
-          script.innerHTML = filesPreviewData[src].content;
-          script.removeAttribute("src");
+        if (src in filesBase64) {
+          script.setAttribute("src", filesBase64[src]);
         }
       }
     }
@@ -96,7 +95,7 @@ function performHtmlUpdate(
     ? htmlDocument.documentElement.outerHTML
     : "";
   const bodyCloseWithScript = `</body>
-  ${scriptInjection(assetsLocation, Object.keys(filesPreviewData))}`;
+  ${scriptInjection(filesBase64)}`;
   const newHtmlCodeNoLink = newHtmlCode.replace("</body>", bodyCloseWithScript);
   const doc = htmlIframeNode.contentWindow.document;
   doc.open();
@@ -119,11 +118,7 @@ const Iframe = React.forwardRef(({ title, sandbox }, ref) => {
   );
 });
 
-export default function WebPreviewWindow({
-  assetsLocation = "",
-  onMaximize,
-  onDemaximize,
-}) {
+export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
   const ideState = useIDEChosenState();
   const ideStateDispatch = useIDEChosenStateDispatch();
   const [tabTitle, setTabTitle] = useState(ideState.activeHtmlFile);
@@ -153,7 +148,6 @@ export default function WebPreviewWindow({
       const { title, linkIconData } = performHtmlUpdate(
         htmlCode,
         ideState.filesPreview,
-        assetsLocation,
         htmlIframeNode
       );
       if (title !== null) {
@@ -175,16 +169,13 @@ export default function WebPreviewWindow({
       }
       if (linkIconData !== null) {
         setLinkIcon(linkIconData);
-        console.log(linkIconData);
       } else {
         setLinkIcon(null);
-        console.log(null);
       }
     }
   }, [
     htmlCode,
     ideState.filesPreview,
-    assetsLocation,
     htmlIframeNode,
     ideState.activeHtmlFile,
   ]);

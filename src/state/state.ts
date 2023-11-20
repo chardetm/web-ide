@@ -4,7 +4,13 @@ import {
   dataFormatVersion,
 } from "../appSettings";
 
-import { getNumberOfLines, objectMap } from "../utils";
+import {
+  base64ToUrlBase64,
+  getMime,
+  getNumberOfLines,
+  objectMap,
+  stringToUrlBase64,
+} from "../utils";
 
 import {
   IDEState,
@@ -160,6 +166,14 @@ export function importV2CurrentState(
               previewState.contentIndex
             ],
           contentType: previewState.contentType,
+          base64Url: (previewState.contentType === "base64"
+            ? base64ToUrlBase64
+            : stringToUrlBase64)(
+            getMime(fileName),
+            exportedData.content[previewState.contentType][
+              previewState.contentIndex
+            ]
+          ),
           upToDate: previewState.upToDate,
         },
       ]),
@@ -204,6 +218,12 @@ export function importV2InitialState(exportedData: ExportV2): IDEState {
         content:
           exportedData.content[fileData.contentType][fileData.contentIndex],
         contentType: fileData.contentType,
+        base64Url: (fileData.contentType === "base64"
+          ? base64ToUrlBase64
+          : stringToUrlBase64)(
+          getMime(fileName),
+          exportedData.content[fileData.contentType][fileData.contentIndex]
+        ),
         upToDate: true,
       },
     ]),

@@ -1,6 +1,5 @@
 export function scriptInjection(
-  assetsLocation: string = "",
-  allowedLinks: string[] = []
+  filesBase64: Object = {}
 ): string {
   return `<!-- Début du script inséré pour le fonctionnement de la prévisualisation -->
   <script>
@@ -15,8 +14,10 @@ export function scriptInjection(
           anchor: anchor
         });
       }
+      const cssUrlRegex = /url\\(\\s*(".+?"|'.+?'|.+?)\\s*\\)/g;
+      const cssRulesContainingUrl = ["background", "background-image", "border", "border-image", "border-image-source", "content", "cursor", "filter", "list-style", "list-style-image", "mask", "mask-image", "offset-path", "clip-path", "src"];
       const anchors = document.getElementsByTagName('a');
-      const allowedLinks = ${JSON.stringify(allowedLinks)};
+      const filesBase64 = ${JSON.stringify(filesBase64)};
       for (const a of anchors) {
         a.addEventListener('click', function(e) {
           e.preventDefault();
@@ -31,11 +32,11 @@ export function scriptInjection(
             const pathAndAnchor = href.split("#");
             const linkPath = pathAndAnchor[0];
             const linkAnchor = pathAndAnchor.length > 1 ? pathAndAnchor[1] : null;
-            if (allowedLinks.includes(linkPath)) {
+            if (linkPath in filesBase64) {
               makeParentSetFile(linkPath, linkAnchor);
             } else if (linkPath === "") {
                 makeParentSetFile(null, linkAnchor);
-            } else if ((linkPath === "/" || linkPath === "./") && allowedLinks.includes("index.html")) {
+            } else if ((linkPath === "/" || linkPath === "./") && "index.html" in filesBase64) {
               makeParentSetFile("index.html", linkAnchor);
             } else {
               alert("Ce lien ne mène pas vers un fichier du projet (erreur 404) !");
@@ -44,31 +45,30 @@ export function scriptInjection(
         });
       }
       const isAbsoluteRegex = new RegExp('^(?:[a-z]+:)?//', 'i');
-      const images = document.getElementsByTagName('img');
-      for (const img of images) {
-        src = img.getAttribute('src');
-        if (!isAbsoluteRegex.test(src)) {
-          img.setAttribute('src', \`${assetsLocation}\` + src);
-        }
-      }
   
       function treatCssRule(rule) {
         if (rule.type == CSSRule.MEDIA_RULE) {
           for (const subrule of rule.cssRules) {
-            treatCssRime(subrule);
+            treatCssRule(subrule);
           }
         } else if (rule.type == CSSRule.STYLE_RULE) {
           const styleMap = rule.styleMap;
           for (const [key, value] of styleMap.entries()) {
-            if (key == "background-image") {
-              const strVal = value.toString();
-              if (strVal.startsWith("url")) {
-                const path = strVal.substring(5, strVal.length-2);
-                if (!isAbsoluteRegex.test(path)) {
-                  const newStrVal = \`url('${assetsLocation}\${path}')\`;
-                  styleMap.set("background-image", newStrVal);
+            if (cssRulesContainingUrl.includes(key)) {
+              debugger;
+              const oldVal = value.toString();
+              const newVal = oldVal.replace(cssUrlRegex, (old, g1) => {
+                const urlPath =
+                  (g1[0] === '"' && g1.slice(-1) === '"') ||
+                  (g1[0] === "'" && g1.slice(-1) === "'")
+                    ? g1.substring(1, g1.length - 1)
+                    : g1;
+                if (!isAbsoluteRegex.test(urlPath) && urlPath in filesBase64) {
+                  return "url(" + filesBase64[urlPath] + ")";
                 }
-              }
+                return old;
+              });
+              styleMap.set(key, newVal);
             }
           }
         }

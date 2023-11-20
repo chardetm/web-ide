@@ -116,3 +116,29 @@ export function downloadFile(fileName, fileContent) {
     downloadBase64File(fileName, fileContent);
   }
 }
+
+function base64ToBytes(base64) {
+  const binString = atob(base64);
+  return Uint8Array.from(binString, (m) => m.codePointAt(0));
+}
+
+function bytesToBase64(bytes) {
+  const binString = String.fromCodePoint(...bytes);
+  return btoa(binString);
+}
+
+export function stringToBase64(str: string): string {
+  return bytesToBase64(new TextEncoder().encode(str));
+}
+
+export function base64ToUrlBase64(mime: string, base64: string): string {
+    return "data:" + mime + ";base64," + base64;
+}
+
+export function stringToUrlBase64(mime: string, str: string): string {
+  return base64ToUrlBase64(mime, stringToBase64(str));
+}
+
+export function base64ToString(base64: string): string {
+  return new TextDecoder().decode(base64ToBytes(base64));
+}
