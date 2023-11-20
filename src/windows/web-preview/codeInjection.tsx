@@ -57,7 +57,6 @@ export function scriptInjection(
           const styleMap = rule.styleMap;
           for (const [key, value] of styleMap.entries()) {
             if (cssRulesContainingUrl.includes(key)) {
-              debugger;
               const oldVal = value.toString();
               const newVal = oldVal.replace(cssUrlRegex, (old, g1) => {
                 const urlPath =
