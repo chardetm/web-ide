@@ -14,7 +14,8 @@ import {
   useIDEChosenStateDispatch,
 } from "../../contexts/IDEStateProvider";
 import { noPageSelectedHTML } from "../../content/files";
-import { FormControlLabel, Switch } from "@mui/material";
+import { FormControlLabel, Switch, Snackbar, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 import { scriptInjection } from "./codeInjection";
 import { getMime, objectMap, stringToUrlBase64 } from "../../utils";
@@ -122,11 +123,25 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
   const ideState = useIDEChosenState();
   const ideStateDispatch = useIDEChosenStateDispatch();
   const [tabTitle, setTabTitle] = useState(ideState.activeHtmlFile);
+  const [newTabSnackbarOpen, setNewTabSnackbarOpen] = useState(false);
   const [linkIcon, setLinkIcon] = useState(null);
   const [htmlIframeNode, setHtmlIframeNode] = useState(null);
   const htmlIframeRef = useCallback((node) => {
     setHtmlIframeNode(node);
   }, []);
+
+  const handleOpenNewTabSnackbar = () => {
+    setNewTabSnackbarOpen(true);
+  };
+
+  // const handleCloseNewTabSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
+  const handleCloseNewTabSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setNewTabSnackbarOpen(false);
+  };
 
   const shouldRefresh = useMemo(() => {
     for (const fileData of Object.values(ideState.filesPreview)) {
@@ -190,6 +205,9 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
           fileName: data.fileName || ideState.activeHtmlFile,
           anchor: data.anchor,
         });
+        if (data.target === "_blank") {
+          setNewTabSnackbarOpen(true);
+        }
       }
     },
     [ideStateDispatch, ideState.activeHtmlFile]
@@ -294,6 +312,23 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
         title="Prévisualisation"
         sandbox="allow-scripts allow-modals allow-same-origin allow-popups"
         ref={htmlIframeRef}
+      />
+      <Snackbar
+        open={newTabSnackbarOpen}
+        autoHideDuration={4000}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        onClose={handleCloseNewTabSnackbar}
+        message="Ce lien s'ouvre dans un nouvel onglet."
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleCloseNewTabSnackbar}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
       />
     </TabbedWindow>
   );

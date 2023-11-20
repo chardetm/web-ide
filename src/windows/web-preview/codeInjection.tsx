@@ -7,11 +7,12 @@ export function scriptInjection(
       function messageParent(message) {
         window.parent.postMessage(message, "*");
       }
-      function makeParentSetFile(fileName, anchor) {
+      function makeParentSetFile(fileName, anchor, target) {
         messageParent({
           type: "set_active_file",
           fileName: fileName,
-          anchor: anchor
+          anchor: anchor,
+          target: target,
         });
       }
       const cssUrlRegex = /url\\(\\s*(".+?"|'.+?'|.+?)\\s*\\)/g;
@@ -32,8 +33,9 @@ export function scriptInjection(
             const pathAndAnchor = href.split("#");
             const linkPath = pathAndAnchor[0];
             const linkAnchor = pathAndAnchor.length > 1 ? pathAndAnchor[1] : null;
+            const linkTarget = e?.target.getAttribute('target');
             if (linkPath in filesBase64) {
-              makeParentSetFile(linkPath, linkAnchor);
+              makeParentSetFile(linkPath, linkAnchor, linkTarget);
             } else if (linkPath === "") {
                 makeParentSetFile(null, linkAnchor);
             } else if ((linkPath === "/" || linkPath === "./") && "index.html" in filesBase64) {
