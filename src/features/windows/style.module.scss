@@ -22,7 +22,7 @@
 }
 
 @media (min-width: 992px) {
-  *[has-maximized-window="true"] .window:not(*[is-maximized="true"]) {
+  *[data-has-maximized-window="true"] .window:not(*[data-is-maximized="true"]) {
     display: none !important;
   }
 }

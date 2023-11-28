@@ -1,9 +1,13 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 import CloudDownloadOutlined from "@mui/icons-material/CloudDownloadOutlined";
 import Edit from "@mui/icons-material/Edit";
@@ -27,9 +31,9 @@ import { downloadTextFile } from "../../utils";
 import exampleAttempt from "../../content/example1.json";
 
 import styles from "./index.module.scss";
+import { WebIDELayout } from "src";
 
 function FileBackendProvider({ children }) {
-  const ideState = useIDEState();
   const ideStateDispatch = useIDEStateDispatch();
   const ideInitialState = useIDEInitialState();
   const ideGetExportData = useIDEGetExportData();
@@ -39,6 +43,7 @@ function FileBackendProvider({ children }) {
   const [dirty, setDirty] = useState(false);
   const [isAttempt, setIsAttempt] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
+  const [layout, setLayout] = useState<WebIDELayout>("auto");
   const [activityData, setActivityData] = useState(null);
   const [previewModeInfoDialogOpen, setPreviewModeInfoDialogOpen] =
     useState(false);
@@ -109,6 +114,7 @@ function FileBackendProvider({ children }) {
           initialData={activityData}
           isAttempt={isAttempt || isPreview}
           markDirty={markDirty}
+          layout={layout}
         >
           <div className={styles.fileBackendProviderRoot}>
             <div className={styles.fileBackendProviderMain}>{children}</div>
@@ -137,6 +143,22 @@ function FileBackendProvider({ children }) {
                 </>
               )}
               <Spacer />
+              <FormControl size="small" className={styles.layoutForm}>
+                <InputLabel id="demo-simple-select-label">Disposition</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={layout}
+                  label="Disposition"
+                  onChange={(e: SelectChangeEvent<WebIDELayout>) => {
+                    setLayout(e.target.value as WebIDELayout);
+                  }}
+                >
+                  <MenuItem value={"auto"}>Automatique</MenuItem>
+                  <MenuItem value={"horizontal"}>Horizontal</MenuItem>
+                  <MenuItem value={"vertical"}>Vertical</MenuItem>
+                </Select>
+              </FormControl>
               <MaterialButtonGroup>
                 {!isAttempt && (
                   <Button

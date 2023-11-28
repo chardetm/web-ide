@@ -1,4 +1,4 @@
-import WebIDE from "./pages/WebIDE";
+import WebIDE, { WebIDELayout } from "./pages/WebIDE";
 import { BackendProvider } from "./contexts/BackendProvider";
 import { IDEStateProvider } from "./contexts/IDEStateProvider";
 import { Window } from "./features/windows/Window";
@@ -23,6 +23,8 @@ const webIDEExamples: ExamplesType = {
   base: base as ExportV2,
   example1: example1 as ExportV2,
 };
+
+export type { WebIDELayout };
 
 export {
   WebIDE as WebIDE,

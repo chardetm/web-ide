@@ -21,6 +21,7 @@ import {
 import {
   useBackendInitialdata,
   useBackendIsAttempt,
+  useBackendLayout,
   useBackendMarkDirty,
 } from "../contexts/BackendProvider";
 
@@ -32,6 +33,8 @@ enum LoadStatus {
   LOADING_INITIAL_STATE,
   LOADED,
 }
+
+export type WebIDELayout = "auto" | "horizontal" | "vertical";
 
 interface WebIDEProps {
   className?: string;
@@ -80,6 +83,7 @@ interface WebIDEContentProps {
 
 function WebIDEContent({ className, ...props }: WebIDEContentProps) {
   const isAttempt = useBackendIsAttempt();
+  const layout = useBackendLayout();
   const [maximizedWindow, setMaximizedWindow] = useState(null);
   const mode = isAttempt ? "attempt" : "content";
 
@@ -104,7 +108,8 @@ function WebIDEContent({ className, ...props }: WebIDEContentProps) {
   return (
     <div
       {...props}
-      has-maximized-window={maximizedWindow === null ? "false" : "true"}
+      data-layout={layout}
+      data-has-maximized-window={maximizedWindow === null ? "false" : "true"}
       className={appendClassnames(className, styles.exercise)}
     >
       <main className={styles.exerciseContent}>

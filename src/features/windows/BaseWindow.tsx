@@ -33,7 +33,7 @@ export function BaseWindow({
   return (
     <section
       className={appendClassnames(styles.window, className)}
-      is-maximized={onDemaximize ? "true" : "false"}
+      data-is-maximized={onDemaximize ? "true" : "false"}
       {...props}
     >
       {children}
