@@ -8,6 +8,8 @@ import {
   MaterialIcon,
 } from "../../features/ui/materialComponents";
 
+import OpenExternalLinkDialog from "../dialogs/OpenExternalLinkDialog";
+
 import styles from "./index.module.scss";
 import {
   useIDEChosenState,
@@ -23,7 +25,9 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
 import { scriptInjection } from "./codeInjection";
-import { getMime, objectMap, stringToUrlBase64 } from "../../utils";
+import { objectMap } from "../../utils";
+
+const isAbsoluteRegex = new RegExp("^(?:[a-z]+:)?//", "i");
 
 function simplifyRelativePath(path) {
   path = path.replace(/^(\.\/)+/g, "");
@@ -37,9 +41,8 @@ function getFilesFromFilesPreviewData(filesPreviewData) {
   });
 }
 
-function performHtmlUpdate(htmlCode, filesPreviewData, htmlIframeNode) {
+function performHtmlUpdate(currentFile, htmlCode, filesPreviewData) {
   const filesBase64 = getFilesFromFilesPreviewData(filesPreviewData);
-  const isAbsoluteRegex = new RegExp("^(?:[a-z]+:)?//", "i");
   const htmlDocument = new DOMParser().parseFromString(htmlCode, "text/html");
   const titleElement = htmlDocument.head?.querySelector("title");
   const title = titleElement ? titleElement.textContent : null;
@@ -101,24 +104,22 @@ function performHtmlUpdate(htmlCode, filesPreviewData, htmlIframeNode) {
     ? htmlDocument.documentElement.outerHTML
     : "";
   const bodyCloseWithScript = `</body>
-  ${scriptInjection(filesBase64)}`;
+  ${scriptInjection(currentFile, filesBase64)}`;
   const newHtmlCodeNoLink = newHtmlCode.replace("</body>", bodyCloseWithScript);
-  const doc = htmlIframeNode.contentWindow.document;
-  doc.open();
-  doc.write(newHtmlCodeNoLink);
-  doc.close();
   return {
     title: title,
+    htmlContent: newHtmlCodeNoLink,
     linkIconData: linkIconData,
   };
 }
 
-const Iframe = React.forwardRef(({ title, sandbox }, ref) => {
+const Iframe = React.forwardRef(({ title, sandbox, srcDoc }, ref) => {
   return (
     <iframe
       title={title}
       className={styles.iframe}
       sandbox={sandbox}
+      srcDoc={srcDoc}
       ref={ref}
     ></iframe>
   );
@@ -128,16 +129,47 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
   const ideState = useIDEChosenState();
   const ideStateDispatch = useIDEChosenStateDispatch();
   const [tabTitle, setTabTitle] = useState(ideState.activeHtmlFile);
-  const [newTabSnackbarOpen, setNewTabSnackbarOpen] = useState(false);
+  const [infoSnackbarOpen, setInfoSnackbarOpen] = useState(false);
+  const [infoSnackbarMessage, setInfoSnackbarMessage] = useState("");
   const [linkIcon, setLinkIcon] = useState(null);
   const [htmlIframeNode, setHtmlIframeNode] = useState(null);
   const htmlIframeRef = useCallback((node) => {
     setHtmlIframeNode(node);
   }, []);
+  const [previewHtmlContent, setPreviewHtmlContent] = useState("");
+  const [openExternalLinkDialogOpen, setOpenExternalLinkDialogOpen] =
+    useState(false);
+  const [externalLink, setExternalLink] = useState(null);
+  const [iframeActiveFile, setIframeActiveFile] = useState(null); // Which file is currently active in the iframe (confirmed by message)
+  const [messageQueue, setMessageQueue] = useState({});
 
-  const handleOpenNewTabSnackbar = () => {
-    setNewTabSnackbarOpen(true);
-  };
+  function postMessageToIframe(message) {
+    const page = ideState.activeHtmlFile;
+    setMessageQueue((prev) => {
+      const newMessageQueue = { ...prev };
+      if (page in newMessageQueue) {
+        newMessageQueue[page].push(message);
+      } else {
+        newMessageQueue[page] = [message];
+      }
+      return newMessageQueue;
+    });
+  }
+
+  useEffect(() => {
+    if (ideState.activeHtmlFile === iframeActiveFile) {
+      if (messageQueue[iframeActiveFile]) {
+        for (const message of messageQueue[iframeActiveFile]) {
+          htmlIframeNode?.contentWindow?.postMessage(message, "*");
+        }
+        setMessageQueue((prev) => {
+          const newMessageQueue = { ...prev };
+          delete newMessageQueue[iframeActiveFile];
+          return newMessageQueue;
+        });
+      }
+    }
+  }, [ideState.activeHtmlFile, iframeActiveFile, messageQueue]);
 
   // const handleCloseNewTabSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
   const handleCloseNewTabSnackbar = (event, reason) => {
@@ -145,7 +177,7 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
       return;
     }
 
-    setNewTabSnackbarOpen(false);
+    setInfoSnackbarOpen(false);
   };
 
   const shouldRefresh = useMemo(() => {
@@ -165,11 +197,12 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
 
   useEffect(() => {
     if (htmlIframeNode != null) {
-      const { title, linkIconData } = performHtmlUpdate(
+      const { title, htmlContent, linkIconData } = performHtmlUpdate(
+        ideState.activeHtmlFile,
         htmlCode,
-        ideState.filesPreview,
-        htmlIframeNode
+        ideState.filesPreview
       );
+      setPreviewHtmlContent(htmlContent);
       if (title !== null) {
         if (title !== "") {
           setTabTitle(title);
@@ -200,18 +233,74 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
     ideState.activeHtmlFile,
   ]);
 
+  const showSnackbarMessage = (message) => {
+    setInfoSnackbarMessage(message);
+    setInfoSnackbarOpen(true);
+  };
+
+  const openLocalLink = (link, anchor, target) => {
+    const fileToOpen = link || ideState.activeHtmlFile;
+    ideStateDispatch({
+      type: "set_active_file",
+      fileName: fileToOpen,
+      anchor: anchor,
+    });
+    if (target === "_blank") {
+      showSnackbarMessage("Ce lien s'ouvre dans un nouvel onglet.");
+    }
+    if (!fileToOpen.endsWith(".html")) {
+      showSnackbarMessage(
+        "Impossible d'afficher autre chose qu'une page web dans la fenêtre de prévisualisation."
+      );
+    }
+  };
+
+  const openExternalLink = (link) => {
+    setExternalLink(link);
+    setOpenExternalLinkDialogOpen(true);
+  };
+
   // TODO: move to the right place (in the preview)
   const handleMessage = useCallback(
     (event) => {
       const { data } = event;
-      if (data.type === "set_active_file") {
-        ideStateDispatch({
-          type: "set_active_file",
-          fileName: data.fileName || ideState.activeHtmlFile,
-          anchor: data.anchor,
-        });
-        if (data.target === "_blank") {
-          setNewTabSnackbarOpen(true);
+      if (data.type === "ready") {
+        setIframeActiveFile(data.file);
+      } else if (data.type === "set_active_file") {
+        openLocalLink(data.fileName, data.anchor, data.target);
+      } else if (data.type === "open_external_link") {
+        openExternalLink(data.link);
+      } else if (data.type === "open_link") {
+        const href = data.href;
+        const resolvedHref = data.resolvedHref;
+        const target = data.target;
+        if (!resolvedHref) {
+          showSnackbarMessage("Lien vide !");
+        } else if (isAbsoluteRegex.test(href)) {
+          openExternalLink(resolvedHref);
+        } else {
+          const pathAndAnchor = href.split("#");
+          const linkPath = pathAndAnchor[0];
+          const linkAnchor = pathAndAnchor.length > 1 ? pathAndAnchor[1] : null;
+          if (linkPath in ideState.filesPreview) {
+            openLocalLink(linkPath, linkAnchor, target);
+          } else if (linkPath === "") {
+            openLocalLink(linkPath, linkAnchor);
+          } else if (
+            (linkPath === "/" || linkPath === "./") &&
+            "index.html" in filesBase64
+          ) {
+            openLocalLink("index.html", linkAnchor);
+          } else if (
+            (linkPath === "/" || linkPath === "./") &&
+            "INDEX.html" in filesBase64
+          ) {
+            openLocalLink("INDEX.html", linkAnchor);
+          } else {
+            showSnackbarMessage(
+              "Ce lien ne mène pas vers un fichier du projet (erreur 404) !"
+            );
+          }
         }
       }
     },
@@ -244,13 +333,13 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
 
   useEffect(() => {
     if (ideState.previewAnchor) {
-      if (htmlIframeNode) {
-        const doc = htmlIframeNode?.contentWindow.document;
-        const element = doc?.getElementById(ideState.previewAnchor);
-        if (element) {
-          element.scrollIntoView(true);
-        }
-      }
+      postMessageToIframe(
+        {
+          type: "scroll_to_anchor",
+          anchor: ideState.previewAnchor,
+        },
+        "*"
+      );
       ideStateDispatch({
         type: "remove_preview_anchor",
       });
@@ -315,15 +404,16 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
     >
       <Iframe
         title="Prévisualisation"
-        sandbox="allow-scripts allow-modals allow-same-origin allow-popups"
+        srcDoc={previewHtmlContent}
+        sandbox="allow-scripts allow-modals"
         ref={htmlIframeRef}
       />
       <Snackbar
-        open={newTabSnackbarOpen}
+        open={infoSnackbarOpen}
         autoHideDuration={4000}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         onClose={handleCloseNewTabSnackbar}
-        message="Ce lien s'ouvre dans un nouvel onglet."
+        message={infoSnackbarMessage}
         action={
           <IconButton
             size="small"
@@ -334,6 +424,11 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
             <CloseIcon fontSize="small" />
           </IconButton>
         }
+      />
+      <OpenExternalLinkDialog
+        link={externalLink}
+        onClose={() => setOpenExternalLinkDialogOpen(false)}
+        open={openExternalLinkDialogOpen}
       />
     </TabbedWindow>
   );
