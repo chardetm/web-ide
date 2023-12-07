@@ -100,7 +100,7 @@ export function FileCreationPermissionDialog({ open, onClose }) {
               <ListItemText
                 id="switch-upload"
                 primary="Téléversement de fichiers"
-                secondary="Permet d'envoyer des fichiers depuis l'orinateur"
+                secondary="Permet d'envoyer des fichiers depuis l'ordinateur"
               />
               <Switch
                 edge="end"
