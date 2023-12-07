@@ -43,9 +43,10 @@ export function scriptInjection(
       for (const a of anchors) {
         a.addEventListener('click', function(e) {
           e.preventDefault();
-          const href = e?.target.getAttribute('href');
-          const resolvedHref = e?.target?.href;
-          const linkTarget = e?.target?.getAttribute('target');
+          const linkElement = e.target.closest('a');
+          const href = linkElement?.getAttribute('href');
+          const resolvedHref = linkElement?.href;
+          const linkTarget = linkElement?.getAttribute('target');
           makeParentOpenLink(href, resolvedHref, linkTarget);
         });
       }
