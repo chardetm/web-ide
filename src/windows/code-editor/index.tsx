@@ -16,7 +16,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 
 import { appendClassnames, downloadFile, getMime } from "../../utils";
-import { allowedImageFileTypes } from "../../appSettings";
+import { FileType, allowedImageFileTypes } from "../../appSettings";
 import {
   useIDEChosenState,
   useIDEChosenStateDispatch,
@@ -27,14 +27,20 @@ import { RenameFileDialog } from "../dialogs/RenameFileDialog";
 import { DeleteFileDialog } from "../dialogs/DeleteFileDialog";
 import { ResetFileDialog } from "../dialogs/ResetFileDialog";
 import { allowedTextFileTypes } from "../../appSettings";
-import { mimeToEditor, mimeToIcon } from "./utils";
+import { mimeToEditor, mimeToIcon } from "../../features/code-editor/utils";
 import FilesPanel from "./files-panel/index";
+
+export type CodeEditorWindowProps = {
+  onMaximize?: () => void;
+  onDemaximize?: () => void;
+  className?: string;
+};
 
 export default function CodeEditorWindow({
   onMaximize,
   onDemaximize,
   className,
-}) {
+}: CodeEditorWindowProps) {
   const ideState = useIDEChosenState();
   const ideStateDispatch = useIDEChosenStateDispatch();
   const ideInitialState = useIDEInitialState();
@@ -49,8 +55,8 @@ export default function CodeEditorWindow({
   const [deleteFileDialogFileName, setDeleteFileDialogFileName] = useState("");
   const [resetFileDialogFileName, setResetFileDialogFileName] = useState("");
   const editorRef = useRef(null);
-  const activeFileMime = useMemo(
-    () => getMime(ideState.activeFile),
+  const activeFileMime = useMemo<FileType>(
+    () => getMime(ideState.activeFile) as FileType,
     [ideState.activeFile]
   );
   const showToolbar = useMemo(() => {
@@ -60,7 +66,7 @@ export default function CodeEditorWindow({
   const tabs = useMemo(() => {
     return Object.fromEntries(
       ideState.openedFiles.map((fileName) => {
-        const mime = getMime(fileName);
+        const mime = getMime(fileName) as FileType;
         return [
           fileName,
           {
@@ -244,7 +250,9 @@ export default function CodeEditorWindow({
           onRequestUploadFile={(fileName, fileContent, contentType) => {
             const mime = getMime(fileName);
             if (
-              !ideState.settings.allowedNewTextFileTypes.includes(mime) &&
+              !ideState.settings.allowedNewTextFileTypes.includes(
+                mime as FileType
+              ) &&
               !(
                 ideState.settings.canUploadImageFiles &&
                 allowedImageFileTypes.includes(mime)

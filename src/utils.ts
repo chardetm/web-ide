@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { saveAs } from "file-saver";
 import Mime from "mime/lite.js";
-import { allowedTextFileTypes } from "./appSettings";
+import { FileType, allowedTextFileTypes } from "./appSettings";
 
 export const isValidFilename = (function () {
   // https://stackoverflow.com/questions/11100821/javascript-regex-for-validating-filenames
@@ -36,26 +36,26 @@ export const isValidFilename = (function () {
   };
 })();
 
-export function splitFileNameExtension(fileName) {
+export function splitFileNameExtension(fileName: string) {
   if (!fileName.includes(".")) return [fileName, ""]; // no extension
   const [extension] = fileName.split(".").reverse();
   const name = fileName.slice(0, -extension.length - 1);
   return [name, extension];
 }
 
-export function getMime(fileName) {
+export function getMime(fileName: string): string {
   const mime = Mime.getType(fileName);
   // Assurance for .js files (debate going on)
   if (mime === "text/javascript") return "application/javascript";
   return mime;
 }
 
-export function getExtension(mime) {
+export function getExtension(mime: FileType): string {
   const extension = Mime.getExtension(mime);
   return extension;
 }
 
-export function appendClassnames(...classNames) {
+export function appendClassnames(...classNames: string[]): string {
   return classNames.filter((c) => c).join(" ");
 }
 
@@ -81,7 +81,7 @@ export function objectMap<
   );
 }
 
-export function getNumberOfLines(content) {
+export function getNumberOfLines(content: string): number {
   return content.split("\n").length;
 }
 
@@ -91,14 +91,14 @@ export function useForceUpdate() {
   return () => setValue((value) => value + 1);
 }
 
-export function downloadTextFile(fileName, fileContent) {
+export function downloadTextFile(fileName: string, fileContent: string) {
   const blob = new Blob([fileContent], {
     type: getMime(fileName),
   });
   saveAs(blob, fileName);
 }
 
-export function downloadBase64File(fileName, fileContent) {
+export function downloadBase64File(fileName: string, fileContent: string) {
   const a = document.createElement("a");
   a.download = fileName;
   a.href = fileContent;
@@ -106,7 +106,7 @@ export function downloadBase64File(fileName, fileContent) {
   a.remove();
 }
 
-export function downloadFile(fileName, fileContent) {
+export function downloadFile(fileName: string, fileContent: string) {
   if (
     (allowedTextFileTypes as string[]).includes(getMime(fileName)) ||
     !fileContent.includes("base64,")
@@ -117,12 +117,12 @@ export function downloadFile(fileName, fileContent) {
   }
 }
 
-function base64ToBytes(base64) {
+function base64ToBytes(base64: string): Uint8Array {
   const binString = atob(base64);
   return Uint8Array.from(binString, (m) => m.codePointAt(0));
 }
 
-function bytesToBase64(bytes) {
+function bytesToBase64(bytes: Uint8Array): string {
   const binString = String.fromCodePoint(...bytes);
   return btoa(binString);
 }

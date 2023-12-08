@@ -41,6 +41,7 @@
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^5.0.8",
     "@mui/icons-material": "^5.14.16",
+    "@mui/lab": "^5.0.0-alpha.155",
     "@mui/material": "^5.14.16",
     "@uiw/react-codemirror": "^4.21.20",
     "client-zip": "^2.4.4",

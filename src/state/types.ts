@@ -43,11 +43,16 @@ export type Settings = {
   isCustomSettings: boolean;
 };
 
+export type IDEFileTypesInitialContent = Partial<{
+  [key in FileType]: string;
+}>;
+
 export type IDEState = {
   activeFile: string | null;
   activeHtmlFile: string | null;
   previewAnchor: string | null;
   openedFiles: string[];
+  fileTypesInitialContent: IDEFileTypesInitialContent;
   settings: Settings;
   studentSettings: Settings;
   filesData: { [fileName: string]: FileData };
@@ -62,40 +67,19 @@ export type ExportV2FileData = {
   studentPermissions: FilePermissions;
 };
 
-export type InitialStateExport = {
-  activeFile: string | null;
-  activeHtmlFile: string | null;
-  openedFiles: string[];
-  studentSettings: Settings;
-  filesData: { [fileName: string]: ExportV2FileData };
-};
-
-export type AttemptStateExport = {
-  currentFilesContent: { [fileName: string]: string };
-  filesPreview: { [fileName: string]: FilePreview };
-  openedFiles: string[];
-  previewIsLive: boolean;
-};
-
-export type ExportData = {
-  dataFormatVersion: number;
-  type: ExportV2Type;
-  initialState: InitialStateExport;
-  attemptState?: AttemptStateExport;
-};
-
 export type ExportV2Activity = {
   activeFile: string | null;
   activeHtmlFile: string | null;
   openedFiles: string[];
+  fileTypesInitialContent: IDEFileTypesInitialContent;
   studentSettings: Settings;
   filesData: { [fileName: string]: ExportV2FileData };
 };
 
 export type ExportV2FilePreview = {
-    contentIndex: number;
-    contentType: ContentType;
-    upToDate: boolean;
+  contentIndex: number;
+  contentType: ContentType;
+  upToDate: boolean;
 };
 
 export type ExportV2FileState = {

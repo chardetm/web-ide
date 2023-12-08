@@ -2,3 +2,13 @@
   margin-top: 8px !important;
   width: 100%;
 }
+
+// if it is not hidden
+.verticalFlex:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+}
+
+.flexGrow {
+  flex-grow: 1;
+}

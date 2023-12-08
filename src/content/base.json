@@ -5,6 +5,11 @@
     "activeFile": "index.html",
     "activeHtmlFile": "index.html",
     "openedFiles": ["index.html", "style.css"],
+    "fileTypesInitialContent": {
+        "text/html": "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <link rel=\"stylesheet\" href=\"style.css\">\n  <title>Titre de la page</title>\n</head>\n<body>\n  \n</body>\n</html>",
+        "text/css": "",
+        "application/javascript": ""
+    },
     "studentSettings": {
       "previewIsLive": true,
       "lineWrap": true,

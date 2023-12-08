@@ -7,7 +7,6 @@ import FormGroup from "@mui/material/FormGroup";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 
-
 import { useEffect, useMemo, useState } from "react";
 import { fileTypesInfo } from "../../appSettings";
 import {
@@ -23,7 +22,12 @@ import { getExtension, isValidFilename } from "../../utils";
 import styles from "./dialogs.module.scss";
 import { useRef } from "react";
 
-export function CreateFileDialog({ open, onClose }) {
+export type CreateFileDialogProps = {
+  open: boolean;
+  onClose: () => void;
+};
+
+export function CreateFileDialog({ open, onClose }: CreateFileDialogProps) {
   const ideState = useIDEChosenState();
   const ideStateDispatch = useIDEChosenStateDispatch();
   const [filenameNoExtension, setFilenameNoExtension] = useState("");
@@ -65,7 +69,8 @@ export function CreateFileDialog({ open, onClose }) {
     ideStateDispatch({
       type: "create_new_file",
       fileName: filenameNoExtension + "." + getExtension(selectedFileTypeMime),
-      initialContent: "",
+      initialContent:
+        ideState.fileTypesInitialContent[selectedFileTypeMime] || "",
       contentType: "text",
       open: true,
     });

@@ -1,4 +1,4 @@
-import { FileType } from "../appSettings";
+import { FileType, allowedTextFileTypes } from "../appSettings";
 
 import {
   getDefaultFileData,
@@ -17,7 +17,7 @@ import {
 import { ContentType, ExportV2, IDEState, Settings } from "./types";
 
 // TODO: use union type
-export type IDEStateAction = {
+/* export type IDEStateAction = {
   type: string;
   fileType?: FileType;
   contentType?: ContentType;
@@ -39,7 +39,184 @@ export type IDEStateAction = {
   settingsKey?: string;
   exportedData?: ExportV2;
   initialState?: IDEState;
-};
+}; */
+
+export type IDEStateAction =
+  | {
+      type: "set_file_content";
+      fileName: string;
+      content: string;
+    }
+  | {
+      type: "create_new_file";
+      fileName: string;
+      initialContent: string;
+      contentType: ContentType;
+      open: boolean;
+    }
+  | {
+      type: "delete_file";
+      fileName: string;
+    }
+  | {
+      type: "open_file";
+      fileName: string;
+    }
+  | {
+      type: "close_file";
+      fileName: string;
+    }
+  | {
+      type: "set_active_file";
+      fileName: string | null;
+      anchor?: string | null;
+    }
+  | {
+      type: "remove_preview_anchor";
+    }
+  | {
+      type: "rename_file";
+      oldFileName: string;
+      newFileName: string;
+    }
+  | {
+      type: "set_student_permissions";
+      fileName: string;
+      permissions: {
+        canEdit: boolean;
+        canRename: boolean;
+        canDelete: boolean;
+      };
+    }
+  | {
+      type: "set_student_can_edit";
+      fileName: string;
+      value: boolean;
+    }
+  | {
+      type: "toggle_student_can_edit";
+      fileName: string;
+    }
+  | {
+      type: "set_student_can_rename";
+      fileName: string;
+      value: boolean;
+    }
+  | {
+      type: "toggle_student_can_rename";
+      fileName: string;
+    }
+  | {
+      type: "set_student_can_delete";
+      fileName: string;
+      value: boolean;
+    }
+  | {
+      type: "toggle_student_can_delete";
+      fileName: string;
+    }
+  | {
+      type: "set_settings_base";
+      settings: Partial<Settings>;
+      settingsKey: string;
+    }
+  | {
+      type: "set_settings";
+      settings: Partial<Settings>;
+    }
+  | {
+      type: "set_student_settings";
+      settings: Partial<Settings>;
+    }
+  | {
+      type: "toggle_allowed_text_file_type";
+      fileType: FileType;
+    }
+  | {
+      type: "toggle_allowed_syntax_checker";
+      language: string;
+    }
+  | {
+      type: "set_auto_close_tabs";
+      value: boolean;
+    }
+  | {
+      type: "toggle_auto_close_tabs";
+    }
+  | {
+      type: "set_line_wrap";
+      value: boolean;
+    }
+  | {
+      type: "toggle_line_wrap";
+    }
+  | {
+      type: "set_preview_auto_refresh";
+      value: boolean;
+    }
+  | {
+      type: "toggle_preview_auto_refresh";
+    }
+  | {
+      type: "update_preview";
+    }
+  | {
+      type: "set_can_upload_text_files";
+      value: boolean;
+    }
+  | {
+      type: "toggle_can_upload_text_files";
+    }
+  | {
+      type: "set_can_upload_image_files";
+      value: boolean;
+    }
+  | {
+      type: "toggle_can_upload_image_files";
+    }
+  | {
+      type: "set_can_download_files";
+      value: boolean;
+    }
+  | {
+      type: "toggle_can_download_files";
+    }
+  | {
+      type: "set_can_see_files_list";
+      value: boolean;
+    }
+  | {
+      type: "toggle_can_see_files_list";
+    }
+  | {
+      type: "set_can_set_files_permissions";
+      value: boolean;
+    }
+  | {
+      type: "set_can_set_visibility_bounds";
+      value: boolean;
+    }
+  | {
+      type: "toggle_can_set_visibility_bounds";
+    }
+  | {
+      type: "reset_from_initial_state";
+      initialState: IDEState;
+    }
+  | {
+      type: "import_initial_state";
+      exportedData: ExportV2;
+    }
+  | {
+      type: "import_current_state";
+      exportedData: ExportV2;
+      initialState: IDEState;
+    }
+  | {
+      type: "set_file_type_initial_content";
+      mime: FileType;
+      content: string;
+    };
 
 function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
   switch (action.type) {
@@ -436,16 +613,13 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
     }
 
     case "toggle_allowed_text_file_type": {
-      let newAllowedNewTextFileTypes = [
-        ...state.studentSettings.allowedNewTextFileTypes,
-      ];
-      if ((newAllowedNewTextFileTypes as string[]).includes(action.fileType)) {
-        newAllowedNewTextFileTypes = newAllowedNewTextFileTypes.filter(
-          (t) => t !== action.fileType
-        );
-      } else {
-        newAllowedNewTextFileTypes.push(action.fileType as FileType);
-      }
+      const newAllowedNewTextFileTypes = allowedTextFileTypes.filter((t) => {
+        if (t === action.fileType) {
+          return !state.studentSettings.allowedNewTextFileTypes.includes(t);
+        } else {
+          return state.studentSettings.allowedNewTextFileTypes.includes(t);
+        }
+      });
       const finalState = {
         ...state,
         studentSettings: {
@@ -673,8 +847,14 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
       return state;
     }
 
-    default: {
-      throw new Error(`Unhandled action type: ${action.type}`);
+    case "set_file_type_initial_content": {
+      return {
+        ...state,
+        fileTypesInitialContent: {
+          ...state.fileTypesInitialContent,
+          [action.mime]: action.content,
+        },
+      };
     }
   }
 }

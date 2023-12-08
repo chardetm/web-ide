@@ -27,7 +27,7 @@ import Download from "@mui/icons-material/Download";
 import Edit from "@mui/icons-material/Edit";
 
 import { v4 as uuid } from "uuid";
-import { mimeToIcon } from "../utils";
+import { mimeToIcon } from "../../../features/code-editor/utils";
 import { MaterialButtonGroup, MaterialIcon, RoundedButton } from "../../../features/ui/materialComponents";
 
 

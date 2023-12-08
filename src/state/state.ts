@@ -208,6 +208,7 @@ export function importV2InitialState(exportedData: ExportV2): IDEState {
     activeHtmlFile: activity.activeHtmlFile,
     previewAnchor: null,
     openedFiles: activity.openedFiles,
+    fileTypesInitialContent: activity.fileTypesInitialContent,
     settings: getDefaultSettings(),
     studentSettings: activity.studentSettings,
     filesData: objectMap(activity.filesData, (fileName, fileData) => [
@@ -313,6 +314,7 @@ export function exportV2(
       activeFile: initialState.activeFile,
       activeHtmlFile: initialState.activeHtmlFile,
       openedFiles: initialState.openedFiles,
+      fileTypesInitialContent: initialState.fileTypesInitialContent,
       studentSettings: initialState.studentSettings,
       filesData: activityFilesData,
     },
