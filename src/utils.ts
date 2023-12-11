@@ -132,7 +132,7 @@ export function stringToBase64(str: string): string {
 }
 
 export function base64ToUrlBase64(mime: string, base64: string): string {
-    return "data:" + mime + ";base64," + base64;
+  return "data:" + mime + ";base64," + base64;
 }
 
 export function stringToUrlBase64(mime: string, str: string): string {
