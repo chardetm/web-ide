@@ -29,7 +29,8 @@
       "canOpenAndCloseTabs": true,
       "canChangePreviewMode": true,
       "allowedSyntaxCheckers": ["text/html"],
-      "isCustomSettings": false
+      "isCustomSettings": false,
+      "onlySeeBody": false
     },
     "filesData": {
       "page.html": {
