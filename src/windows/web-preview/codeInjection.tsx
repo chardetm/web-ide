@@ -57,6 +57,7 @@ export function scriptInjection(
             treatCssRule(subrule);
           }
         } else if (rule.type == CSSRule.STYLE_RULE) {
+          /*
           const styleMap = rule.styleMap;
           for (const [key, value] of styleMap.entries()) {
             if (cssRulesContainingUrl.includes(key)) {
@@ -73,6 +74,24 @@ export function scriptInjection(
                 return old;
               });
               styleMap.set(key, newVal);
+            }
+          }
+          */
+          for (const key of rule.style) {
+            if (cssRulesContainingUrl.includes(key)) {
+              const oldVal = rule.style[key];
+              const newVal = oldVal.replace(cssUrlRegex, (old, g1) => {
+                const urlPath =
+                  (g1[0] === '"' && g1.slice(-1) === '"') ||
+                  (g1[0] === "'" && g1.slice(-1) === "'")
+                    ? g1.substring(1, g1.length - 1)
+                    : g1;
+                if (!isAbsoluteRegex.test(urlPath) && urlPath in filesBase64) {
+                  return "url(" + filesBase64[urlPath] + ")";
+                }
+                return old;
+              });
+              rule.style.setProperty(key, newVal);
             }
           }
         }
