@@ -253,6 +253,17 @@
   white-space: nowrap;
 }
 
+.tabSubtitle {
+  color: rgba(0, 0, 0, 0.6);
+  font-style: italic;
+  &::before {
+    content: " (";
+  }
+  &::after {
+    content: ")";
+  }
+}
+
 .tabsEndMarker {
   height: 19px;
   width: 1px;

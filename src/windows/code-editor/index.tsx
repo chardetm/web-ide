@@ -71,6 +71,10 @@ export default function CodeEditorWindow({
           fileName,
           {
             title: fileName,
+            subtitle:
+              mime === "text/html" && ideState.settings.onlySeeBody
+                ? "corps"
+                : null,
             icon: mimeToIcon(mime),
             onClose: ideState.settings.canOpenAndCloseTabs
               ? () => {
@@ -290,7 +294,10 @@ export default function CodeEditorWindow({
           }
           // TODO: Move the language-specific settings to the state
           {...(activeFileMime === "text/html"
-            ? { autoCloseTags: ideState.settings.autoCloseTags }
+            ? {
+                autoCloseTags: ideState.settings.autoCloseTags,
+                onlyShowBody: ideState.settings.onlySeeBody,
+              }
             : {})}
         />
       )}

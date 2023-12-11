@@ -67,6 +67,7 @@ function getDefaultSettings(): Settings {
     canChangePreviewMode: true,
     allowedSyntaxCheckers: Object.keys(allowedSyntaxCheckers),
     isCustomSettings: false,
+    onlySeeBody: false,
   };
 }
 

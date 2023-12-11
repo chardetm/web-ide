@@ -172,20 +172,44 @@ export function PermissionsPanel() {
               ideInitialStateDispatch({
                 type: "set_student_settings",
                 settings: {
+                  onlySeeBody: !ideInitialState.studentSettings.onlySeeBody,
+                },
+              })
+            }
+          >
+            <ListItemText
+              id="switch-list-label-only-see-body"
+              primary="Ne voir que le corps (HTML)"
+            />
+            <Switch
+              edge="end"
+              checked={ideInitialState.studentSettings.onlySeeBody}
+              inputProps={{
+                "aria-labelledby": "switch-list-label-only-see-body",
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() =>
+              ideInitialStateDispatch({
+                type: "set_student_settings",
+                settings: {
                   autoCloseTags: !ideInitialState.studentSettings.autoCloseTags,
                 },
               })
             }
           >
             <ListItemText
-              id="switch-list-label-see-files"
+              id="switch-list-label-auto-close-tags"
               primary="Fermeture auto. balises"
             />
             <Switch
               edge="end"
               checked={ideInitialState.studentSettings.autoCloseTags}
               inputProps={{
-                "aria-labelledby": "switch-list-label-see-files",
+                "aria-labelledby": "switch-list-label-auto-close-tags",
               }}
             />
           </ListItemButton>

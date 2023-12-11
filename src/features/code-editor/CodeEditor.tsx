@@ -2,7 +2,7 @@ import React from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { EditorView } from "@codemirror/view";
 import { indentUnit } from "@codemirror/language";
-import { keymap } from "@codemirror/view";
+import { keymap, lineNumbers } from "@codemirror/view";
 import { indentWithTab } from "@codemirror/commands";
 // import readOnlyRangesExtension from "codemirror-readonly-ranges";
 
@@ -21,6 +21,7 @@ export type CodeEditorProps = {
   firstEditableLine?: number;
   lastEditableLine?: number;
   lineWrapping?: boolean;
+  firstLineNumber?: number;
 } & React.ComponentProps<typeof CodeMirror>;
 
 const CodeEditor = React.forwardRef(
@@ -37,6 +38,7 @@ const CodeEditor = React.forwardRef(
       firstEditableLine,
       lastEditableLine,
       lineWrapping = false,
+      firstLineNumber = 1,
       ...props
     }: CodeEditorProps,
     ref
@@ -78,6 +80,12 @@ const CodeEditor = React.forwardRef(
     if (lineWrapping) {
       all_extensions.push(EditorView.lineWrapping);
     }
+    all_extensions.push(
+      lineNumbers({
+        formatNumber: (n) => (n + firstLineNumber - 1).toString(),
+      })
+    );
+
     if (onChange) {
       all_extensions.push(
         EditorView.updateListener.of(function (update) {

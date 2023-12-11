@@ -41,6 +41,7 @@ export type Settings = {
   canChangePreviewMode: boolean;
   allowedSyntaxCheckers: string[];
   isCustomSettings: boolean;
+  onlySeeBody: boolean;
 };
 
 export type IDEFileTypesInitialContent = Partial<{

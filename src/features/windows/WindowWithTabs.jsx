@@ -24,6 +24,7 @@ export function WindowTab({
 
 function Tab({
   title,
+  subtitle,
   active,
   onSelect,
   icon = null,
@@ -39,7 +40,10 @@ function Tab({
       {...props}
     >
       {icon && <div className={styles.tabIcon}>{icon}</div>}
-      <div className={styles.tabTitle}>{title}</div>
+      <div className={styles.tabTitle}>
+        {title}
+        {subtitle && <span className={styles.tabSubtitle}>{subtitle}</span>}
+      </div>
       <Spacer />
       {onClose && (
         <div className={styles.closeButton}>
@@ -103,6 +107,7 @@ export function TabbedWindow({
                   onMouseOver={() => setTabHoverIndex(index)}
                   onMouseLeave={() => setTabHoverIndex(-1)}
                   title={tabData.title}
+                  subtitle={tabData.subtitle}
                   icon={tabData.icon}
                   onClose={tabData.onClose}
                   active={tabId === activeTabId}

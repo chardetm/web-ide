@@ -23,6 +23,9 @@ export function dataWithMissingFields(data: PartialExportV2Data): ExportV2 {
   if (newData.activity.studentSettings.lineWrap === undefined) {
     newData.activity.studentSettings.lineWrap = true;
   }
+  if (newData.activity.studentSettings.onlySeeBody === undefined) {
+    newData.activity.studentSettings.onlySeeBody = false;
+  }
   if (newData.activity.fileTypesInitialContent === undefined) {
     newData.activity.fileTypesInitialContent = {
         "text/html": "",
