@@ -288,12 +288,12 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
             openLocalLink(linkPath, linkAnchor);
           } else if (
             (linkPath === "/" || linkPath === "./") &&
-            "index.html" in filesBase64
+            "index.html" in ideState.filesPreview
           ) {
             openLocalLink("index.html", linkAnchor);
           } else if (
             (linkPath === "/" || linkPath === "./") &&
-            "INDEX.html" in filesBase64
+            "INDEX.html" in ideState.filesPreview
           ) {
             openLocalLink("INDEX.html", linkAnchor);
           } else {
@@ -379,7 +379,12 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
               />
             </MaterialButtonGroup>
 
-            <ToolbarAddressBar>~/{ideState.activeHtmlFile}</ToolbarAddressBar>
+            <ToolbarAddressBar>
+              ~/
+              {ideState.activeHtmlFile === "index.html"
+                ? ""
+                : ideState.activeHtmlFile}
+            </ToolbarAddressBar>
             <FormControlLabel
               className={styles.live_switch}
               control={
