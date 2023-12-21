@@ -25,7 +25,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
 import { scriptInjection } from "./codeInjection";
-import { objectMap } from "../../utils";
+import { objectMap, stringToUrlBase64 } from "../../utils";
 
 const isAbsoluteRegex = new RegExp("^(?:[a-z]+:)?//", "i");
 
@@ -113,12 +113,13 @@ function performHtmlUpdate(currentFile, htmlCode, filesPreviewData) {
   };
 }
 
-const Iframe = React.forwardRef(({ title, sandbox, srcDoc }, ref) => {
+const Iframe = React.forwardRef(({ title, sandbox, src, srcDoc }, ref) => {
   return (
     <iframe
       title={title}
       className={styles.iframe}
       sandbox={sandbox}
+      src={src}
       srcDoc={srcDoc}
       ref={ref}
     ></iframe>
@@ -136,7 +137,7 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
   const htmlIframeRef = useCallback((node) => {
     setHtmlIframeNode(node);
   }, []);
-  const [previewHtmlContent, setPreviewHtmlContent] = useState("");
+  const [previewHtmlBase64, setPreviewHtmlBase64] = useState("");
   const [openExternalLinkDialogOpen, setOpenExternalLinkDialogOpen] =
     useState(false);
   const [externalLink, setExternalLink] = useState(null);
@@ -202,7 +203,7 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
         htmlCode,
         ideState.filesPreview
       );
-      setPreviewHtmlContent(htmlContent);
+      setPreviewHtmlBase64(stringToUrlBase64("text/html", htmlContent));
       if (title !== null) {
         if (title !== "") {
           setTabTitle(title);
@@ -409,8 +410,8 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
     >
       <Iframe
         title="Prévisualisation"
-        srcDoc={previewHtmlContent}
-        sandbox="allow-scripts allow-modals"
+        src={previewHtmlBase64}
+        sandbox="allow-same-origin allow-scripts allow-modals"
         ref={htmlIframeRef}
       />
       <Snackbar
