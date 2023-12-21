@@ -61,6 +61,30 @@ export const fileTypesInfo = {
     shortName: "WebP",
     extension: "webp",
   },
+  "audio/mpeg": {
+    label: "MP3",
+    name: "MP3",
+    shortName: "MP3",
+    extension: "mp3",
+  },
+  "audio/ogg": {
+    label: "OGG",
+    name: "OGG",
+    shortName: "OGG",
+    extension: "ogg",
+  },
+  "audio/wav": {
+    label: "WAV",
+    name: "WAV",
+    shortName: "WAV",
+    extension: "wav",
+  },
+  "audio/aac": {
+    label: "AAC",
+    name: "AAC",
+    shortName: "AAC",
+    extension: "aac",
+  },
 };
 
 export type FileType = keyof typeof fileTypesInfo;
@@ -81,11 +105,19 @@ export const allowedImageFileTypes = [
   "image/webp",
 ];
 
+export const allowedAudioFileTypes = [
+  "audio/mpeg",
+  "audio/ogg",
+  "audio/wav",
+  "audio/aac",
+];
+
 export const editModesBooleanSettings = {
   canSeeFilesList: "Voir la liste des fichiers",
   canOpenAndCloseTabs: "Ouvrir et fermer des onglets",
   canUploadTextFiles: "Téléverser des fichiers texte",
   canUploadImageFiles: "Téléverser des images",
+  canUploadAudioFiles: "Téléverser des fichiers audio",
   canDownloadFiles: "Télécharger les fichiers",
   canSeeOutOfBounds: "Voir le code caché",
 };

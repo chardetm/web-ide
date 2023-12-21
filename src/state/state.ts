@@ -58,6 +58,7 @@ function getDefaultSettings(): Settings {
     allowedNewTextFileTypes: [...allowedTextFileTypes],
     canUploadTextFiles: true,
     canUploadImageFiles: true,
+    canUploadAudioFiles: true,
     canDownloadFiles: true,
     canSeeFilesList: true,
     canSetVisibilityBounds: true,

@@ -75,26 +75,14 @@ function performHtmlUpdate(currentFile, htmlCode, filesPreviewData) {
       }
     }
 
-    // Replace image sources with included images
-    const imageNodes = htmlDocument.querySelectorAll("img[src]");
-    for (const image of imageNodes) {
-      const srcAtt = image.getAttribute("src");
-      if (srcAtt) {
-        const src = simplifyRelativePath(srcAtt);
-        if (src in filesPreviewData) {
-          image.setAttribute("src", filesBase64[src]);
-        }
-      }
-    }
-
-    // Replace all links to js files with inline js
-    const jsScripts = htmlDocument.querySelectorAll("script[src]");
-    for (const script of jsScripts) {
-      const srcAtt = script.getAttribute("src");
+    // Replace all elements with src attribute with inline base64
+    const elementsWithSrc = htmlDocument.querySelectorAll("*[src]");
+    for (const element of elementsWithSrc) {
+      const srcAtt = element.getAttribute("src");
       if (srcAtt) {
         const src = simplifyRelativePath(srcAtt);
         if (src in filesBase64) {
-          script.setAttribute("src", filesBase64[src]);
+          element.setAttribute("src", filesBase64[src]);
         }
       }
     }

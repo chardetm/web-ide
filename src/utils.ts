@@ -117,15 +117,52 @@ export function downloadFile(fileName: string, fileContent: string) {
   }
 }
 
+export function base64toBlob(base64: string, mime: string): Blob {
+  // from https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
+  const contentType = mime || '';
+  var sliceSize = 1024;
+  var byteCharacters = atob(base64);
+  var bytesLength = byteCharacters.length;
+  var slicesCount = Math.ceil(bytesLength / sliceSize);
+  var byteArrays = new Array(slicesCount);
+
+  for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+      var begin = sliceIndex * sliceSize;
+      var end = Math.min(begin + sliceSize, bytesLength);
+
+      var bytes = new Array(end - begin);
+      for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
+          bytes[i] = byteCharacters[offset].charCodeAt(0);
+      }
+      byteArrays[sliceIndex] = new Uint8Array(bytes);
+  }
+  return new Blob(byteArrays, { type: contentType });
+}
+
 function base64ToBytes(base64: string): Uint8Array {
   const binString = atob(base64);
   return Uint8Array.from(binString, (m) => m.codePointAt(0));
 }
 
 function bytesToBase64(bytes: Uint8Array): string {
+  // from https://stackoverflow.com/questions/63020540/converting-a-larger-byte-array-to-a-string
+  let rs = [];
+  let batch = 32767; // Supported 'all' browsers
+  for (let i = 0; i < bytes.length; ){
+    let e = i + batch;
+    // Build batch section, defer to Array.join.
+    rs.push(String.fromCodePoint.apply(null, bytes.slice(i, e)));
+    i = e;
+  }
+  return btoa(rs.join(''));
+}
+
+/* // has a size limit
+function bytesToBase64(bytes: Uint8Array): string {
   const binString = String.fromCodePoint(...bytes);
   return btoa(binString);
-}
+}*/
+
 
 export function stringToBase64(str: string): string {
   return bytesToBase64(new TextEncoder().encode(str));

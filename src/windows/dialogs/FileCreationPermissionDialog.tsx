@@ -143,6 +143,36 @@ export function FileCreationPermissionDialog({
                   />
                 </ListItemButton>
               </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() =>
+                    ideInitialStateDispatch({
+                      type: "set_student_settings",
+                      settings: {
+                        canUploadAudioFiles:
+                          !ideInitialState.studentSettings.canUploadAudioFiles,
+                        canUploadTextFiles:
+                          ideInitialState.studentSettings.canUploadTextFiles ||
+                          !ideInitialState.studentSettings.canUploadAudioFiles,
+                      },
+                    })
+                  }
+                >
+                  <ListItemText
+                    id="switch-upload-audio-files"
+                    primary="Fichiers audio"
+                  />
+                  <Switch
+                    edge="end"
+                    checked={
+                      ideInitialState.studentSettings.canUploadAudioFiles
+                    }
+                    inputProps={{
+                      "aria-labelledby": "switch-upload-audio-files",
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
             </List>
             <List
               dense
@@ -157,6 +187,7 @@ export function FileCreationPermissionDialog({
                         canUploadTextFiles:
                           !ideInitialState.studentSettings.canUploadTextFiles,
                         canUploadImageFiles: false,
+                        canUploadAudioFiles: false,
                       },
                     })
                   }
@@ -170,7 +201,8 @@ export function FileCreationPermissionDialog({
                     edge="end"
                     checked={
                       ideInitialState.studentSettings.canUploadTextFiles ||
-                      ideInitialState.studentSettings.canUploadImageFiles // May be true only if text is true, but just in case
+                      ideInitialState.studentSettings.canUploadImageFiles || // May be true only if text is true, but just in case
+                      ideInitialState.studentSettings.canUploadAudioFiles // May be true only if text is true, but just in case
                     }
                     inputProps={{
                       "aria-labelledby": "switch-upload",

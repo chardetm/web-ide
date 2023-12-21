@@ -175,6 +175,13 @@ export type IDEStateAction =
       type: "toggle_can_upload_image_files";
     }
   | {
+      type: "set_can_upload_audio_files";
+      value: boolean;
+    }
+  | {
+      type: "toggle_can_upload_audio_files";
+    }
+  | {
       type: "set_can_download_files";
       value: boolean;
     }
@@ -582,6 +589,7 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
           ? {
               canOpenAndCloseTabs: false,
               canUploadImageFiles: false,
+              canUploadAudioFiles: false,
               canUploadTextFiles: false,
             }
           : {};
@@ -766,6 +774,23 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
       return ideStateReducer(state, {
         type: "set_can_upload_image_files",
         value: !state.settings.canUploadImageFiles,
+      });
+    }
+
+    case "set_can_upload_audio_files": {
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          canUploadAudioFiles: action.value,
+        },
+      };
+    }
+
+    case "toggle_can_upload_audio_files": {
+      return ideStateReducer(state, {
+        type: "set_can_upload_audio_files",
+        value: !state.settings.canUploadAudioFiles,
       });
     }
 

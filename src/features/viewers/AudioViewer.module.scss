@@ -1,16 +1,14 @@
-.image {
+.audio {
   margin: auto;
-  [data-zoomedin="false"] & {
-    max-width: 100%;
-    max-height: 100%;
-  }
 }
 
-.imageViewer {
+.audioViewer {
   display: flex;
   height: 100%;
   width: 100%;
   overflow: auto;
+  justify-content: center;
+  align-items: center;
 }
 
 .wrapper {

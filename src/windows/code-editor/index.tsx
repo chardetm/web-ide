@@ -16,7 +16,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 
 import { appendClassnames, downloadFile, getMime } from "../../utils";
-import { FileType, allowedImageFileTypes } from "../../appSettings";
+import { FileType, allowedImageFileTypes, allowedAudioFileTypes } from "../../appSettings";
 import {
   useIDEChosenState,
   useIDEChosenStateDispatch,
@@ -260,6 +260,10 @@ export default function CodeEditorWindow({
               !(
                 ideState.settings.canUploadImageFiles &&
                 allowedImageFileTypes.includes(mime)
+              ) &&
+              !(
+                ideState.settings.canUploadAudioFiles &&
+                allowedAudioFileTypes.includes(mime)
               )
             ) {
               alert("Ce type de fichier n'est pas autorisé.");

@@ -6,13 +6,16 @@ import { HTMLCodeEditor } from "./HTMLCodeEditor";
 import { CSSCodeEditor } from "./CSSCodeEditor";
 import { JSCodeEditor } from "./JSCodeEditor";
 import { ImageViewer } from "../viewers/ImageViewer";
+import { AudioViewer } from "../viewers/AudioViewer";
 import { FileType } from "../../appSettings";
 import { ReactElement } from "react";
 
 export type CodeEditorType =
   | typeof HTMLCodeEditor
   | typeof CSSCodeEditor
-  | typeof JSCodeEditor;
+  | typeof JSCodeEditor
+  | typeof ImageViewer
+  | typeof AudioViewer;
 
 export function mimeToEditor(mimeType?: FileType): CodeEditorType | null {
   if (!mimeType) return null;
@@ -20,6 +23,7 @@ export function mimeToEditor(mimeType?: FileType): CodeEditorType | null {
   if (mimeType === "text/css") return CSSCodeEditor;
   if (mimeType === "application/javascript") return JSCodeEditor;
   if (mimeType.startsWith("image/")) return ImageViewer;
+  if (mimeType.startsWith("audio/")) return AudioViewer;
   return null;
 }
 
@@ -42,6 +46,11 @@ export function mimeToIcon(mimeType?: FileType): ReactElement | null {
       if (mimeType.startsWith("image/")) {
         return (
           <MaterialIcon.Rounded name="image" className={styles.imageIcon} />
+        );
+      }
+      if (mimeType.startsWith("audio/")) {
+        return (
+          <MaterialIcon.Rounded name="audiotrack" className={styles.audioIcon} />
         );
       }
       return (

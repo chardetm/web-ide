@@ -33,5 +33,8 @@ export function dataWithMissingFields(data: PartialExportV2Data): ExportV2 {
         "application/javascript": "",
     }
   }
+  if (newData.activity.studentSettings.canUploadAudioFiles === undefined) {
+    newData.activity.studentSettings.canUploadAudioFiles = false;
+  }
   return newData;
 }

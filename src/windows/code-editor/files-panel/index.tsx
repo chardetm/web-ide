@@ -10,6 +10,7 @@ import { appendClassnames, getMime } from "../../../utils";
 import {
   allowedTextFileTypes,
   allowedImageFileTypes,
+  allowedAudioFileTypes,
 } from "../../../appSettings";
 
 import { useIDEChosenState } from "../../../contexts/IDEStateProvider";
@@ -58,9 +59,13 @@ export default function FilesPanel({
     const acceptedUploadedImageFileTypes = ideState.settings.canUploadImageFiles
       ? allowedImageFileTypes
       : [];
+    const acceptedUploadedAudioFileTypes = ideState.settings.canUploadAudioFiles
+      ? allowedAudioFileTypes
+      : [];
     const acceptedUploadFileTypes = [
       ...acceptedUploadedTextFileTypes,
       ...acceptedUploadedImageFileTypes,
+      ...acceptedUploadedAudioFileTypes,
     ];
     return acceptedUploadFileTypes.join(",");
   }, [ideState.settings]);
@@ -148,7 +153,7 @@ export default function FilesPanel({
                   const fileName = e.target.files[0].name;
                   const fileMime = e.target.files[0].type;
                   const reader = new FileReader();
-                  const isBinary = fileMime.startsWith("image/");
+                  const isBinary = fileMime.startsWith("image/") || fileMime.startsWith("audio/");
                   reader.onload = (eLoader) => {
                     onRequestUploadFile(
                       fileName,

@@ -32,6 +32,7 @@ export type Settings = {
   allowedNewTextFileTypes: FileType[];
   canUploadTextFiles: boolean;
   canUploadImageFiles: boolean;
+  canUploadAudioFiles: boolean;
   canDownloadFiles: boolean;
   canSeeFilesList: boolean;
   canSetVisibilityBounds: boolean;

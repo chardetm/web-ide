@@ -28,26 +28,29 @@ export function PermissionsPanel() {
 
   const createFilesSwitchState =
     ideInitialState.studentSettings.allowedNewTextFileTypes.length > 0 ||
-    ideInitialState.studentSettings.canUploadImageFiles;
+    ideInitialState.studentSettings.canUploadImageFiles ||
+    ideInitialState.studentSettings.canUploadAudioFiles;
 
   let fileCreationText = "";
-
-  if (ideInitialState.studentSettings.allowedNewTextFileTypes.length === 0) {
-    if (ideInitialState.studentSettings.canUploadImageFiles) {
-      fileCreationText = "Images, téléversement";
-    }
-  } else {
-    const allowedTextMimeTypes = allowedTextFileTypes.filter((e) =>
-      ideInitialState.studentSettings.allowedNewTextFileTypes.includes(e)
-    );
-    const allowedTextFileTypesText = allowedTextMimeTypes
-      .map((e) => fileTypesInfo[e].shortName)
-      .join(", ");
-    fileCreationText = allowedTextFileTypesText;
-    if (ideInitialState.studentSettings.canUploadImageFiles) {
-      fileCreationText += ", images";
-    }
-    if (ideInitialState.studentSettings.canUploadTextFiles) {
+  const allAllowedTypes = [
+    ...allowedTextFileTypes
+      .filter((e) =>
+        ideInitialState.studentSettings.allowedNewTextFileTypes.includes(e)
+      )
+      .map((e) => fileTypesInfo[e].shortName),
+    ...(ideInitialState.studentSettings.canUploadImageFiles ? ["images"] : []),
+    ...(ideInitialState.studentSettings.canUploadAudioFiles ? ["audio"] : []),
+  ];
+  const allowedTextFileTypesText = allAllowedTypes.join(", ");
+  if (allowedTextFileTypesText.length > 0) {
+    fileCreationText =
+      allowedTextFileTypesText[0].toUpperCase() +
+      allowedTextFileTypesText.slice(1);
+    if (
+      ideInitialState.studentSettings.canUploadTextFiles ||
+      ideInitialState.studentSettings.canUploadImageFiles ||
+      ideInitialState.studentSettings.canUploadAudioFiles
+    ) {
       fileCreationText += ", téléversement";
     }
   }
@@ -133,6 +136,7 @@ export function PermissionsPanel() {
                       type: "set_student_settings",
                       settings: {
                         canUploadImageFiles: false,
+                        canUploadAudioFiles: false,
                         canUploadTextFiles: false,
                         allowedNewTextFileTypes: [],
                       },
