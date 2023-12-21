@@ -1,17 +1,13 @@
-export function scriptInjection(
-  currentFile: string,
-): string {
-  return `<!-- Début du script inséré pour le fonctionnement de la prévisualisation -->
-  <script>
-    function _webIdeInjectedCode() {
-      const currentFile = ${JSON.stringify(currentFile)};
+if (true) {
+  if (true) {
+    function _webIdeInjectedCode(currentFile) {
       function simplifyRelativePath(path) {
-        path = path.replace(/^(\\.\\/)+/g, "");
-        path = path.replace(/\\/(\\.\\/)+/g, "/");
+        path = path.replace(/^(\.\/)+/g, "");
+        path = path.replace(/\/(\.\/)+/g, "/");
         return path;
       }
 
-      // Copy here
+      // Copy from here
 
       function handle_file_blobs(fileBlobs) {
         const fileUrls = {};
@@ -20,8 +16,7 @@ export function scriptInjection(
           const blobUrl = URL.createObjectURL(blob);
           fileUrls[name] = blobUrl;
         }
-
-        console.log("Handling file blobs", fileUrls);
+        console.log(fileUrls);
 
         const cssLinks = document.querySelectorAll('link[rel="stylesheet"]');
         for (const link of cssLinks) {
@@ -55,7 +50,6 @@ export function scriptInjection(
       }
 
       window.addEventListener("message", function (event) {
-        console.log("Iframe received message", event.data);
         if (event.data.type === "scroll_to_anchor") {
           const anchor = event.data.anchor;
           if (anchor) {
@@ -65,7 +59,7 @@ export function scriptInjection(
             }
           }
         } else if (event.data.type === "handle_file_blobs") {
-          handle_file_blobs(event.data.fileBlobs);
+          handle_file_blobs(event.data.filesBlobs);
         }
       });
 
@@ -143,8 +137,8 @@ export function scriptInjection(
         }
       }
       tellParentReady();
+
+      // Copy to here
     }
-    _webIdeInjectedCode();
-  </script>
-  <!-- Fin du script inséré pour le fonctionnement de la prévisualisation -->`;
+  }
 }

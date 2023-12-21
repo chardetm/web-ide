@@ -117,8 +117,17 @@ export function downloadFile(fileName: string, fileContent: string) {
   }
 }
 
+function urlBase64ToBase64(urlBase64: string): string {
+  return urlBase64.split(",")[1];
+}
+
+export function urlBase64ToBlob(urlBase64: string, mime: string): Blob {
+  return base64toBlob(urlBase64ToBase64(urlBase64), mime);
+}
+
 export function base64toBlob(base64: string, mime: string): Blob {
   // from https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
+  debugger;
   const contentType = mime || '';
   var sliceSize = 1024;
   var byteCharacters = atob(base64);

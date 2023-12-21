@@ -8,6 +8,7 @@ import {
 } from "./state";
 
 import {
+  urlBase64ToBlob,
   getMime,
   objectMap,
   splitFileNameExtension,
@@ -248,11 +249,13 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
               ? action.content
               : state.filesPreview[action.fileName].content,
             contentType: state.filesPreview[action.fileName].contentType,
-            base64Url: state.settings.previewIsLive
+            blob: state.settings.previewIsLive
               ? state.filesPreview[action.fileName].contentType === "base64"
-                ? action.content
-                : stringToUrlBase64(getMime(action.fileName), action.content)
-              : state.filesPreview[action.fileName].base64Url,
+                ? urlBase64ToBlob(action.content, getMime(action.fileName))
+                : new Blob([action.content], {
+                    type: getMime(action.fileName),
+                  })
+              : state.filesPreview[action.fileName].blob,
             upToDate:
               state.settings.previewIsLive ||
               action.content === state.filesPreview[action.fileName].content,
@@ -303,16 +306,23 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
                     ? action.initialContent
                     : null,
                   contentType: action.contentType,
-                  base64Url:
+                  blob:
                     action.contentType === "base64"
-                      ? state.settings.previewIsLive
-                        ? action.initialContent
-                        : ""
-                      : stringToUrlBase64(
-                          getMime(newFileName),
+                      ? urlBase64ToBlob(
                           state.settings.previewIsLive
                             ? action.initialContent
-                            : ""
+                            : "",
+                          getMime(newFileName)
+                        )
+                      : new Blob(
+                          [
+                            state.settings.previewIsLive
+                              ? action.initialContent
+                              : "",
+                          ],
+                          {
+                            type: getMime(newFileName),
+                          }
                         ),
                   upToDate: state.settings.previewIsLive,
                 },
@@ -723,10 +733,12 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
           {
             content: fileData.content,
             contentType: fileData.contentType,
-            base64Url:
+            blob:
               fileData.contentType === "base64"
-                ? fileData.content
-                : stringToUrlBase64(getMime(fileName), fileData.content),
+                ? urlBase64ToBlob(fileData.content, getMime(fileName))
+                : new Blob([fileData.content], {
+                    type: getMime(fileName),
+                  }),
             upToDate: true,
           },
         ]),

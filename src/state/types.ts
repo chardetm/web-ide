@@ -21,7 +21,7 @@ export type FileData = {
 export type FilePreview = {
   content: string;
   contentType: ContentType;
-  base64Url: string;
+  blob: Blob;
   upToDate: boolean;
 };
 

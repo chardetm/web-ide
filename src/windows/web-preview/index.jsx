@@ -35,14 +35,14 @@ function simplifyRelativePath(path) {
   return path;
 }
 
-function getFilesFromFilesPreviewData(filesPreviewData) {
+function getFileBlobsFromFilesPreviewData(filesPreviewData) {
   return objectMap(filesPreviewData, (fileName, previewData) => {
-    return [fileName, previewData.base64Url];
+    return [fileName, previewData.blob];
   });
 }
 
 function performHtmlUpdate(currentFile, htmlCode, filesPreviewData) {
-  const filesBase64 = getFilesFromFilesPreviewData(filesPreviewData);
+  const fileBlobs = getFileBlobsFromFilesPreviewData(filesPreviewData);
   const htmlDocument = new DOMParser().parseFromString(htmlCode, "text/html");
   const titleElement = htmlDocument.head?.querySelector("title");
   const title = titleElement ? titleElement.textContent : null;
@@ -56,33 +56,7 @@ function performHtmlUpdate(currentFile, htmlCode, filesPreviewData) {
       } else {
         const href = simplifyRelativePath(hrefAtt);
         if (href in filesPreviewData) {
-          linkIconData = filesBase64[href];
-        }
-      }
-    }
-  }
-
-  if (Object.keys(filesBase64).length > 0) {
-    // Replace all links to css files with inline css
-    const cssLinks = htmlDocument.querySelectorAll('link[rel="stylesheet"]');
-    for (const link of cssLinks) {
-      const hrefAtt = link.getAttribute("href");
-      if (hrefAtt) {
-        const href = simplifyRelativePath(hrefAtt);
-        if (href in filesBase64) {
-          link.setAttribute("href", filesBase64[href]);
-        }
-      }
-    }
-
-    // Replace all elements with src attribute with inline base64
-    const elementsWithSrc = htmlDocument.querySelectorAll("*[src]");
-    for (const element of elementsWithSrc) {
-      const srcAtt = element.getAttribute("src");
-      if (srcAtt) {
-        const src = simplifyRelativePath(srcAtt);
-        if (src in filesBase64) {
-          element.setAttribute("src", filesBase64[src]);
+          linkIconData = fileBlobs[href];
         }
       }
     }
@@ -92,7 +66,7 @@ function performHtmlUpdate(currentFile, htmlCode, filesPreviewData) {
     ? htmlDocument.documentElement.outerHTML
     : "";
   const bodyCloseWithScript = `</body>
-  ${scriptInjection(currentFile, filesBase64)}`;
+  ${scriptInjection(currentFile)}`;
   const newHtmlCodeNoLink = newHtmlCode.replace("</body>", bodyCloseWithScript);
   return {
     title: title,
@@ -255,6 +229,19 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
       const { data } = event;
       if (data.type === "ready") {
         setIframeActiveFile(data.file);
+        // TODO: move code below
+        // post message to iframe to send blobs
+        const fileBlobs = getFileBlobsFromFilesPreviewData(
+          ideState.filesPreview
+        );
+        console.log("sending file blobs to iframe");
+        postMessageToIframe(
+          {
+            type: "handle_file_blobs",
+            fileBlobs: fileBlobs,
+          },
+          "*"
+        );
       } else if (data.type === "set_active_file") {
         openLocalLink(data.fileName, data.anchor, data.target);
       } else if (data.type === "open_external_link") {

@@ -5,11 +5,10 @@ import {
 } from "../appSettings";
 
 import {
-  base64ToUrlBase64,
+  urlBase64ToBlob,
   getMime,
   getNumberOfLines,
   objectMap,
-  stringToUrlBase64,
 } from "../utils";
 
 import {
@@ -168,16 +167,23 @@ export function importV2CurrentState(
               previewState.contentIndex
             ],
           contentType: previewState.contentType,
-          base64Url:
+          blob:
             previewState.contentType === "base64"
-              ? exportedData.content[previewState.contentType][
-                  previewState.contentIndex
-                ]
-              : stringToUrlBase64(
-                  getMime(fileName),
+              ? urlBase64ToBlob(
                   exportedData.content[previewState.contentType][
                     previewState.contentIndex
-                  ]
+                  ],
+                  getMime(fileName)
+                )
+              : new Blob(
+                  [
+                    exportedData.content[previewState.contentType][
+                      previewState.contentIndex
+                    ],
+                  ],
+                  {
+                    type: getMime(fileName),
+                  }
                 ),
           upToDate: previewState.upToDate,
         },
@@ -224,14 +230,23 @@ export function importV2InitialState(exportedData: ExportV2): IDEState {
         content:
           exportedData.content[fileData.contentType][fileData.contentIndex],
         contentType: fileData.contentType,
-        base64Url:
+        blob:
           fileData.contentType === "base64"
-            ? exportedData.content[fileData.contentType][fileData.contentIndex]
-            : stringToUrlBase64(
-                getMime(fileName),
+            ? urlBase64ToBlob(
                 exportedData.content[fileData.contentType][
                   fileData.contentIndex
-                ]
+                ],
+                getMime(fileName)
+              )
+            : new Blob(
+                [
+                  exportedData.content[fileData.contentType][
+                    fileData.contentIndex
+                  ],
+                ],
+                {
+                  type: getMime(fileName),
+                }
               ),
         upToDate: true,
       },
