@@ -18,9 +18,37 @@ export type FileData = {
   initialName: string | null;
 };
 
+export type FileData2 = (
+  | {
+      contentType: "text";
+      content: string;
+    }
+  | {
+      contentType: "binary";
+      blob: Blob;
+    }
+) & {
+  permissions: FilePermissions;
+  studentPermissions: FilePermissions;
+  initialName: string | null;
+};
+
 export type FilePreview = {
   content: string;
   contentType: ContentType;
+  blob: Blob;
+  upToDate: boolean;
+};
+
+export type FilePreview2 = (
+  | {
+      contentType: "text";
+      content: string; // Storing text in addition to blob to avoid having to convert it back to text when parsing HTML
+    }
+  | {
+      contentType: "binary";
+    }
+) & {
   blob: Blob;
   upToDate: boolean;
 };
