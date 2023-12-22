@@ -117,6 +117,15 @@ export function downloadFile(fileName: string, fileContent: string) {
   }
 }
 
+export function blobToUrlBase64(blob: Blob): Promise<string> {
+  // from https://stackoverflow.com/questions/18650168/convert-blob-to-base64
+  return new Promise((resolve, _) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
+}
+
 function urlBase64ToBase64(urlBase64: string): string {
   return urlBase64.split(",")[1];
 }
