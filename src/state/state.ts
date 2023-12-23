@@ -9,6 +9,7 @@ import {
   getMime,
   getNumberOfLines,
   objectMap,
+  blobToUrlBase64,
 } from "../utils";
 
 import {
@@ -25,10 +26,13 @@ import {
   ExportV2FilePreview,
 } from "./types";
 
-function getDefaultFilePermissions(initialContent: string): FilePermissions {
+function getDefaultFilePermissions(initialContent?: string): FilePermissions {
   return {
-    firstVisibleLine: 1,
-    lastVisibleLine: getNumberOfLines(initialContent),
+    firstVisibleLine: initialContent === undefined ? undefined : 1,
+    lastVisibleLine:
+      initialContent === undefined
+        ? undefined
+        : getNumberOfLines(initialContent),
     canEdit: true,
     canRename: true,
     canDelete: true,
@@ -36,15 +40,24 @@ function getDefaultFilePermissions(initialContent: string): FilePermissions {
 }
 
 export function getDefaultFileData(
-  initialContent: string,
-  contentType: ContentType,
+  initialContent: string | Blob,
   initialName: string | null = null
 ): FileData {
+  const isBinary = initialContent instanceof Blob;
   return {
-    content: initialContent,
-    contentType: contentType,
-    permissions: getDefaultFilePermissions(initialContent),
-    studentPermissions: getDefaultFilePermissions(initialContent),
+    ...(isBinary
+      ? {
+          contentType: "binary",
+          blob: initialContent,
+          blobUrl: URL.createObjectURL(initialContent),
+        }
+      : { contentType: "text", content: initialContent }),
+    permissions: getDefaultFilePermissions(
+      isBinary ? undefined : initialContent
+    ),
+    studentPermissions: getDefaultFilePermissions(
+      isBinary ? undefined : initialContent
+    ),
     initialName: initialName,
   };
 }
@@ -138,9 +151,16 @@ export function importV2CurrentState(
           ...initialState.filesData[fileState.initialName].studentPermissions,
         }
       : getDefaultFilePermissions(content);
+    const isBinary = fileState.contentType === "base64";
+    const blob = isBinary ? urlBase64ToBlob(content) : undefined;
     return {
-      content: content,
-      contentType: fileState.contentType,
+      ...(fileState.contentType === "text"
+        ? { contentType: "text", content: content }
+        : {
+            contentType: "binary",
+            blob: blob,
+            blobUrl: URL.createObjectURL(blob),
+          }),
       permissions: permissions,
       studentPermissions: permissions,
       initialName: fileState.initialName,
@@ -162,18 +182,21 @@ export function importV2CurrentState(
       ...objectMap(attempt.previewState, (fileName, previewState) => [
         fileName,
         {
-          content:
-            exportedData.content[previewState.contentType][
-              previewState.contentIndex
-            ],
-          contentType: previewState.contentType,
+          ...(previewState.contentType === "text"
+            ? {
+                contentType: "text",
+                content:
+                  exportedData.content[previewState.contentType][
+                    previewState.contentIndex
+                  ],
+              }
+            : { contentType: "binary" }),
           blob:
             previewState.contentType === "base64"
               ? urlBase64ToBlob(
                   exportedData.content[previewState.contentType][
                     previewState.contentIndex
-                  ],
-                  getMime(fileName)
+                  ]
                 )
               : new Blob(
                   [
@@ -202,9 +225,18 @@ export function importV2InitialState(exportedData: ExportV2): IDEState {
   function getFileData(fileData: ExportV2FileData): FileData {
     const content =
       exportedData.content[fileData.contentType][fileData.contentIndex];
+
+    const isBinary = fileData.contentType === "base64";
+    const blob = isBinary ? urlBase64ToBlob(content) : undefined;
+
     return {
-      content: content,
-      contentType: fileData.contentType,
+      ...(fileData.contentType === "text"
+        ? { contentType: "text", content: content }
+        : {
+            contentType: "binary",
+            blob: blob,
+            blobUrl: URL.createObjectURL(blob),
+          }),
       permissions: getDefaultFilePermissions(content),
       studentPermissions: fileData.studentPermissions,
       initialName: null,
@@ -225,18 +257,22 @@ export function importV2InitialState(exportedData: ExportV2): IDEState {
     ]),
     filesPreview: objectMap(activity.filesData, (fileName, fileData) => [
       fileName,
-
       {
-        content:
-          exportedData.content[fileData.contentType][fileData.contentIndex],
-        contentType: fileData.contentType,
+        ...(fileData.contentType === "text"
+          ? {
+              contentType: "text",
+              content:
+                exportedData.content[fileData.contentType][
+                  fileData.contentIndex
+                ],
+            }
+          : { contentType: "binary" }),
         blob:
           fileData.contentType === "base64"
             ? urlBase64ToBlob(
                 exportedData.content[fileData.contentType][
                   fileData.contentIndex
-                ],
-                getMime(fileName)
+                ]
               )
             : new Blob(
                 [
@@ -254,11 +290,11 @@ export function importV2InitialState(exportedData: ExportV2): IDEState {
   };
 }
 
-export function exportV2(
+export async function exportV2(
   initialState: IDEState,
   currentState: IDEState,
   isAttempt: boolean
-): ExportV2 {
+): Promise<ExportV2> {
   let activityFilesData: { [fileName: string]: ExportV2FileData } = {};
   let attemptFilesState: { [fileName: string]: ExportV2FileState } = {};
   let attemptPreviewState: { [fileName: string]: ExportV2FilePreview } = {};
@@ -269,15 +305,21 @@ export function exportV2(
 
   // Initial state files
   for (const [fileName, fileData] of Object.entries(initialState.filesData)) {
-    const foundIndex = content[fileData.contentType].indexOf(fileData.content);
+    const exportContentType =
+      fileData.contentType === "text" ? "text" : "base64";
+    const exportContent =
+      fileData.contentType === "text"
+        ? fileData.content
+        : await blobToUrlBase64(fileData.blob);
+    const foundIndex = content[exportContentType].indexOf(exportContent);
     const contentIndex =
-      foundIndex !== -1 ? foundIndex : content[fileData.contentType].length;
+      foundIndex !== -1 ? foundIndex : content[exportContentType].length;
     if (foundIndex === -1) {
-      content[fileData.contentType].push(fileData.content);
+      content[exportContentType].push(exportContent);
     }
     activityFilesData[fileName] = {
       contentIndex: contentIndex,
-      contentType: fileData.contentType,
+      contentType: exportContentType,
       studentPermissions: fileData.studentPermissions,
     };
   }
@@ -285,17 +327,21 @@ export function exportV2(
   if (isAttempt) {
     // Current state files
     for (const [fileName, fileData] of Object.entries(currentState.filesData)) {
-      const foundIndex = content[fileData.contentType].indexOf(
-        fileData.content
-      );
+      const exportContentType =
+        fileData.contentType === "text" ? "text" : "base64";
+      const exportContent =
+        fileData.contentType === "text"
+          ? fileData.content
+          : await blobToUrlBase64(fileData.blob);
+      const foundIndex = content[exportContentType].indexOf(exportContent);
       const contentIndex =
         foundIndex !== -1 ? foundIndex : content[fileData.contentType].length;
       if (foundIndex === -1) {
-        content[fileData.contentType].push(fileData.content);
+        content[exportContentType].push(exportContent);
       }
       attemptFilesState[fileName] = {
         contentIndex: contentIndex,
-        contentType: fileData.contentType,
+        contentType: exportContentType,
         initialName: fileData.initialName,
       };
     }
@@ -304,19 +350,21 @@ export function exportV2(
     for (const [fileName, previewData] of Object.entries(
       currentState.filesPreview
     )) {
-      const foundIndex = content[previewData.contentType].indexOf(
-        previewData.content
-      );
+      const exportContentType =
+        previewData.contentType === "text" ? "text" : "base64";
+      const exportContent =
+        previewData.contentType === "text"
+          ? previewData.content
+          : await blobToUrlBase64(previewData.blob);
+      const foundIndex = content[exportContentType].indexOf(exportContent);
       const contentIndex =
-        foundIndex !== -1
-          ? foundIndex
-          : content[previewData.contentType].length;
+        foundIndex !== -1 ? foundIndex : content[exportContentType].length;
       if (foundIndex === -1) {
-        content[previewData.contentType].push(previewData.content);
+        content[exportContentType].push(exportContent);
       }
       attemptPreviewState[fileName] = {
         contentIndex: contentIndex,
-        contentType: previewData.contentType,
+        contentType: exportContentType,
         upToDate: previewData.upToDate,
       };
     }

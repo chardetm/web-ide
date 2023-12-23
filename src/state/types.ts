@@ -8,17 +8,11 @@ export type FilePermissions = {
   canDelete: boolean;
 };
 
-export type ContentType = "text" | "base64";
+export type ContentType = "text" | "binary";
 
-export type FileData = {
-  content: string;
-  contentType: ContentType;
-  permissions: FilePermissions;
-  studentPermissions: FilePermissions;
-  initialName: string | null;
-};
+export type ExportV2ContentType = "text" | "base64";
 
-export type FileData2 = (
+export type FileData = (
   | {
       contentType: "text";
       content: string;
@@ -26,6 +20,7 @@ export type FileData2 = (
   | {
       contentType: "binary";
       blob: Blob;
+      blobUrl?: string | undefined;
     }
 ) & {
   permissions: FilePermissions;
@@ -33,23 +28,16 @@ export type FileData2 = (
   initialName: string | null;
 };
 
-export type FilePreview = {
-  content: string;
-  contentType: ContentType;
-  blob: Blob;
-  upToDate: boolean;
-};
-
-export type FilePreview2 = (
+export type FilePreview = (
   | {
       contentType: "text";
-      content: string; // Storing text in addition to blob to avoid having to convert it back to text when parsing HTML
+      content: string | null; // Storing text in addition to blob to avoid having to convert it back to text when parsing HTML
     }
   | {
       contentType: "binary";
     }
 ) & {
-  blob: Blob;
+  blob: Blob | null;
   upToDate: boolean;
 };
 
@@ -93,7 +81,7 @@ export type ExportV2Type = "exercise" | "attempt";
 
 export type ExportV2FileData = {
   contentIndex: number;
-  contentType: ContentType;
+  contentType: ExportV2ContentType;
   studentPermissions: FilePermissions;
 };
 
@@ -108,13 +96,13 @@ export type ExportV2Activity = {
 
 export type ExportV2FilePreview = {
   contentIndex: number;
-  contentType: ContentType;
+  contentType: ExportV2ContentType;
   upToDate: boolean;
 };
 
 export type ExportV2FileState = {
   contentIndex: number;
-  contentType: ContentType;
+  contentType: ExportV2ContentType;
   initialName: string | null;
 };
 

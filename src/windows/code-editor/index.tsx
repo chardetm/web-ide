@@ -16,7 +16,11 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 
 import { appendClassnames, downloadFile, getMime } from "../../utils";
-import { FileType, allowedImageFileTypes, allowedAudioFileTypes } from "../../appSettings";
+import {
+  FileType,
+  allowedImageFileTypes,
+  allowedAudioFileTypes,
+} from "../../appSettings";
 import {
   useIDEChosenState,
   useIDEChosenStateDispatch,
@@ -98,6 +102,9 @@ export default function CodeEditorWindow({
     setFilesPanelOpen(ideState.settings.canSeeFilesList);
   }, [ideState.settings.canSeeFilesList]);
 
+  const activeFileData = ideState.filesData[ideState.activeFile];
+  const initialFileData = ideInitialState.filesData[activeFileData.initialName];
+
   return (
     <TabbedWindow
       className={appendClassnames(className, styles.codeEditorWindow)}
@@ -142,24 +149,25 @@ export default function CodeEditorWindow({
             )}
 
             <MaterialButtonGroup>
-              {ideState.filesData[ideState.activeFile].initialName in
-                ideInitialState.filesData && (
-                <RoundedButton
-                  label="Réinitialiser"
-                  icon={<MaterialIcon.Rounded name="device_reset" />}
-                  border={true}
-                  disabled={
-                    ideState.filesData[ideState.activeFile].content ===
-                    ideInitialState.filesData[
-                      ideState.filesData[ideState.activeFile].initialName
-                    ].content
-                  }
-                  onClick={function () {
-                    setResetFileDialogFileName(ideState.activeFile);
-                    setResetFileDialogOpen(true);
-                  }}
-                />
-              )}
+              {activeFileData.contentType !== initialFileData?.contentType ||
+                (activeFileData.contentType === "text" &&
+                  activeFileData.initialName in ideInitialState.filesData && (
+                    <RoundedButton
+                      label="Réinitialiser"
+                      icon={<MaterialIcon.Rounded name="device_reset" />}
+                      border={true}
+                      disabled={
+                        activeFileData.contentType ===
+                          initialFileData.contentType &&
+                        activeFileData.content === //@ts-ignore
+                          initialFileData.content
+                      }
+                      onClick={function () {
+                        setResetFileDialogFileName(ideState.activeFile);
+                        setResetFileDialogOpen(true);
+                      }}
+                    />
+                  ))}
               {ideState.settings.canDownloadFiles && (
                 <RoundedButton
                   label="Télécharger"
@@ -168,7 +176,9 @@ export default function CodeEditorWindow({
                   onClick={function () {
                     downloadFile(
                       ideState.activeFile,
-                      ideState.filesData[ideState.activeFile].content
+                      activeFileData.contentType === "text"
+                        ? activeFileData.content
+                        : activeFileData.blob
                     );
                   }}
                 />
@@ -251,7 +261,7 @@ export default function CodeEditorWindow({
             setDeleteFileDialogFileName(fileName);
             setDeleteFileDialogOpen(true);
           }}
-          onRequestUploadFile={(fileName, fileContent, contentType) => {
+          onRequestUploadFile={(fileName, fileContent) => {
             const mime = getMime(fileName);
             if (
               !ideState.settings.allowedNewTextFileTypes.includes(
@@ -273,7 +283,6 @@ export default function CodeEditorWindow({
               type: "create_new_file",
               fileName: fileName,
               initialContent: fileContent,
-              contentType: contentType,
               open: true,
             });
           }}
@@ -282,12 +291,14 @@ export default function CodeEditorWindow({
       {ideState.activeFile && (
         <Editor
           ref={editorRef}
-          readOnly={
-            !ideState.filesData[ideState.activeFile].permissions.canEdit
-          }
-          grayed={!ideState.filesData[ideState.activeFile].permissions.canEdit}
+          readOnly={!activeFileData.permissions.canEdit}
+          grayed={!activeFileData.permissions.canEdit}
           className={styles.editorPane}
-          value={ideState.filesData[ideState.activeFile].content}
+          value={
+            activeFileData.contentType === "text"
+              ? activeFileData.content
+              : activeFileData.blobUrl
+          }
           lineWrapping={ideState.settings.lineWrap}
           onChange={(content) =>
             ideStateDispatch({

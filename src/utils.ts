@@ -106,14 +106,11 @@ export function downloadBase64File(fileName: string, fileContent: string) {
   a.remove();
 }
 
-export function downloadFile(fileName: string, fileContent: string) {
-  if (
-    (allowedTextFileTypes as string[]).includes(getMime(fileName)) ||
-    !fileContent.includes("base64,")
-  ) {
-    downloadTextFile(fileName, fileContent);
+export function downloadFile(fileName: string, fileContent: string | Blob) {
+  if (fileContent instanceof Blob) {
+    saveAs(fileContent, fileName);
   } else {
-    downloadBase64File(fileName, fileContent);
+    downloadTextFile(fileName, fileContent);
   }
 }
 
@@ -130,14 +127,15 @@ function urlBase64ToBase64(urlBase64: string): string {
   return urlBase64.split(",")[1];
 }
 
-export function urlBase64ToBlob(urlBase64: string, mime: string): Blob {
+export function urlBase64ToBlob(urlBase64: string): Blob {
+  const mime = urlBase64.split(";")[0].split(":")[1];
   return base64toBlob(urlBase64ToBase64(urlBase64), mime);
 }
 
 export function base64toBlob(base64: string, mime: string): Blob {
   // from https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
   debugger;
-  const contentType = mime || '';
+  const contentType = mime || "";
   var sliceSize = 1024;
   var byteCharacters = atob(base64);
   var bytesLength = byteCharacters.length;
@@ -145,14 +143,14 @@ export function base64toBlob(base64: string, mime: string): Blob {
   var byteArrays = new Array(slicesCount);
 
   for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
-      var begin = sliceIndex * sliceSize;
-      var end = Math.min(begin + sliceSize, bytesLength);
+    var begin = sliceIndex * sliceSize;
+    var end = Math.min(begin + sliceSize, bytesLength);
 
-      var bytes = new Array(end - begin);
-      for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
-          bytes[i] = byteCharacters[offset].charCodeAt(0);
-      }
-      byteArrays[sliceIndex] = new Uint8Array(bytes);
+    var bytes = new Array(end - begin);
+    for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
+      bytes[i] = byteCharacters[offset].charCodeAt(0);
+    }
+    byteArrays[sliceIndex] = new Uint8Array(bytes);
   }
   return new Blob(byteArrays, { type: contentType });
 }
@@ -166,13 +164,13 @@ function bytesToBase64(bytes: Uint8Array): string {
   // from https://stackoverflow.com/questions/63020540/converting-a-larger-byte-array-to-a-string
   let rs = [];
   let batch = 32767; // Supported 'all' browsers
-  for (let i = 0; i < bytes.length; ){
+  for (let i = 0; i < bytes.length; ) {
     let e = i + batch;
     // Build batch section, defer to Array.join.
     rs.push(String.fromCodePoint.apply(null, bytes.slice(i, e)));
     i = e;
   }
-  return btoa(rs.join(''));
+  return btoa(rs.join(""));
 }
 
 /* // has a size limit
@@ -180,7 +178,6 @@ function bytesToBase64(bytes: Uint8Array): string {
   const binString = String.fromCodePoint(...bytes);
   return btoa(binString);
 }*/
-
 
 export function stringToBase64(str: string): string {
   return bytesToBase64(new TextEncoder().encode(str));

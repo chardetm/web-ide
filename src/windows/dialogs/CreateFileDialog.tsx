@@ -71,7 +71,6 @@ export function CreateFileDialog({ open, onClose }: CreateFileDialogProps) {
       fileName: filenameNoExtension + "." + getExtension(selectedFileTypeMime),
       initialContent:
         ideState.fileTypesInitialContent[selectedFileTypeMime] || "",
-      contentType: "text",
       open: true,
     });
     onClose();

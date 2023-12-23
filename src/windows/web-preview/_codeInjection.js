@@ -13,8 +13,10 @@ if (true) {
         const fileUrls = {};
         for (const name in fileBlobs) {
           const blob = fileBlobs[name];
-          const blobUrl = URL.createObjectURL(blob);
-          fileUrls[name] = blobUrl;
+          if (blob) {
+            const blobUrl = URL.createObjectURL(blob);
+            fileUrls[name] = blobUrl;
+          }
         }
         console.log(fileUrls);
 

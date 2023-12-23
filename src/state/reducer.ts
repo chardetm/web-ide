@@ -12,47 +12,21 @@ import {
   getMime,
   objectMap,
   splitFileNameExtension,
-  stringToUrlBase64,
 } from "../utils";
 
-import { ContentType, ExportV2, IDEState, Settings } from "./types";
-
-// TODO: use union type
-/* export type IDEStateAction = {
-  type: string;
-  fileType?: FileType;
-  contentType?: ContentType;
-  fileName?: string;
-  anchor?: string | null;
-  oldFileName?: string;
-  newFileName?: string;
-  content?: string;
-  initialContent?: string;
-  permissions?: {
-    canEdit: boolean;
-    canRename: boolean;
-    canDelete: boolean;
-  };
-  language?: string;
-  open?: boolean;
-  value?: boolean;
-  settings?: Partial<Settings>;
-  settingsKey?: string;
-  exportedData?: ExportV2;
-  initialState?: IDEState;
-}; */
+import { ContentType, ExportV2, FilePreview, IDEState, Settings } from "./types";
+import { cp } from "fs";
 
 export type IDEStateAction =
   | {
       type: "set_file_content";
       fileName: string;
-      content: string;
+      content: Blob | string;
     }
   | {
       type: "create_new_file";
       fileName: string;
-      initialContent: string;
-      contentType: ContentType;
+      initialContent: string | Blob;
       open: boolean;
     }
   | {
@@ -232,34 +206,56 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
       if (!Object.keys(state.filesData).includes(action.fileName)) {
         throw new Error(`File ${action.fileName} does not exist`);
       }
+      const isBinary = action.content instanceof Blob;
+      const fileData = state.filesData[action.fileName];
+      const filePreviewData = state.filesPreview[action.fileName];
+      if (fileData.contentType === "binary" && fileData.blobUrl) {
+        URL.revokeObjectURL(fileData.blobUrl);
+      }
       // TODO handle first/last visible lines
       return {
         ...state,
         filesData: {
           ...state.filesData,
           [action.fileName]: {
-            ...state.filesData[action.fileName],
-            content: action.content,
+            ...(isBinary
+              ? {
+                  contentType: "binary",
+                  blob: action.content as Blob,
+                  blobUrl: URL.createObjectURL(action.content as Blob),
+                }
+              : { contentType: "text", content: action.content as string }),
+            permissions: fileData.permissions,
+            studentPermissions: fileData.studentPermissions,
+            initialName: fileData.initialName,
           },
         },
         filesPreview: {
           ...state.filesPreview,
-          [action.fileName]: {
-            content: state.settings.previewIsLive
-              ? action.content
-              : state.filesPreview[action.fileName].content,
-            contentType: state.filesPreview[action.fileName].contentType,
-            blob: state.settings.previewIsLive
-              ? state.filesPreview[action.fileName].contentType === "base64"
-                ? urlBase64ToBlob(action.content, getMime(action.fileName))
-                : new Blob([action.content], {
-                    type: getMime(action.fileName),
-                  })
-              : state.filesPreview[action.fileName].blob,
-            upToDate:
-              state.settings.previewIsLive ||
-              action.content === state.filesPreview[action.fileName].content,
-          },
+          [action.fileName]: state.settings.previewIsLive
+            ? {
+                ...(isBinary
+                  ? {
+                      contentType: "binary",
+                    }
+                  : {
+                      contentType: "text",
+                      content: action.content as string,
+                    }),
+                blob: isBinary
+                  ? (action.content as Blob)
+                  : new Blob([action.content], {
+                      type: getMime(action.fileName),
+                    }),
+                upToDate: true,
+              }
+            : {
+                ...filePreviewData,
+                upToDate:
+                  !isBinary &&
+                  filePreviewData.contentType === "text" &&
+                  action.content === filePreviewData.content, // assume different if binary or if different type
+              },
         },
       };
     }
@@ -281,51 +277,54 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
           i++
         );
       }
+      const isBinary = action.initialContent instanceof Blob;
+
+      const oldPreviewData = state.filesPreview[newFileName];
+
+      const newFilePreview: FilePreview =
+        oldPreviewData && !state.settings.previewIsLive
+          ? {
+              ...oldPreviewData,
+              upToDate:
+                !isBinary &&
+                oldPreviewData.contentType === "text" &&
+                (action.initialContent as string) === oldPreviewData.content,
+            }
+          : {
+              ...(isBinary
+                ? { contentType: "binary" }
+                : {
+                    contentType: "text",
+                    content: state.settings.previewIsLive
+                      ? (action.initialContent as string)
+                      : null,
+                  }),
+              blob: state.settings.previewIsLive
+                ? isBinary
+                  ? (action.initialContent as Blob)
+                  : new Blob(
+                      [
+                        state.settings.previewIsLive
+                          ? (action.initialContent as string)
+                          : "",
+                      ],
+                      {
+                        type: getMime(newFileName),
+                      }
+                    )
+                : null,
+              upToDate: state.settings.previewIsLive,
+            };
+
       const newState = {
         ...state,
         filesData: {
           ...state.filesData,
-          [newFileName]: getDefaultFileData(
-            action.initialContent,
-            action.contentType
-          ),
+          [newFileName]: getDefaultFileData(action.initialContent),
         },
         filesPreview: {
           ...state.filesPreview,
-          [newFileName]:
-            Object.keys(state.filesPreview).includes(newFileName) &&
-            !state.settings.previewIsLive
-              ? {
-                  ...state.filesPreview.newFileName,
-                  upToDate:
-                    action.initialContent ===
-                    state.filesPreview.newFileName.content,
-                }
-              : {
-                  content: state.settings.previewIsLive
-                    ? action.initialContent
-                    : null,
-                  contentType: action.contentType,
-                  blob:
-                    action.contentType === "base64"
-                      ? urlBase64ToBlob(
-                          state.settings.previewIsLive
-                            ? action.initialContent
-                            : "",
-                          getMime(newFileName)
-                        )
-                      : new Blob(
-                          [
-                            state.settings.previewIsLive
-                              ? action.initialContent
-                              : "",
-                          ],
-                          {
-                            type: getMime(newFileName),
-                          }
-                        ),
-                  upToDate: state.settings.previewIsLive,
-                },
+          [newFileName]: newFilePreview,
         },
       };
       return action.open
@@ -450,11 +449,14 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
       if (action.oldFileName === action.newFileName) {
         return state;
       }
+      const oldFileData = state.filesData[action.oldFileName];
       const created_state = ideStateReducer(state, {
         type: "create_new_file",
         fileName: action.newFileName,
-        initialContent: state.filesData[action.oldFileName].content,
-        contentType: state.filesData[action.oldFileName].contentType,
+        initialContent:
+          oldFileData.contentType === "text"
+            ? oldFileData.content
+            : oldFileData.blob,
         open: false,
       });
       const updated_state = {
@@ -731,11 +733,15 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
         filesPreview: objectMap(state.filesData, (fileName, fileData) => [
           fileName,
           {
-            content: fileData.content,
-            contentType: fileData.contentType,
+            ...(fileData.contentType === "binary"
+              ? { contentType: "binary" }
+              : {
+                  contentType: "text",
+                  content: fileData.content,
+                }),
             blob:
-              fileData.contentType === "base64"
-                ? urlBase64ToBlob(fileData.content, getMime(fileName))
+              fileData.contentType === "binary"
+                ? fileData.blob
                 : new Blob([fileData.content], {
                     type: getMime(fileName),
                   }),

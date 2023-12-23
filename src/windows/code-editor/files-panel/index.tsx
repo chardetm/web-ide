@@ -32,11 +32,7 @@ import { ContentType } from "src/state/types";
 type FilesPanelProps = {
   onRequestCreateFile: () => void;
   onRequestRenameFile: (fileName: string) => void;
-  onRequestUploadFile: (
-    fileName: string,
-    fileContent: string,
-    contentType: ContentType
-  ) => void;
+  onRequestUploadFile: (fileName: string, fileContent: string | Blob) => void;
   onRequestDeleteFile: (fileName: string) => void;
 };
 
@@ -79,17 +75,16 @@ export default function FilesPanel({
           input: fileData.content,
         });
       } else {
-        const fileBlob = await (await fetch(fileData.content)).blob();
         filesToZip.push({
           name: file,
-          input: fileBlob,
+          input: fileData.blob,
         });
       }
     }
     const zipBlob = await downloadZip(filesToZip).blob();
     saveAs(zipBlob, "exercice.zip");
   }
-  
+
   return (
     <aside
       className={appendClassnames(
@@ -152,18 +147,19 @@ export default function FilesPanel({
                   const file = e.target.files[0];
                   const fileName = e.target.files[0].name;
                   const fileMime = e.target.files[0].type;
-                  const reader = new FileReader();
-                  const isBinary = fileMime.startsWith("image/") || fileMime.startsWith("audio/");
-                  reader.onload = (eLoader) => {
-                    onRequestUploadFile(
-                      fileName,
-                      eLoader.target.result as string,
-                      isBinary ? "base64" : "text"
-                    );
-                  };
+                  const isBinary =
+                    fileMime.startsWith("image/") ||
+                    fileMime.startsWith("audio/");
                   if (isBinary) {
-                    reader.readAsDataURL(file);
+                    onRequestUploadFile(fileName, file);
                   } else {
+                    const reader = new FileReader();
+                    reader.onload = (eLoader) => {
+                      onRequestUploadFile(
+                        fileName,
+                        eLoader.target.result as string
+                      );
+                    };
                     reader.readAsText(file);
                   }
                 }}
