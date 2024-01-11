@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iframe container</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe id="frame" sandbox="allow-modals allow-same-origin allow-scripts">
+    </iframe>
+    <script>
+      function simplifyRelativePath(path) {
+        path = path.replace(/^(\.\/)+/g, "");
+        path = path.replace(/\/(\.\/)+/g, "/");
+        return path;
+      }
+      const parser = new DOMParser();
+      const fileUrls = {};
+      let anchor = null;
+      let fileBlobs = null;
+      let currentFile = null;
+      let originalHtml = null;
+      let modifiedHtml = null;
+
+      function update() {
+        const htmlDoc = parser.parseFromString(originalHtml, "text/html");
+
+        // Invalidate URLs for previous blobs
+        for (const name in fileUrls) {
+          URL.revokeObjectURL(fileUrls[name]);
+          delete fileUrls[name];
+        }
+
+        // Create new URLs for new blobs
+        for (const name in fileBlobs) {
+          const blob = fileBlobs[name];
+          const blobUrl = URL.createObjectURL(blob);
+          fileUrls[name] = blobUrl;
+        }
+        console.log(fileUrls);
+
+        const cssLinks = htmlDoc.querySelectorAll('link[rel="stylesheet"]');
+        for (const link of cssLinks) {
+          const hrefAtt = link.getAttribute("href");
+          if (hrefAtt) {
+            const href = simplifyRelativePath(hrefAtt);
+            if (href in fileUrls) {
+              link.setAttribute("href", fileUrls[href]);
+            }
+          }
+        }
+
+        // Replace all elements with src attribute with inline blob URLs
+        const elementsWithSrc = htmlDoc.querySelectorAll("*[src]");
+        for (const element of elementsWithSrc) {
+          const srcAtt = element.getAttribute("src");
+          if (srcAtt) {
+            const src = simplifyRelativePath(srcAtt);
+            if (src in fileUrls) {
+              element.setAttribute("src", fileUrls[src]);
+            }
+          }
+        }
+
+        // Add script injection
+        const script = htmlDoc.createElement("script");
+        script.innerHTML = `
+        function handleFileUrls(fileUrls) {
+          // Handle CSS rules
+          for (const sheet of document.styleSheets) {
+            for (const rule of sheet.cssRules) {
+              treatCssRule(rule, fileUrls);
+            }
+          }
+        }
+
+        window.addEventListener("message", function (event) {
+          if (event.data.type === "handle_file_urls") {
+            handleFileUrls(event.data.fileUrls);
+          }
+        });
+
+        function _messageParent(message) {
+          window.parent.postMessage(message, "*");
+        }
+        function makeParentOpenLink(href, resolvedHref, target) {
+          _messageParent({
+            type: "open_link",
+            href,
+            resolvedHref,
+            target,
+          });
+        }
+        function tellParentReady() {
+          _messageParent({
+            type: "ready"
+          });
+        }
+        const cssUrlRegex = /url\\(\\s*(".+?"|'.+?'|.+?)\\s*\\)/g;
+        const isAbsoluteRegex = new RegExp("^(?:[a-z]+:)?//", "i");
+        const cssRulesContainingUrl = [
+          "background",
+          "background-image",
+          "border",
+          "border-image",
+          "border-image-source",
+          "content",
+          "cursor",
+          "filter",
+          "list-style",
+          "list-style-image",
+          "mask",
+          "mask-image",
+          "offset-path",
+          "clip-path",
+          "src",
+        ];
+        const anchors = document.getElementsByTagName("a");
+        for (const a of anchors) {
+          a.addEventListener("click", function (e) {
+            const href = linkElement?.getAttribute("href");
+            if (href && href.length > 0 && href[0] === "#") {
+              return;
+            }
+            e.preventDefault();
+            const linkElement = e.target.closest("a");
+            const resolvedHref = linkElement?.href;
+            const linkTarget = linkElement?.getAttribute("target");
+            makeParentOpenLink(href, resolvedHref, linkTarget);
+          });
+        }
+
+        function treatCssRule(rule, fileUrls) {
+          if (rule.type == CSSRule.MEDIA_RULE) {
+            for (const subrule of rule.cssRules) {
+              treatCssRule(subrule);
+            }
+          } else if (rule.type == CSSRule.STYLE_RULE) {
+            for (const key of rule.style) {
+              if (cssRulesContainingUrl.includes(key)) {
+                const oldVal = rule.style[key];
+                const newVal = oldVal.replace(cssUrlRegex, (old, g1) => {
+                  const urlPath =
+                    (g1[0] === '"' && g1.slice(-1) === '"') ||
+                    (g1[0] === "'" && g1.slice(-1) === "'")
+                      ? g1.substring(1, g1.length - 1)
+                      : g1;
+                  if (!isAbsoluteRegex.test(urlPath) && urlPath in fileUrls) {
+                    return "url(" + fileUrls[urlPath] + ")";
+                  }
+                  return old;
+                });
+                rule.style.setProperty(key, newVal);
+              }
+            }
+          }
+        }
+        tellParentReady();
+      `;
+        htmlDoc.body.appendChild(script);
+
+        // Export to HTML and update iframe
+        modifiedHtml = htmlDoc.documentElement.outerHTML;
+        document.getElementById("frame").srcdoc = modifiedHtml;
+
+        // Handle CSS rules
+        for (const sheet of document.styleSheets) {
+          for (const rule of sheet.cssRules) {
+            treatCssRule(rule, fileUrls);
+          }
+        }
+      }
+
+      window.addEventListener("message", function (event) {
+        if (event.data.type === "update") {
+          anchor = event.data.anchor;
+          fileBlobs = event.data.filesBlobs;
+          originalHtml = event.data.html;
+          update(html, event.data.filesBlobs);
+        } else if (event.data.type === "ready") {
+          if (anchor) {
+            document.getElementById("frame").getElementById(anchor).scrollIntoView(true); // to check
+          }
+        }
+
+        // Old code
+        if (event.data.type === "scroll_to_anchor") {
+          const anchor = event.data.anchor;
+          if (anchor) {
+            const element = document.getElementById(anchor);
+            if (element) {
+              element.scrollIntoView(true);
+            }
+          }
+        } else if (event.data.type === "handle_file_blobs") {
+          handle_file_blobs(event.data.filesBlobs);
+        }
+      });
+
+      function _messageParent(message) {
+        window.parent.postMessage(message, "*");
+      }
+      function makeParentOpenLink(href, resolvedHref, target) {
+        _messageParent({
+          type: "open_link",
+          href,
+          resolvedHref,
+          target,
+        });
+      }
+    </script>
+  </body>
+</html>
