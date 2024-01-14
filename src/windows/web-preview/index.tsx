@@ -1,4 +1,13 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  ReactNode,
+} from "react";
+
+import userCodeInjection from "./_userCodeInjection.js?raw";
+import previewContainerCode from "./_previewContainerCode.html?raw";
 
 import { TabbedWindow } from "../../features/windows/WindowWithTabs";
 import { ToolbarAddressBar } from "../../features/windows/contents";
@@ -26,6 +35,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { scriptInjection } from "./codeInjection";
 import { objectMap, stringToUrlBase64 } from "../../utils";
+import { FilePreview } from "src/state/types";
 
 const isAbsoluteRegex = new RegExp("^(?:[a-z]+:)?//", "i");
 
@@ -35,13 +45,15 @@ function simplifyRelativePath(path) {
   return path;
 }
 
-function getFileBlobsFromFilesPreviewData(filesPreviewData) {
+function getFileBlobsFromFilesPreviewData(filesPreviewData: {
+  [fileName: string]: FilePreview;
+}) {
   return objectMap(filesPreviewData, (fileName, previewData) => {
     return [fileName, previewData.blob];
   });
 }
 
-function performHtmlUpdate(currentFile, htmlCode, filesPreviewData) {
+function performHtmlUpdate(htmlCode, filesPreviewData) {
   const fileBlobs = getFileBlobsFromFilesPreviewData(filesPreviewData);
   const htmlDocument = new DOMParser().parseFromString(htmlCode, "text/html");
   const titleElement = htmlDocument.head?.querySelector("title");
@@ -62,36 +74,30 @@ function performHtmlUpdate(currentFile, htmlCode, filesPreviewData) {
     }
   }
 
+  // Add script injection
+  const script = htmlDocument.createElement("script");
+  script.innerHTML = userCodeInjection;
+  if (htmlDocument.body) {
+    htmlDocument.body.appendChild(script);
+  } else {
+    htmlDocument.appendChild(script);
+  }
+
   const newHtmlCode = htmlDocument.documentElement
     ? htmlDocument.documentElement.outerHTML
     : "";
-  const bodyCloseWithScript = `</body>
-  ${scriptInjection(currentFile)}`;
-  const newHtmlCodeNoLink = newHtmlCode.replace("</body>", bodyCloseWithScript);
   return {
     title: title,
-    htmlContent: newHtmlCodeNoLink,
+    htmlContent: newHtmlCode,
     linkIconData: linkIconData,
+    fileBlobs: fileBlobs,
   };
 }
-
-const Iframe = React.forwardRef(({ title, sandbox, src, srcDoc }, ref) => {
-  return (
-    <iframe
-      title={title}
-      className={styles.iframe}
-      sandbox={sandbox}
-      src={src}
-      srcDoc={srcDoc}
-      ref={ref}
-    ></iframe>
-  );
-});
 
 export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
   const ideState = useIDEChosenState();
   const ideStateDispatch = useIDEChosenStateDispatch();
-  const [tabTitle, setTabTitle] = useState(ideState.activeHtmlFile);
+  const [tabTitle, setTabTitle] = useState<ReactNode>(ideState.activeHtmlFile);
   const [infoSnackbarOpen, setInfoSnackbarOpen] = useState(false);
   const [infoSnackbarMessage, setInfoSnackbarMessage] = useState("");
   const [linkIcon, setLinkIcon] = useState(null);
@@ -103,36 +109,13 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
   const [openExternalLinkDialogOpen, setOpenExternalLinkDialogOpen] =
     useState(false);
   const [externalLink, setExternalLink] = useState(null);
-  const [iframeActiveFile, setIframeActiveFile] = useState(null); // Which file is currently active in the iframe (confirmed by message)
-  const [messageQueue, setMessageQueue] = useState({});
+  const [iframeIsReady, setIframeIsReady] = useState(false);
 
   function postMessageToIframe(message) {
-    const page = ideState.activeHtmlFile;
-    setMessageQueue((prev) => {
-      const newMessageQueue = { ...prev };
-      if (page in newMessageQueue) {
-        newMessageQueue[page].push(message);
-      } else {
-        newMessageQueue[page] = [message];
-      }
-      return newMessageQueue;
-    });
-  }
-
-  useEffect(() => {
-    if (ideState.activeHtmlFile === iframeActiveFile) {
-      if (messageQueue[iframeActiveFile]) {
-        for (const message of messageQueue[iframeActiveFile]) {
-          htmlIframeNode?.contentWindow?.postMessage(message, "*");
-        }
-        setMessageQueue((prev) => {
-          const newMessageQueue = { ...prev };
-          delete newMessageQueue[iframeActiveFile];
-          return newMessageQueue;
-        });
-      }
+    if (iframeIsReady) {
+      htmlIframeNode?.contentWindow?.postMessage(message, "*");
     }
-  }, [ideState.activeHtmlFile, iframeActiveFile, messageQueue]);
+  }
 
   // const handleCloseNewTabSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
   const handleCloseNewTabSnackbar = (event, reason) => {
@@ -153,47 +136,60 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
   }, [ideState.filesPreview]);
 
   const htmlCode = useMemo(() => {
-    return ideState.activeHtmlFile
-      ? ideState.filesPreview[ideState.activeHtmlFile].content
-      : noPageSelectedHTML();
+    if (ideState.activeHtmlFile) {
+      const filePreviewData = ideState.filesPreview[ideState.activeHtmlFile];
+      if (filePreviewData.contentType !== "text") {
+        return noPageSelectedHTML(); // To make TypeScript happy
+      }
+      return filePreviewData.content;
+    } else {
+      return noPageSelectedHTML();
+    }
   }, [ideState.activeHtmlFile, ideState.filesPreview]);
 
   useEffect(() => {
-    if (htmlIframeNode != null) {
-      const { title, htmlContent, linkIconData } = performHtmlUpdate(
-        ideState.activeHtmlFile,
-        htmlCode,
-        ideState.filesPreview
-      );
-      setPreviewHtmlBase64(stringToUrlBase64("text/html", htmlContent));
-      if (title !== null) {
-        if (title !== "") {
-          setTabTitle(title);
-        } else {
-          setTabTitle(
-            <span className={styles.title_error}>
-              {ideState.activeHtmlFile} (titre vide)
-            </span>
-          );
-        }
+    if (!htmlIframeNode || !iframeIsReady) {
+      return;
+    }
+    const { title, htmlContent, linkIconData, fileBlobs } = performHtmlUpdate(
+      htmlCode,
+      ideState.filesPreview
+    );
+    setPreviewHtmlBase64(stringToUrlBase64("text/html", htmlContent));
+    if (title !== null) {
+      if (title !== "") {
+        setTabTitle(title);
       } else {
         setTabTitle(
           <span className={styles.title_error}>
-            {ideState.activeHtmlFile} (pas de titre)
+            {ideState.activeHtmlFile} (titre vide)
           </span>
         );
       }
-      if (linkIconData !== null) {
-        setLinkIcon(linkIconData);
-      } else {
-        setLinkIcon(null);
-      }
+    } else {
+      setTabTitle(
+        <span className={styles.title_error}>
+          {ideState.activeHtmlFile} (pas de titre)
+        </span>
+      );
     }
+    if (linkIconData !== null) {
+      setLinkIcon(linkIconData);
+    } else {
+      setLinkIcon(null);
+    }
+    postMessageToIframe({
+      type: "update",
+      fileBlobs: fileBlobs,
+      html: htmlContent,
+      anchor: null,
+    });
   }, [
     htmlCode,
     ideState.filesPreview,
     htmlIframeNode,
     ideState.activeHtmlFile,
+    iframeIsReady,
   ]);
 
   const showSnackbarMessage = (message) => {
@@ -201,7 +197,7 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
     setInfoSnackbarOpen(true);
   };
 
-  const openLocalLink = (link, anchor, target) => {
+  const openLocalLink = (link: string, anchor: string, target?: string) => {
     const fileToOpen = link || ideState.activeHtmlFile;
     ideStateDispatch({
       type: "set_active_file",
@@ -228,20 +224,7 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
     (event) => {
       const { data } = event;
       if (data.type === "ready") {
-        setIframeActiveFile(data.file);
-        // TODO: move code below
-        // post message to iframe to send blobs
-        const fileBlobs = getFileBlobsFromFilesPreviewData(
-          ideState.filesPreview
-        );
-        console.log("sending file blobs to iframe");
-        postMessageToIframe(
-          {
-            type: "handle_file_blobs",
-            fileBlobs: fileBlobs,
-          },
-          "*"
-        );
+        setIframeIsReady(true);
       } else if (data.type === "set_active_file") {
         openLocalLink(data.fileName, data.anchor, data.target);
       } else if (data.type === "open_external_link") {
@@ -309,13 +292,10 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
 
   useEffect(() => {
     if (ideState.previewAnchor) {
-      postMessageToIframe(
-        {
-          type: "scroll_to_anchor",
-          anchor: ideState.previewAnchor,
-        },
-        "*"
-      );
+      postMessageToIframe({
+        type: "scroll_to_anchor",
+        anchor: ideState.previewAnchor,
+      });
       ideStateDispatch({
         type: "remove_preview_anchor",
       });
@@ -383,9 +363,10 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
         )
       }
     >
-      <Iframe
+      <iframe
+        className={styles.preview_iframe}
         title="Prévisualisation"
-        src={previewHtmlBase64}
+        srcDoc={previewContainerCode}
         sandbox="allow-same-origin allow-scripts allow-modals"
         ref={htmlIframeRef}
       />
@@ -400,7 +381,7 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
             size="small"
             aria-label="close"
             color="inherit"
-            onClick={handleCloseNewTabSnackbar}
+            onClick={() => handleCloseNewTabSnackbar(null, null)}
           >
             <CloseIcon fontSize="small" />
           </IconButton>
