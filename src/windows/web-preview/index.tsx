@@ -182,8 +182,13 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
       type: "update",
       fileBlobs: fileBlobs,
       html: htmlContent,
-      anchor: null,
+      anchor: ideState.previewAnchor,
     });
+    if (ideState.previewAnchor) {
+      ideStateDispatch({
+        type: "remove_preview_anchor",
+      });
+    }
   }, [
     htmlCode,
     ideState.filesPreview,
@@ -289,18 +294,6 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
       return [];
     }
   }, [ideState.activeHtmlFile, tabTitle, linkIcon]);
-
-  useEffect(() => {
-    if (ideState.previewAnchor) {
-      postMessageToIframe({
-        type: "scroll_to_anchor",
-        anchor: ideState.previewAnchor,
-      });
-      ideStateDispatch({
-        type: "remove_preview_anchor",
-      });
-    }
-  }, [ideState.previewAnchor, htmlIframeNode, ideStateDispatch]);
 
   return (
     <TabbedWindow

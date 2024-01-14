@@ -98,13 +98,16 @@
           anchor = event.data.anchor;
           fileBlobs = event.data.fileBlobs;
           originalHtml = event.data.html;
+          console.log("anchor", anchor);
           update();
         } else if (event.data.type === "ready") {
           if (anchor) {
+            console.log("scrolling to anchor", anchor);
             document
               .getElementById("frame")
               .getElementById(anchor)
               .scrollIntoView(true); // to check
+            anchor = null;
           }
         } else if (event.data.type === "open_link") {
           _messageParent(event.data);
