@@ -33,8 +33,7 @@ import IconButton from "@mui/material/IconButton";
 
 import CloseIcon from "@mui/icons-material/Close";
 
-import { scriptInjection } from "./codeInjection";
-import { objectMap, stringToUrlBase64 } from "../../utils";
+import { objectMap } from "../../utils";
 import { FilePreview } from "src/state/types";
 
 const isAbsoluteRegex = new RegExp("^(?:[a-z]+:)?//", "i");
