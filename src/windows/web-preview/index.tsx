@@ -137,7 +137,8 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
     if (ideState.activeHtmlFile) {
       const filePreviewData = ideState.filesPreview[ideState.activeHtmlFile];
       if (filePreviewData.contentType !== "text") {
-        return noPageSelectedHTML(); // To make TypeScript happy
+        // To make TypeScript happy, should never happen
+        return noPageSelectedHTML();
       }
       return filePreviewData.content;
     } else {
