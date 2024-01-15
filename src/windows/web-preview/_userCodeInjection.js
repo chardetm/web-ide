@@ -52,12 +52,13 @@ const cssRulesContainingUrl = [
 const anchors = document.getElementsByTagName("a");
 for (const a of anchors) {
   a.addEventListener("click", function (e) {
+    e.preventDefault();
     const linkElement = e.target.closest("a");
     const href = linkElement?.getAttribute("href");
     if (href && href.length > 0 && href[0] === "#") {
+      document.getElementById(href.substring(1)).scrollIntoView(true);
       return;
     }
-    e.preventDefault();
     const resolvedHref = linkElement?.href;
     const linkTarget = linkElement?.getAttribute("target");
     makeParentOpenLink(href, resolvedHref, linkTarget);

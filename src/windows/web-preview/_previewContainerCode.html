@@ -78,7 +78,7 @@
             }
           }
         }
-        
+
         // Export to HTML and update iframe
         modifiedHtml = htmlDoc.documentElement.outerHTML;
         document.getElementById("frame").srcdoc = modifiedHtml;
@@ -102,15 +102,24 @@
           update();
         } else if (event.data.type === "ready") {
           if (anchor) {
-            console.log("scrolling to anchor", anchor);
             document
               .getElementById("frame")
-              .getElementById(anchor)
+              .contentWindow.document.getElementById(anchor)
               .scrollIntoView(true); // to check
             anchor = null;
           }
         } else if (event.data.type === "open_link") {
           _messageParent(event.data);
+        } else if (event.data.type === "update_anchor") {
+          const newAnchor = event.data.anchor;
+          if (newAnchor) {
+            document
+              .getElementById("frame")
+              .contentWindow.document.getElementById(newAnchor)
+              .scrollIntoView(true); // to check
+          } else {
+            document.getElementById("frame").contentWindow.scrollTo({ top: 0 });
+          }
         }
       });
 

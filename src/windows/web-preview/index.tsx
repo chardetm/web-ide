@@ -201,11 +201,20 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
 
   const openLocalLink = (link: string, anchor: string, target?: string) => {
     const fileToOpen = link || ideState.activeHtmlFile;
-    ideStateDispatch({
-      type: "set_active_file",
-      fileName: fileToOpen,
-      anchor: anchor,
-    });
+    if (fileToOpen === ideState.activeHtmlFile) {
+      // There won't be any change in the state
+      postMessageToIframe({
+        type: "update_anchor",
+        anchor: anchor,
+      });
+    } else {
+      ideStateDispatch({
+        type: "set_active_file",
+        fileName: fileToOpen,
+        anchor: anchor,
+      });
+    }
+
     if (target === "_blank") {
       showSnackbarMessage("Ce lien s'ouvre dans un nouvel onglet.");
     }
@@ -339,10 +348,8 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
                   disabled={ideState.settings.canChangePreviewMode === false}
                   onChange={() => {
                     ideStateDispatch({
-                      type: "set_settings",
-                      settings: {
-                        previewIsLive: !ideState.settings.previewIsLive,
-                      },
+                      type: "set_preview_auto_refresh",
+                      value: !ideState.settings.previewIsLive,
                     });
                   }}
                 />
