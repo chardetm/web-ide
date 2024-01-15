@@ -8,14 +8,12 @@ import {
 } from "./state";
 
 import {
-  urlBase64ToBlob,
   getMime,
   objectMap,
   splitFileNameExtension,
 } from "../utils";
 
-import { ContentType, ExportV2, FilePreview, IDEState, Settings } from "./types";
-import { cp } from "fs";
+import { ExportV2, FilePreview, IDEState, Settings } from "./types";
 
 export type IDEStateAction =
   | {
@@ -201,6 +199,7 @@ export type IDEStateAction =
     };
 
 function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
+  // console.log("state reducer action:", action);
   switch (action.type) {
     case "set_file_content": {
       if (!Object.keys(state.filesData).includes(action.fileName)) {
@@ -209,6 +208,10 @@ function ideStateReducer(state: IDEState, action: IDEStateAction): IDEState {
       const isBinary = action.content instanceof Blob;
       const fileData = state.filesData[action.fileName];
       const filePreviewData = state.filesPreview[action.fileName];
+      if (fileData.contentType === "text" && fileData.content === action.content) {
+        return state; // No change, don't re-render what depends on state
+      }
+
       if (fileData.contentType === "binary" && fileData.blobUrl) {
         URL.revokeObjectURL(fileData.blobUrl);
       }

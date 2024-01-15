@@ -105,7 +105,6 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
   const htmlIframeRef = useCallback((node) => {
     setHtmlIframeNode(node);
   }, []);
-  const [previewHtmlBase64, setPreviewHtmlBase64] = useState("");
   const [openExternalLinkDialogOpen, setOpenExternalLinkDialogOpen] =
     useState(false);
   const [externalLink, setExternalLink] = useState(null);
@@ -155,7 +154,6 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
       htmlCode,
       ideState.filesPreview
     );
-    setPreviewHtmlBase64(stringToUrlBase64("text/html", htmlContent));
     if (title !== null) {
       if (title !== "") {
         setTabTitle(title);
