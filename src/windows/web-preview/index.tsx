@@ -232,7 +232,6 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
     setOpenExternalLinkDialogOpen(true);
   };
 
-  // TODO: move to the right place (in the preview)
   const handleMessage = useCallback(
     (event) => {
       const { data } = event;
