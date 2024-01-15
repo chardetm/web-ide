@@ -36,10 +36,14 @@
       let anchor = null;
       let fileBlobs = null;
       let currentFile = null;
+      let previousFile = null;
+      let previousScrollPosition = null;
       let originalHtml = null;
       let modifiedHtml = null;
 
       function update() {
+        previousScrollPosition = document.getElementById("frame").contentWindow.scrollY;
+
         const htmlDoc = parser.parseFromString(originalHtml, "text/html");
 
         // Invalidate URLs for previous blobs
@@ -97,6 +101,8 @@
           anchor = event.data.anchor;
           fileBlobs = event.data.fileBlobs;
           originalHtml = event.data.html;
+          previousFile = currentFile;
+          currentFile = event.data.htmlFile;
           update();
         } else if (event.data.type === "ready") {
           if (anchor) {
@@ -105,6 +111,10 @@
               .contentWindow.document.getElementById(anchor)
               .scrollIntoView(true); // to check
             anchor = null;
+          } else if (currentFile === previousFile) {
+            document.getElementById("frame").contentWindow.scrollTo({
+              top: previousScrollPosition,
+            });
           }
         } else if (event.data.type === "open_link") {
           _messageParent(event.data);

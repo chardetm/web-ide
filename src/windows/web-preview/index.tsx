@@ -180,6 +180,7 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
       type: "update",
       fileBlobs: fileBlobs,
       html: htmlContent,
+      htmlFile: ideState.activeHtmlFile,
       anchor: ideState.previewAnchor,
     });
     if (ideState.previewAnchor) {
