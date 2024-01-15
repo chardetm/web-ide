@@ -54,7 +54,6 @@
           const blobUrl = URL.createObjectURL(blob);
           fileUrls[name] = blobUrl;
         }
-        console.log(fileUrls);
 
         const cssLinks = htmlDoc.querySelectorAll('link[rel="stylesheet"]');
         for (const link of cssLinks) {
@@ -98,7 +97,6 @@
           anchor = event.data.anchor;
           fileBlobs = event.data.fileBlobs;
           originalHtml = event.data.html;
-          console.log("anchor", anchor);
           update();
         } else if (event.data.type === "ready") {
           if (anchor) {
