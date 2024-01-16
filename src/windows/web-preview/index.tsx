@@ -108,10 +108,15 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
     useState(false);
   const [externalLink, setExternalLink] = useState(null);
   const [iframeIsReady, setIframeIsReady] = useState(false);
+  const [iframeMessageNumber, setIframeMessageNumber] = useState(0);
 
   function postMessageToIframe(message) {
     if (iframeIsReady) {
-      htmlIframeNode?.contentWindow?.postMessage(message, "*");
+      htmlIframeNode?.contentWindow?.postMessage(
+        { ...message, messageNumber: iframeMessageNumber },
+        "*"
+      );
+      setIframeMessageNumber((oldNumber) => oldNumber + 1);
     }
   }
 

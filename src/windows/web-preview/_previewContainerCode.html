@@ -33,17 +33,18 @@
       }
       const parser = new DOMParser();
       const fileUrls = {};
+      let previousUpdateMessageNumber = -1;
       let anchor = null;
       let fileBlobs = null;
       let currentFile = null;
       let previousFile = null;
-      let previousScrollPosition = null;
+      let previousScrollXPosition = null;
+      let previousScrollYPosition = null;
       let originalHtml = null;
       let modifiedHtml = null;
+      let ready = false;
 
       function update() {
-        previousScrollPosition = document.getElementById("frame").contentWindow.scrollY;
-
         const htmlDoc = parser.parseFromString(originalHtml, "text/html");
 
         // Invalidate URLs for previous blobs
@@ -98,11 +99,28 @@
 
       window.addEventListener("message", function (event) {
         if (event.data.type === "update") {
+          const messageNumber = event.data.messageNumber;
+          if (messageNumber <= previousUpdateMessageNumber) {
+            return;
+          }
+          previousUpdateMessageNumber = messageNumber;
           anchor = event.data.anchor;
           fileBlobs = event.data.fileBlobs;
           originalHtml = event.data.html;
           previousFile = currentFile;
           currentFile = event.data.htmlFile;
+          if (previousFile === currentFile) {
+            if (ready) {
+              previousScrollXPosition =
+                document.getElementById("frame").contentWindow.scrollX;
+              previousScrollYPosition =
+                document.getElementById("frame").contentWindow.scrollY; //TODO: investigate why does not work after following anchor link
+            }
+          } else {
+            previousScrollXPosition = 0;
+            previousScrollYPosition = 0;
+          }
+          ready = false;
           update();
         } else if (event.data.type === "ready") {
           if (anchor) {
@@ -113,8 +131,10 @@
             anchor = null;
           } else if (currentFile === previousFile) {
             document.getElementById("frame").contentWindow.scrollTo({
-              top: previousScrollPosition,
+              left: previousScrollXPosition,
+              top: previousScrollYPosition,
             });
+            ready = true;
           }
         } else if (event.data.type === "open_link") {
           _messageParent(event.data);
