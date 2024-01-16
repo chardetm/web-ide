@@ -1,7 +1,7 @@
 import React, { ReactNode, createContext, useContext, useReducer } from "react";
 import ideStateReducer, { IDEStateAction } from "../state/reducer";
 import { exportV2 } from "../state/state";
-import { IDEState } from "src/state/types";
+import { ExportV2, IDEState } from "src/state/types";
 
 const IDEStateContext = createContext<IDEState>(undefined);
 const IDEStateDispatchContext =
@@ -12,7 +12,8 @@ const IDEInitialStateDispatchContext =
 const IDEChosenStateContext = createContext<IDEState>(undefined);
 const IDEChosenStateDispatchContext =
   createContext<React.Dispatch<IDEStateAction>>(undefined);
-const IDEGetExportDataContext = createContext(undefined);
+const IDEGetExportDataContext =
+  createContext<(isAttempt: boolean) => Promise<ExportV2>>(undefined);
 
 interface IDEStateProviderProps {
   children: ReactNode;

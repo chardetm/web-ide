@@ -53,7 +53,7 @@ function FileBackendProvider({ children }) {
   }
 
   async function save() {
-    const data = ideGetExportData(isAttempt);
+    const data = await ideGetExportData(isAttempt);
     downloadTextFile("export.json", JSON.stringify(data, null, 2));
     setDirty(false);
   }
