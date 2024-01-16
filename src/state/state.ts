@@ -335,7 +335,7 @@ export async function exportV2(
           : await blobToUrlBase64(fileData.blob);
       const foundIndex = content[exportContentType].indexOf(exportContent);
       const contentIndex =
-        foundIndex !== -1 ? foundIndex : content[fileData.contentType].length;
+        foundIndex !== -1 ? foundIndex : content[exportContentType].length;
       if (foundIndex === -1) {
         content[exportContentType].push(exportContent);
       }
