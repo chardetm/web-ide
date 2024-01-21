@@ -143,9 +143,22 @@ export function importV2CurrentState(
 
   const attempt = exportedData.attempt;
 
-  function getFileData(fileState: ExportV2FileState): FileData {
+  function getFileData(
+    fileName: string,
+    fileState: ExportV2FileState
+  ): FileData {
     const content =
       exportedData.content[fileState.contentType][fileState.contentIndex];
+
+    if (content === undefined || content === null) {
+      alert(
+        "Erreur à signaler : impossible de charger le fichier « " +
+          fileName +
+          " » (pas de données de fichier). Le fichier sera supprimé."
+      );
+      return null;
+    }
+
     const permissions = fileState.initialName
       ? {
           ...initialState.filesData[fileState.initialName].studentPermissions,
@@ -175,7 +188,7 @@ export function importV2CurrentState(
     filesData: {
       ...objectMap(attempt.filesState, (fileName, fileState) => [
         fileName,
-        getFileData(fileState),
+        getFileData(fileName, fileState),
       ]),
     },
     filesPreview: {
@@ -222,9 +235,18 @@ export function importV2CurrentState(
 export function importV2InitialState(exportedData: ExportV2): IDEState {
   const activity = exportedData.activity;
 
-  function getFileData(fileData: ExportV2FileData): FileData {
+  function getFileData(fileName: string, fileData: ExportV2FileData): FileData {
     const content =
       exportedData.content[fileData.contentType][fileData.contentIndex];
+
+    if (content === undefined || content === null) {
+      alert(
+        "Erreur à signaler : impossible de charger le fichier « " +
+          fileName +
+          " » (pas de données de fichier). Le fichier sera supprimé."
+      );
+      return null;
+    }
 
     const isBinary = fileData.contentType === "base64";
     const blob = isBinary ? urlBase64ToBlob(content) : undefined;
@@ -253,7 +275,7 @@ export function importV2InitialState(exportedData: ExportV2): IDEState {
     studentSettings: activity.studentSettings,
     filesData: objectMap(activity.filesData, (fileName, fileData) => [
       fileName,
-      getFileData(fileData),
+      getFileData(fileName, fileData),
     ]),
     filesPreview: objectMap(activity.filesData, (fileName, fileData) => [
       fileName,
