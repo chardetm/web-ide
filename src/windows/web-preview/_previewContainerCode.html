@@ -26,6 +26,35 @@
     <iframe id="frame" sandbox="allow-modals allow-same-origin allow-scripts">
     </iframe>
     <script>
+      function _messageParent(message) {
+        window.parent.postMessage(message, "*");
+      }
+      function tellParentReady() {
+        _messageParent({
+          type: "ready",
+        });
+      }
+      function makeParentOpenLink(href, resolvedHref, target) {
+        _messageParent({
+          type: "open_link",
+          href,
+          resolvedHref,
+          target,
+        });
+      }
+      function onClickLink(e) {
+        e.preventDefault();
+        const linkElement = e.target.closest("a");
+        const href = linkElement?.getAttribute("href");
+        if (href && href.length > 0 && href[0] === "#") {
+          const linkDocument = e.target.closest("html");
+          linkDocument.getElementById(href.substring(1)).scrollIntoView(true);
+          return;
+        }
+        const resolvedHref = linkElement?.href;
+        const linkTarget = linkElement?.getAttribute("target");
+        makeParentOpenLink(href, resolvedHref, linkTarget);
+      }
       function simplifyRelativePath(path) {
         path = path.replace(/^(\.\/)+/g, "");
         path = path.replace(/\/(\.\/)+/g, "/");
@@ -63,6 +92,30 @@
       let modifiedHtml = null;
       let ready = false;
 
+      function treatLinkNode(node, fileUrls) {
+        const hrefAtt = node.getAttribute("href");
+        if (hrefAtt) {
+          const href = simplifyRelativePath(hrefAtt);
+          if (href in fileUrls) {
+            node.setAttribute("href", fileUrls[href]);
+          }
+        }
+      }
+
+      function treatANode(node) {
+        node.addEventListener("click", onClickLink);
+      }
+
+      function treatNodeWithSrc(node, fileUrls) {
+        const srcAtt = node.getAttribute("src");
+        if (srcAtt) {
+          const src = simplifyRelativePath(srcAtt);
+          if (src in fileUrls) {
+            node.setAttribute("src", fileUrls[src]);
+          }
+        }
+      }
+
       function update() {
         const htmlDoc = parser.parseFromString(originalHtml, "text/html");
 
@@ -81,25 +134,13 @@
 
         const cssLinks = htmlDoc.querySelectorAll('link[rel="stylesheet"]');
         for (const link of cssLinks) {
-          const hrefAtt = link.getAttribute("href");
-          if (hrefAtt) {
-            const href = simplifyRelativePath(hrefAtt);
-            if (href in fileUrls) {
-              link.setAttribute("href", fileUrls[href]);
-            }
-          }
+          treatLinkNode(link, fileUrls);
         }
 
         // Replace all elements with src attribute with inline blob URLs
-        const elementsWithSrc = htmlDoc.querySelectorAll("*[src]");
-        for (const element of elementsWithSrc) {
-          const srcAtt = element.getAttribute("src");
-          if (srcAtt) {
-            const src = simplifyRelativePath(srcAtt);
-            if (src in fileUrls) {
-              element.setAttribute("src", fileUrls[src]);
-            }
-          }
+        const nodesWithSrc = htmlDoc.querySelectorAll("*[src]");
+        for (const node of nodesWithSrc) {
+          treatNodeWithSrc(node, fileUrls);
         }
 
         // Export to HTML and update iframe
@@ -131,15 +172,6 @@
             }
           }
         }
-      }
-
-      function _messageParent(message) {
-        window.parent.postMessage(message, "*");
-      }
-      function tellParentReady() {
-        _messageParent({
-          type: "ready",
-        });
       }
 
       window.addEventListener("message", function (event) {
@@ -175,6 +207,10 @@
               treatCssRule(rule, fileUrls);
             }
           }
+          const aNodes = iframeDocument.getElementsByTagName("a");
+          for (const aNode of aNodes) {
+            treatANode(aNode);
+          }
           if (anchor) {
             iframeDocument.getElementById(anchor).scrollIntoView(true);
             anchor = null;
@@ -185,6 +221,58 @@
             });
             ready = true;
           }
+          
+          const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+              if (mutation.type === "childList") {
+                for (const node of mutation.addedNodes) {
+                  const aNodes = node.getElementsByTagName("a");
+                  for (const aNode of aNodes) {
+                    treatANode(aNode);
+                  }
+
+                  const cssLinks = node.querySelectorAll(
+                    'link[rel="stylesheet"]'
+                  );
+                  for (const link of cssLinks) {
+                    treatLinkNode(link, fileUrls);
+                  }
+
+                  // Replace all elements with src attribute with inline blob URLs
+                  const nodesWithSrc = node.querySelectorAll("*[src]");
+                  for (const nodeWithSrc of nodesWithSrc) {
+                    treatNodeWithSrc(nodeWithSrc, fileUrls);
+                  }
+                  if (node.tagName === "LINK") {
+                    treatLinkNode(node, fileUrls);
+                  } else if (node.tagName === "A") {
+                    treatANode(node);
+                  } else if (node.hasAttribute("src")) {
+                    treatNodeWithSrc(node, fileUrls);
+                  }
+                }
+              } else if (mutation.type === "attributes") {
+                if (
+                  mutation.attributeName === "src" ||
+                  mutation.attributeName === "href"
+                ) {
+                  const node = mutation.target;
+                  if (node.tagName === "LINK") {
+                    treatLinkNode(node, fileUrls);
+                  } else if (node.tagName === "A") {
+                    treatANode(node);
+                  } else if (node.hasAttribute("src")) {
+                    treatNodeWithSrc(node, fileUrls);
+                  }
+                }
+              }
+            }
+          });
+          observer.observe(document.getElementById("frame").contentDocument, {
+            childList: true,
+            subtree: true,
+            attributeFilter: ["src", "href"],
+          });
         } else if (event.data.type === "open_link") {
           _messageParent(event.data);
         } else if (event.data.type === "update_anchor") {
