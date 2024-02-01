@@ -27,7 +27,7 @@ export function mimeToEditor(mimeType?: FileType): CodeEditorType | null {
   return null;
 }
 
-export function mimeToIcon(mimeType?: FileType): ReactElement | null {
+export function mimeToIcon(mimeType?: string): ReactElement | null {
   switch (mimeType) {
     case "text/html":
       return <MaterialIcon.Rounded name="code" className={styles.htmlIcon} />;

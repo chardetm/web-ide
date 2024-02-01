@@ -95,6 +95,10 @@ export function downloadTextFile(fileName: string, fileContent: string) {
   const blob = new Blob([fileContent], {
     type: getMime(fileName),
   });
+  downloadBlob(fileName, blob);
+}
+
+export function downloadBlob(fileName: string, blob: Blob) {
   saveAs(blob, fileName);
 }
 

@@ -10,6 +10,7 @@ import {
 } from "../../../contexts/IDEStateProvider";
 
 import {
+  downloadBlob,
   downloadTextFile,
   getMime,
 } from "../../../utils";
@@ -38,8 +39,8 @@ export default function FileItem({ fileName, onRequestRename, onRequestDelete })
   const ideInitialStateDispatch = useIDEInitialStateDispatch();
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const menuOpen = Boolean(menuAnchorEl);
-  const fileItemId = useMemo(uuid, []);
-  const menuId = useMemo(uuid, []);
+  const fileItemId = useMemo<string>(uuid, []);
+  const menuId = useMemo<string>(uuid, []);
   const openMenu = (event) => {
     setMenuAnchorEl(event.currentTarget);
   };
@@ -94,7 +95,12 @@ export default function FileItem({ fileName, onRequestRename, onRequestDelete })
             onClick={(e) => {
               e.stopPropagation();
               closeMenu();
-              downloadTextFile(fileName, ideState.filesData[fileName].content);
+              const fileData = ideState.filesData[fileName];
+              if (fileData.contentType === "text") {
+                downloadTextFile(fileName, fileData.content);
+              } else {
+                downloadBlob(fileName, fileData.blob);
+              }
             }}
           >
             <ListItemIcon>
