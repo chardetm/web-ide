@@ -103,7 +103,9 @@ export default function CodeEditorWindow({
   }, [ideState.settings.canSeeFilesList]);
 
   const activeFileData = ideState.filesData[ideState.activeFile];
-  const initialFileData = ideInitialState.filesData[activeFileData.initialName];
+  const initialFileData = activeFileData
+    ? ideInitialState.filesData[activeFileData.initialName]
+    : null;
 
   return (
     <TabbedWindow
@@ -149,25 +151,26 @@ export default function CodeEditorWindow({
             )}
 
             <MaterialButtonGroup>
-              {activeFileData.contentType !== initialFileData?.contentType ||
-                (activeFileData.contentType === "text" &&
-                  activeFileData.initialName in ideInitialState.filesData && (
-                    <RoundedButton
-                      label="Réinitialiser"
-                      icon={<MaterialIcon.Rounded name="device_reset" />}
-                      border={true}
-                      disabled={
-                        activeFileData.contentType ===
-                          initialFileData.contentType &&
-                        activeFileData.content === //@ts-ignore
-                          initialFileData.content
-                      }
-                      onClick={function () {
-                        setResetFileDialogFileName(ideState.activeFile);
-                        setResetFileDialogOpen(true);
-                      }}
-                    />
-                  ))}
+              {initialFileData &&
+                (activeFileData.contentType !== initialFileData?.contentType ||
+                  activeFileData.contentType === "text") && (
+                  <RoundedButton
+                    label="Réinitialiser"
+                    icon={<MaterialIcon.Rounded name="device_reset" />}
+                    border={true}
+                    disabled={
+                      activeFileData.contentType ===
+                        initialFileData.contentType &&
+                      activeFileData.contentType === "text" &&
+                      activeFileData.content === //@ts-ignore
+                        initialFileData.content
+                    }
+                    onClick={function () {
+                      setResetFileDialogFileName(ideState.activeFile);
+                      setResetFileDialogOpen(true);
+                    }}
+                  />
+                )}
               {ideState.settings.canDownloadFiles && (
                 <RoundedButton
                   label="Télécharger"
