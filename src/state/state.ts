@@ -221,7 +221,9 @@ export function importV2CurrentState(
     ...initialStudentState,
     activeFile: attempt.activeFile,
     activeHtmlFile: attempt.activeHtmlFile,
-    openedFiles: attempt.openedFiles,
+    openedFiles: attempt.openedFiles.filter((fileName) =>
+      Object.keys(attempt.filesState).includes(fileName)
+    ),
     filesData: {
       ...objectMap(attempt.filesState, getFileDataPair),
     },
