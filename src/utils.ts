@@ -138,7 +138,6 @@ export function urlBase64ToBlob(urlBase64: string): Blob {
 
 export function base64toBlob(base64: string, mime: string): Blob {
   // from https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
-  debugger;
   const contentType = mime || "";
   var sliceSize = 1024;
   var byteCharacters = atob(base64);
