@@ -217,19 +217,24 @@ export function importV2CurrentState(
     ];
   }
 
+  const filesData = objectMap(attempt.filesState, getFileDataPair);
+  const filesPreview = objectMap(attempt.previewState, getFilePreviewPair);
+
+  const filesList = Object.keys(filesData);
+
   return {
     ...initialStudentState,
-    activeFile: attempt.activeFile,
-    activeHtmlFile: attempt.activeHtmlFile,
+    activeFile: filesList.includes(attempt.activeFile)
+      ? attempt.activeFile
+      : null,
+    activeHtmlFile: filesList.includes(attempt.activeHtmlFile)
+      ? attempt.activeHtmlFile
+      : null,
     openedFiles: attempt.openedFiles.filter((fileName) =>
-      Object.keys(attempt.filesState).includes(fileName)
+      filesList.includes(fileName)
     ),
-    filesData: {
-      ...objectMap(attempt.filesState, getFileDataPair),
-    },
-    filesPreview: {
-      ...objectMap(attempt.previewState, getFilePreviewPair),
-    },
+    filesData: filesData,
+    filesPreview: filesPreview,
     settings: {
       ...initialStudentState.settings,
       previewIsLive: attempt.previewIsLive,
@@ -307,16 +312,26 @@ export function importV2InitialState(exportedData: ExportV2): IDEState {
     ];
   }
 
+  const filesData = objectMap(activity.filesData, getFileDataPair);
+  const filesPreview = objectMap(activity.filesData, getFilePreviewPair);
+  const filesList = Object.keys(filesData);
+
   return {
-    activeFile: activity.activeFile,
-    activeHtmlFile: activity.activeHtmlFile,
+    activeFile: filesList.includes(activity.activeFile)
+      ? activity.activeFile
+      : null,
+    activeHtmlFile: filesList.includes(activity.activeHtmlFile)
+      ? activity.activeHtmlFile
+      : null,
     previewAnchor: null,
-    openedFiles: activity.openedFiles,
+    openedFiles: activity.openedFiles.filter((fileName) =>
+      filesList.includes(fileName)
+    ),
     fileTypesInitialContent: activity.fileTypesInitialContent,
     settings: getDefaultSettings(),
     studentSettings: activity.studentSettings,
-    filesData: objectMap(activity.filesData, getFileDataPair),
-    filesPreview: objectMap(activity.filesData, getFilePreviewPair),
+    filesData: filesData,
+    filesPreview: filesPreview,
   };
 }
 
