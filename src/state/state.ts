@@ -179,7 +179,9 @@ export function importV2CurrentState(
             }),
         permissions: permissions,
         studentPermissions: permissions,
-        initialName: fileState.initialName,
+        initialName: initialState.filesData[fileState.initialName]
+          ? fileState.initialName
+          : null,
       },
     ];
   }
