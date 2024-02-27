@@ -221,33 +221,36 @@
             });
             ready = true;
           }
-          
+
           const observer = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
               if (mutation.type === "childList") {
                 for (const node of mutation.addedNodes) {
-                  const aNodes = node.getElementsByTagName("a");
-                  for (const aNode of aNodes) {
-                    treatANode(aNode);
+                  if (node.getElementsByTagName) {
+                    const aNodes = node.getElementsByTagName("a");
+                    for (const aNode of aNodes) {
+                      treatANode(aNode);
+                    }
                   }
+                  if (node.querySelectorAll) {
+                    const cssLinks = node.querySelectorAll(
+                      'link[rel="stylesheet"]'
+                    );
+                    for (const link of cssLinks) {
+                      treatLinkNode(link, fileUrls);
+                    }
 
-                  const cssLinks = node.querySelectorAll(
-                    'link[rel="stylesheet"]'
-                  );
-                  for (const link of cssLinks) {
-                    treatLinkNode(link, fileUrls);
-                  }
-
-                  // Replace all elements with src attribute with inline blob URLs
-                  const nodesWithSrc = node.querySelectorAll("*[src]");
-                  for (const nodeWithSrc of nodesWithSrc) {
-                    treatNodeWithSrc(nodeWithSrc, fileUrls);
+                    // Replace all elements with src attribute with inline blob URLs
+                    const nodesWithSrc = node.querySelectorAll("*[src]");
+                    for (const nodeWithSrc of nodesWithSrc) {
+                      treatNodeWithSrc(nodeWithSrc, fileUrls);
+                    }
                   }
                   if (node.tagName === "LINK") {
                     treatLinkNode(node, fileUrls);
                   } else if (node.tagName === "A") {
                     treatANode(node);
-                  } else if (node.hasAttribute("src")) {
+                  } else if (node.hasAttribute && node.hasAttribute("src")) {
                     treatNodeWithSrc(node, fileUrls);
                   }
                 }
@@ -261,7 +264,7 @@
                     treatLinkNode(node, fileUrls);
                   } else if (node.tagName === "A") {
                     treatANode(node);
-                  } else if (node.hasAttribute("src")) {
+                  } else if (node.hasAttribute && node.hasAttribute("src")) {
                     treatNodeWithSrc(node, fileUrls);
                   }
                 }
