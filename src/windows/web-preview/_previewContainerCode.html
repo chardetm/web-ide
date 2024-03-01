@@ -47,7 +47,7 @@
         const linkElement = e.target.closest("a");
         const href = linkElement?.getAttribute("href");
         if (href && href.length > 0 && href[0] === "#") {
-          const linkDocument = e.target.closest("html");
+          const linkDocument = e.target.getRootNode();
           linkDocument.getElementById(href.substring(1)).scrollIntoView(true);
           return;
         }
