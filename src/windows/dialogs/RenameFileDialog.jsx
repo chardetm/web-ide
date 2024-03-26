@@ -31,7 +31,7 @@ export function RenameFileDialog({ fileName, open, onClose }) {
   );
   useEffect(() => {
     setFileNameNoExtension(splitFileNameExtension(fileName)[0]);
-  }, [fileName]);
+  }, [fileName, open]);
   const fileNameValidity = useMemo(
     () =>
       isValidFilename(
