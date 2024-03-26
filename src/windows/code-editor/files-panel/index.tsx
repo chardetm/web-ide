@@ -144,9 +144,10 @@ export default function FilesPanel({
                 type="file"
                 accept={acceptedUploadFileTypesStr}
                 onChange={(e) => {
+                  if (!e.target.files) return;
                   const file = e.target.files[0];
-                  const fileName = e.target.files[0].name;
-                  const fileMime = e.target.files[0].type;
+                  const fileName = file.name;
+                  const fileMime = file.type;
                   const isBinary =
                     fileMime.startsWith("image/") ||
                     fileMime.startsWith("audio/");
@@ -162,6 +163,7 @@ export default function FilesPanel({
                     };
                     reader.readAsText(file);
                   }
+                  inputRef.current!.value = "";
                 }}
               />
             </>
