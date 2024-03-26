@@ -33,8 +33,10 @@ import IconButton from "@mui/material/IconButton";
 
 import CloseIcon from "@mui/icons-material/Close";
 
-import { objectMap } from "../../utils";
+import { objectMap, useInterval } from "../../utils";
 import { FilePreview } from "src/state/types";
+
+const MESSAGE_INTERVAL_MS = 500;
 
 const isAbsoluteRegex = new RegExp("^(?:[a-z]+:)?//", "i");
 
@@ -108,15 +110,35 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
     useState(false);
   const [externalLink, setExternalLink] = useState(null);
   const [iframeIsReady, setIframeIsReady] = useState(false);
-  const [iframeMessageNumber, setIframeMessageNumber] = useState(0);
+  const [iframeUpdateMessageNumber, setIframeUpdateMessageNumber] = useState(0);
+  const [iframeUpdateNextMessage, setIframeUpdateNextMessage] = useState(null);
+
+  useInterval(() => {
+    if (iframeIsReady) {
+      if (iframeUpdateNextMessage) {
+        setIframeUpdateNextMessage((message) => {
+          doPostMessageToIframe({
+            ...message,
+            messageNumber: iframeUpdateMessageNumber,
+          });
+          return null;
+        });
+        setIframeUpdateMessageNumber((oldNumber) => oldNumber + 1);
+      }
+    }
+  }, MESSAGE_INTERVAL_MS);
+
+  function doPostMessageToIframe(message) {
+    if (iframeIsReady) {
+      htmlIframeNode?.contentWindow?.postMessage(message, "*");
+    }
+  }
 
   function postMessageToIframe(message) {
-    if (iframeIsReady) {
-      htmlIframeNode?.contentWindow?.postMessage(
-        { ...message, messageNumber: iframeMessageNumber },
-        "*"
-      );
-      setIframeMessageNumber((oldNumber) => oldNumber + 1);
+    if (message.type === "update") {
+      setIframeUpdateNextMessage(message);
+    } else {
+      doPostMessageToIframe(message);
     }
   }
 

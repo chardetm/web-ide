@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { saveAs } from "file-saver";
 import Mime from "mime/lite.js";
 import { FileType, allowedTextFileTypes } from "./appSettings";
@@ -196,4 +196,26 @@ export function stringToUrlBase64(mime: string, str: string): string {
 
 export function base64ToString(base64: string): string {
   return new TextDecoder().decode(base64ToBytes(base64));
+}
+
+export function useInterval(callback, delay) {
+  // from https://overreacted.io/making-setinterval-declarative-with-react-hooks/
+  const savedCallback = useRef();
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      // @ts-ignore
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
 }
