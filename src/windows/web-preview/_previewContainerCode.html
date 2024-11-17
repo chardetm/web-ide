@@ -203,9 +203,16 @@
           const iframeWindow = document.getElementById("frame").contentWindow;
           const iframeDocument = iframeWindow.document;
           for (const sheet of iframeDocument.styleSheets) {
-            for (const rule of sheet.cssRules) {
-              treatCssRule(rule, fileUrls);
-            }
+            try {
+              for (const rule of sheet.cssRules) {
+                treatCssRule(rule, fileUrls);
+              }
+            } catch (e) {
+              // Ignore SecurityError: usually means the CSS is from a different origin
+              if (e.name !== "SecurityError") {
+                throw e;
+              }
+            };
           }
           const aNodes = iframeDocument.getElementsByTagName("a");
           for (const aNode of aNodes) {
