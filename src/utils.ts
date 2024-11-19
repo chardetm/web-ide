@@ -3,6 +3,13 @@ import { saveAs } from "file-saver";
 import Mime from "mime/lite.js";
 import { FileType, allowedTextFileTypes } from "./appSettings";
 
+const isAbsoluteRegex = new RegExp("^(?:[a-z]+:)?//", "i");
+
+export const isAbsoluteUrl = (url: string) => {
+  return isAbsoluteRegex.test(url);
+}
+
+
 export const isValidFilename = (function () {
   // https://stackoverflow.com/questions/11100821/javascript-regex-for-validating-filenames
   const rg1 = /^[^\\/:*?"<>|]+$/; // forbidden characters \ / : * ? " < > |

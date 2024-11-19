@@ -33,12 +33,11 @@ import IconButton from "@mui/material/IconButton";
 
 import CloseIcon from "@mui/icons-material/Close";
 
-import { objectMap, useInterval } from "../../utils";
+import { isAbsoluteUrl, objectMap, useInterval } from "../../utils";
 import { FilePreview } from "src/state/types";
+import FormSubmitDialog from "../dialogs/FormSubmitDialog";
 
 const MESSAGE_INTERVAL_MS = 500;
-
-const isAbsoluteRegex = new RegExp("^(?:[a-z]+:)?//", "i");
 
 function simplifyRelativePath(path) {
   path = path.replace(/^(\.\/)+/g, "");
@@ -64,7 +63,7 @@ function performHtmlUpdate(htmlCode, filesPreviewData) {
   if (linkIconElement) {
     const hrefAtt = linkIconElement.getAttribute("href");
     if (hrefAtt) {
-      if (isAbsoluteRegex.test(hrefAtt)) {
+      if (isAbsoluteUrl(hrefAtt)) {
         linkIconData = hrefAtt;
       } else {
         const href = simplifyRelativePath(hrefAtt);
@@ -106,9 +105,19 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
   const htmlIframeRef = useCallback((node) => {
     setHtmlIframeNode(node);
   }, []);
-  const [openExternalLinkDialogOpen, setOpenExternalLinkDialogOpen] =
+
+  const [externalLinkDialogOpen, setExternalLinkDialogOpen] =
     useState(false);
   const [externalLink, setExternalLink] = useState(null);
+
+  const [formSubmitDialogOpen, setFormSubmitDialogOpen] =
+    useState(false);
+  const [formSubmitData, setFormSubmitData] = useState<Object>(null);
+  const [formSubmitMethod, setFormSubmitMethod] = useState<
+    "post" | "get" | String | null
+  >(null);
+  const [formSubmitAction, setFormSubmitAction] = useState<string | null>(null);
+
   const [iframeIsReady, setIframeIsReady] = useState(false);
   const [iframeUpdateMessageNumber, setIframeUpdateMessageNumber] = useState(0);
   const [iframeUpdateNextMessage, setIframeUpdateNextMessage] = useState(null);
@@ -256,7 +265,7 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
 
   const openExternalLink = (link) => {
     setExternalLink(link);
-    setOpenExternalLinkDialogOpen(true);
+    setExternalLinkDialogOpen(true);
   };
 
   const handleMessage = useCallback(
@@ -274,7 +283,7 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
         const target = data.target;
         if (!resolvedHref) {
           showSnackbarMessage("Lien vide !");
-        } else if (isAbsoluteRegex.test(href)) {
+        } else if (isAbsoluteUrl(href)) {
           openExternalLink(resolvedHref);
         } else {
           const pathAndAnchor = href.split("#");
@@ -300,6 +309,12 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
             );
           }
         }
+      } else if (data.type === "submit_form") {
+        console.log("Form submited", data.action, data.method, data.data);
+        setFormSubmitData(data.data);
+        setFormSubmitAction(data.action || ideState.activeHtmlFile);
+        setFormSubmitMethod(data.method?.toLowerCase?.() || "get");
+        setFormSubmitDialogOpen(true);
       }
     },
     [ideStateDispatch, ideState.activeHtmlFile]
@@ -392,7 +407,7 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
         className={styles.preview_iframe}
         title="Prévisualisation"
         srcDoc={previewContainerCode}
-        sandbox="allow-same-origin allow-scripts allow-modals"
+        sandbox="allow-same-origin allow-scripts allow-modals allow-forms"
         ref={htmlIframeRef}
       />
       <Snackbar
@@ -414,8 +429,15 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
       />
       <OpenExternalLinkDialog
         link={externalLink}
-        onClose={() => setOpenExternalLinkDialogOpen(false)}
-        open={openExternalLinkDialogOpen}
+        onClose={() => setExternalLinkDialogOpen(false)}
+        open={externalLinkDialogOpen}
+      />
+      <FormSubmitDialog
+        method={formSubmitMethod}
+        action={formSubmitAction}
+        data={formSubmitData}
+        onClose={() => setFormSubmitDialogOpen(false)}
+        open={formSubmitDialogOpen}
       />
     </TabbedWindow>
   );

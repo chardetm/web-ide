@@ -26,7 +26,15 @@ function OpenExternalLinkDialog({
           Ce lien externe ne peut pas être ouvert dans la prévisualisation.
           Voulez-vous ouvrir la page suivante dans un nouvel onglet ?
         </Typography>
-        <Typography variant="body1" marginTop={1}>{link}</Typography>
+        <Typography
+          variant="body2"
+          marginTop={1}
+          style={{
+            overflowWrap: "anywhere",
+          }}
+        >
+          {link}
+        </Typography>
       </DialogContent>
       <DialogActions>
         <MaterialButtonGroup>
