@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import CodeEditor, { CodeEditorProps } from "./CodeEditor";
 import { html } from "@codemirror/lang-html";
+import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 
 export type HTMLCodeEditorProps = Exclude<
   CodeEditorProps,
@@ -14,7 +15,7 @@ export type HTMLCodeEditorProps = Exclude<
 };
 
 export const HTMLCodeEditor = React.forwardRef<
-  HTMLDivElement,
+  ReactCodeMirrorRef,
   HTMLCodeEditorProps
 >(
   (

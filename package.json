@@ -48,7 +48,8 @@
     "codemirror-readonly-ranges": "^0.1.0-alpha.1",
     "file-saver": "^2.0.5",
     "mime": "^3.0.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@types/mime": "^3.0.1",

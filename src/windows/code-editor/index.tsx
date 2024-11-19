@@ -9,6 +9,9 @@ import {
   MaterialButtonSeparator,
 } from "../../features/ui/materialComponents";
 
+import ZoomInRoundedIcon from "@mui/icons-material/ZoomInRounded";
+import ZoomOutRoundedIcon from "@mui/icons-material/ZoomOutRounded";
+
 import styles from "./index.module.scss";
 
 import Typography from "@mui/material/Typography";
@@ -33,6 +36,7 @@ import { ResetFileDialog } from "../dialogs/ResetFileDialog";
 import { allowedTextFileTypes } from "../../appSettings";
 import { mimeToEditor, mimeToIcon } from "../../features/code-editor/utils";
 import FilesPanel from "./files-panel/index";
+import { useAppStore } from "../../store";
 
 export type CodeEditorWindowProps = {
   onMaximize?: () => void;
@@ -45,6 +49,13 @@ export default function CodeEditorWindow({
   onDemaximize,
   className,
 }: CodeEditorWindowProps) {
+  const codeZoomLevel = useAppStore((state) => state.codeZoomLevel);
+  const increaseCodeZoomLevel = useAppStore(
+    (state) => state.increaseCodeZoomLevel
+  );
+  const decreaseCodeZoomLevel = useAppStore(
+    (state) => state.decreaseCodeZoomLevel
+  );
   const ideState = useIDEChosenState();
   const ideStateDispatch = useIDEChosenStateDispatch();
   const ideInitialState = useIDEInitialState();
@@ -233,22 +244,54 @@ export default function CodeEditorWindow({
               )}
             </MaterialButtonGroup>
             <Spacer />
-            {allowedTextFileTypes.includes(activeFileMime) && (
-              <FormControlLabel
-                className={styles.wrap_switch}
-                control={
-                  <Switch
-                    checked={ideState.settings.lineWrap}
-                    onChange={() => {
-                      ideStateDispatch({
-                        type: "toggle_line_wrap",
-                      });
-                    }}
-                  />
-                }
-                label={"Ret. ligne auto."}
-              />
-            )}
+            <MaterialButtonGroup>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 0,
+                }}
+              >
+                <RoundedButton
+                  round={true}
+                  icon={<ZoomOutRoundedIcon />}
+                  border={true}
+                  onClick={decreaseCodeZoomLevel}
+                  disabled={codeZoomLevel <= 2}
+                  style={{
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                  }}
+                />
+                <RoundedButton
+                  round={true}
+                  icon={<ZoomInRoundedIcon />}
+                  border={true}
+                  onClick={increaseCodeZoomLevel}
+                  disabled={codeZoomLevel >= 20}
+                  style={{
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 0,
+                    borderLeft: "none",
+                  }}
+                />
+              </div>
+              {allowedTextFileTypes.includes(activeFileMime) && (
+                <FormControlLabel
+                  className={styles.wrap_switch}
+                  control={
+                    <Switch
+                      checked={ideState.settings.lineWrap}
+                      onChange={() => {
+                        ideStateDispatch({
+                          type: "toggle_line_wrap",
+                        });
+                      }}
+                    />
+                  }
+                  label={"Ret. ligne auto."}
+                />
+              )}
+            </MaterialButtonGroup>
           </>
         )
       }

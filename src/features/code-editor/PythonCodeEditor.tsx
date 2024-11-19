@@ -1,6 +1,7 @@
 import React from "react";
 import CodeEditor, { CodeEditorProps } from "./CodeEditor";
 import { python } from "@codemirror/lang-python";
+import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 
 export type PythonCodeEditorProps = Exclude<
   CodeEditorProps,
@@ -8,7 +9,7 @@ export type PythonCodeEditorProps = Exclude<
 >;
 
 const PythonCodeEditor = React.forwardRef<
-  HTMLDivElement,
+  ReactCodeMirrorRef,
   PythonCodeEditorProps
 >((props, ref) => {
   return (
