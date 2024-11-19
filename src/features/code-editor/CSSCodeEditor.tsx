@@ -1,6 +1,7 @@
 import React from "react";
 import CodeEditor, { CodeEditorProps } from "./CodeEditor";
 import { css } from "@codemirror/lang-css";
+import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 
 export type CSSCodeEditorProps = Exclude<
   CodeEditorProps,
@@ -8,7 +9,7 @@ export type CSSCodeEditorProps = Exclude<
 >;
 
 export const CSSCodeEditor = React.forwardRef<
-  HTMLDivElement,
+  ReactCodeMirrorRef,
   CSSCodeEditorProps
 >((props, ref) => {
   return <CodeEditor ref={ref} indent="  " cmLanguage={css()} {...props} />;
