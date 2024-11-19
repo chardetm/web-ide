@@ -50,7 +50,10 @@ export function mimeToIcon(mimeType?: string): ReactElement | null {
       }
       if (mimeType.startsWith("audio/")) {
         return (
-          <MaterialIcon.Rounded name="audiotrack" className={styles.audioIcon} />
+          <MaterialIcon.Rounded
+            name="audiotrack"
+            className={styles.audioIcon}
+          />
         );
       }
       return (
