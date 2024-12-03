@@ -24,7 +24,6 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "builddev": "tsc && vite build -m development",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "peerDependencies": {
@@ -56,11 +55,7 @@
     "@types/node": "^20.6.3",
     "@types/react": "^18.3.8",
     "@types/react-dom": "^18.3.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.3.3",
-    "eslint": "^8.56.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
     "prettier": "^3.2.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -68,7 +63,7 @@
     "sass": "^1.81.0",
     "tslib": "^2.8.1",
     "typescript": "^5.3.3",
-    "vite": "^5.4.6",
+    "vite": "^5.4.11",
     "vite-plugin-dts": "^4.3.0"
   }
 }
