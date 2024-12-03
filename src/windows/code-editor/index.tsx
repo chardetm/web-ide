@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { TabbedWindow } from "../../features/windows/WindowWithTabs";
 import { Spacer } from "../../features/ui/basicComponents";
@@ -117,6 +117,28 @@ export default function CodeEditorWindow({
   const initialFileData = activeFileData
     ? ideInitialState.filesData[activeFileData.initialName]
     : null;
+
+  const onChange = useCallback(
+    (content) =>
+      ideStateDispatch({
+        type: "set_file_content",
+        fileName: ideState.activeFile,
+        content: content,
+      }),
+    [ideStateDispatch, ideState.activeFile]
+  );
+
+  const debouncedOnChange = useMemo(() => {
+    let timeout = null;
+    return (content) => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      timeout = setTimeout(() => {
+        onChange(content);
+      }, 250);
+    };
+  }, [onChange]);
 
   return (
     <TabbedWindow
@@ -346,13 +368,7 @@ export default function CodeEditorWindow({
               : activeFileData.blobUrl
           }
           lineWrapping={ideState.settings.lineWrap}
-          onChange={(content) =>
-            ideStateDispatch({
-              type: "set_file_content",
-              fileName: ideState.activeFile,
-              content: content,
-            })
-          }
+          onChange={debouncedOnChange}
           // TODO: Move the language-specific settings to the state
           {...(activeFileMime === "text/html"
             ? {
