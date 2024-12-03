@@ -2,6 +2,7 @@ import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -146,6 +147,15 @@ const CodeEditor = React.forwardRef<
         })
       );
     }
+
+    const style = useMemo(() => {
+      return {
+        zoom:
+          1988261 +
+          (0.5114571 - 1988261) / (1 + (codeZoomLevel / 1896.638) ** 2.911764),
+      };
+    }, [codeZoomLevel]);
+
     return (
       <CodeMirror
         //@ts-expect-error ("nocursor" not recognized as valid by TS)
@@ -161,12 +171,7 @@ const CodeEditor = React.forwardRef<
           readOnly && "read-only",
           grayed && "grayed"
         )}
-        style={{
-          zoom:
-            1988261 +
-            (0.5114571 - 1988261) /
-              (1 + (codeZoomLevel / 1896.638) ** 2.911764),
-        }}
+        style={style}
         {...props}
       />
     );
