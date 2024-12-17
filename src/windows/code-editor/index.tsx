@@ -114,6 +114,13 @@ export default function CodeEditorWindow({
   }, [ideState.settings.canSeeFilesList]);
 
   const activeFileData = ideState.filesData[ideState.activeFile];
+  const startActiveFileContent = useMemo(
+    () =>
+      activeFileData.contentType === "text"
+        ? activeFileData.content
+        : activeFileData.blobUrl,
+    [ideState.activeFile]
+  );
   const initialFileData = activeFileData
     ? ideInitialState.filesData[activeFileData.initialName]
     : null;
@@ -267,51 +274,53 @@ export default function CodeEditorWindow({
             </MaterialButtonGroup>
             <Spacer />
             <MaterialButtonGroup>
-              <div
-                style={{
-                  display: "flex",
-                  gap: 0,
-                }}
-              >
-                <RoundedButton
-                  round={true}
-                  icon={<ZoomOutRoundedIcon />}
-                  border={true}
-                  onClick={decreaseCodeZoomLevel}
-                  disabled={codeZoomLevel <= 2}
-                  style={{
-                    borderTopRightRadius: 0,
-                    borderBottomRightRadius: 0,
-                  }}
-                />
-                <RoundedButton
-                  round={true}
-                  icon={<ZoomInRoundedIcon />}
-                  border={true}
-                  onClick={increaseCodeZoomLevel}
-                  disabled={codeZoomLevel >= 20}
-                  style={{
-                    borderTopLeftRadius: 0,
-                    borderBottomLeftRadius: 0,
-                    borderLeft: "none",
-                  }}
-                />
-              </div>
               {allowedTextFileTypes.includes(activeFileMime) && (
-                <FormControlLabel
-                  className={styles.wrap_switch}
-                  control={
-                    <Switch
-                      checked={ideState.settings.lineWrap}
-                      onChange={() => {
-                        ideStateDispatch({
-                          type: "toggle_line_wrap",
-                        });
+                <>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 0,
+                    }}
+                  >
+                    <RoundedButton
+                      round={true}
+                      icon={<ZoomOutRoundedIcon />}
+                      border={true}
+                      onClick={decreaseCodeZoomLevel}
+                      disabled={codeZoomLevel <= 2}
+                      style={{
+                        borderTopRightRadius: 0,
+                        borderBottomRightRadius: 0,
                       }}
                     />
-                  }
-                  label={"Ret. ligne auto."}
-                />
+                    <RoundedButton
+                      round={true}
+                      icon={<ZoomInRoundedIcon />}
+                      border={true}
+                      onClick={increaseCodeZoomLevel}
+                      disabled={codeZoomLevel >= 20}
+                      style={{
+                        borderTopLeftRadius: 0,
+                        borderBottomLeftRadius: 0,
+                        borderLeft: "none",
+                      }}
+                    />
+                  </div>
+                  <FormControlLabel
+                    className={styles.wrap_switch}
+                    control={
+                      <Switch
+                        checked={ideState.settings.lineWrap}
+                        onChange={() => {
+                          ideStateDispatch({
+                            type: "toggle_line_wrap",
+                          });
+                        }}
+                      />
+                    }
+                    label={"Ret. ligne auto."}
+                  />
+                </>
               )}
             </MaterialButtonGroup>
           </>
@@ -362,11 +371,7 @@ export default function CodeEditorWindow({
           readOnly={!activeFileData.permissions.canEdit}
           grayed={!activeFileData.permissions.canEdit}
           className={styles.editorPane}
-          value={
-            activeFileData.contentType === "text"
-              ? activeFileData.content
-              : activeFileData.blobUrl
-          }
+          initialValue={startActiveFileContent}
           lineWrapping={ideState.settings.lineWrap}
           onChange={debouncedOnChange}
           // TODO: Move the language-specific settings to the state

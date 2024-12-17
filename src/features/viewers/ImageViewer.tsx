@@ -4,12 +4,12 @@ import styles from "./ImageViewer.module.scss";
 import { appendClassnames } from "../../utils";
 
 export type ImageViewerProps = {
-  value: string;
+  initialValue: string;
   className?: string;
 };
 
 export const ImageViewer = React.forwardRef<HTMLImageElement>(
-  ({ value, className }: ImageViewerProps, ref) => {
+  ({ initialValue, className }: ImageViewerProps, ref) => {
     const [zoomedIn, setZoomedIn] = useState(false);
     return (
       <div
@@ -21,7 +21,7 @@ export const ImageViewer = React.forwardRef<HTMLImageElement>(
           <img
             ref={ref}
             className={styles.image}
-            src={value}
+            src={initialValue}
             alt="Prévisualisation"
           />
         </div>

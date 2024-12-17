@@ -19,7 +19,7 @@ export function CodeViewer({ className, children }) {
   const Editor = languageToEditor[className] ?? CodeEditor;
   return (
     <div className={styles.codePreview}>
-      <Editor readOnly={true} code={children[0].trim()} />
+      <Editor readOnly={true} initialValue={children[0].trim()} />
     </div>
   );
 }

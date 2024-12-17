@@ -10,7 +10,7 @@ export type HTMLCodeEditorProps = Exclude<
   matchClosingTags?: boolean;
   autoCloseTags?: boolean;
   onlyShowBody?: boolean;
-  value?: string;
+  initialValue?: string;
   onChange?: (newText: string) => void;
 };
 
@@ -23,7 +23,7 @@ export const HTMLCodeEditor = React.forwardRef<
       matchClosingTags = true,
       autoCloseTags = true,
       onlyShowBody = false,
-      value,
+      initialValue,
       onChange,
       ...props
     },
@@ -33,22 +33,22 @@ export const HTMLCodeEditor = React.forwardRef<
       if (!onlyShowBody) {
         return null;
       }
-      if (value == null) {
+      if (initialValue == null) {
         return null;
       }
-      const bodyOpenStart = value.indexOf("<body");
-      const bodyOpenEnd = value.indexOf(">", bodyOpenStart);
-      const bodyOpenNextLine = value.indexOf("\n", bodyOpenEnd);
-      const bodyCloseStart = value.lastIndexOf("</body");
-      const bodyCloseLine = value.lastIndexOf("\n", bodyCloseStart);
+      const bodyOpenStart = initialValue.indexOf("<body");
+      const bodyOpenEnd = initialValue.indexOf(">", bodyOpenStart);
+      const bodyOpenNextLine = initialValue.indexOf("\n", bodyOpenEnd);
+      const bodyCloseStart = initialValue.lastIndexOf("</body");
+      const bodyCloseLine = initialValue.lastIndexOf("\n", bodyCloseStart);
 
       if (bodyOpenNextLine === -1 || bodyCloseLine === -1) {
         return null;
       }
 
-      const prefix = value.slice(0, bodyOpenNextLine + 1);
-      const suffix = value.slice(bodyCloseLine);
-      const bodyText = value.slice(bodyOpenNextLine + 1, bodyCloseLine);
+      const prefix = initialValue.slice(0, bodyOpenNextLine + 1);
+      const suffix = initialValue.slice(bodyCloseLine);
+      const bodyText = initialValue.slice(bodyOpenNextLine + 1, bodyCloseLine);
       const prefixNbLines = prefix.split("\n").length;
 
       return {
@@ -57,7 +57,7 @@ export const HTMLCodeEditor = React.forwardRef<
         bodyText,
         prefixNbLines,
       };
-    }, [value, onlyShowBody]);
+    }, [initialValue, onlyShowBody]);
     const htmlOnChange = useCallback(
       (newText: string): void => {
         if (!onChange) {
@@ -77,7 +77,7 @@ export const HTMLCodeEditor = React.forwardRef<
     return (
       <CodeEditor
         ref={ref}
-        code={fileSplitData?.bodyText ?? value}
+        initialValue={fileSplitData?.bodyText ?? initialValue}
         firstLineNumber={fileSplitData?.prefixNbLines ?? 1}
         indent="  "
         onChange={htmlOnChange}
