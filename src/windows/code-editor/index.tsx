@@ -356,7 +356,7 @@ export default function CodeEditorWindow({
           }}
         />
       )}
-      {ideState.activeFile && (
+      {ideState.activeFile && activeFileData && (
         <Editor
           ref={editorRef}
           readOnly={!activeFileData.permissions.canEdit}
@@ -378,7 +378,7 @@ export default function CodeEditorWindow({
             : {})}
         />
       )}
-      {!ideState.activeFile && (
+      {(!ideState.activeFile || !activeFileData) && (
         <div className={styles.backupNoTabText}>
           <Typography variant="h6" component="p">
             Aucun fichier n'est ouvert. Ouvrez un fichier.
