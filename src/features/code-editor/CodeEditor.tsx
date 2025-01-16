@@ -24,7 +24,7 @@ export type CodeEditorProps = {
   onChange?: (newText: string, lines: string[]) => void;
   indent?: string;
   cmLanguage?: any;
-  code?: string;
+  initialValue?: string;
   extensions?: any[];
   readOnly?: boolean;
   grayed?: boolean;
@@ -44,7 +44,7 @@ const CodeEditor = React.forwardRef<
       onChange,
       indent,
       cmLanguage,
-      code = "",
+      initialValue = "",
       extensions = [],
       readOnly = false,
       grayed = false,
@@ -164,7 +164,7 @@ const CodeEditor = React.forwardRef<
           setEditorCreated(true);
         }}
         ref={innerRef}
-        value={code}
+        value={initialValue}
         extensions={all_extensions}
         className={appendClassnames(
           className,

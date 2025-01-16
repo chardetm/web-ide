@@ -305,7 +305,7 @@ function FileTypeInitialContentEditor({
 
   return (
     <Editor
-      value={ideInitialState.fileTypesInitialContent[mimeType] || ""}
+      initialValue={ideInitialState.fileTypesInitialContent[mimeType] || ""}
       onChange={handleEditorChange}
       lineWrapping={true}
       className={appendClassnames(styles.flexGrow)}
