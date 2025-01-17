@@ -116,9 +116,11 @@ export default function CodeEditorWindow({
   const activeFileData = ideState.filesData[ideState.activeFile];
   const startActiveFileContent = useMemo(
     () =>
-      activeFileData.contentType === "text"
-        ? activeFileData.content
-        : activeFileData.blobUrl,
+      activeFileData
+        ? activeFileData.contentType === "text"
+          ? activeFileData.content
+          : activeFileData.blobUrl
+        : "",
     [ideState.activeFile]
   );
   const initialFileData = activeFileData
@@ -365,7 +367,7 @@ export default function CodeEditorWindow({
           }}
         />
       )}
-      {ideState.activeFile && activeFileData && (
+      {ideState.activeFile && (
         <Editor
           ref={editorRef}
           readOnly={!activeFileData.permissions.canEdit}
@@ -383,7 +385,7 @@ export default function CodeEditorWindow({
             : {})}
         />
       )}
-      {(!ideState.activeFile || !activeFileData) && (
+      {!ideState.activeFile && (
         <div className={styles.backupNoTabText}>
           <Typography variant="h6" component="p">
             Aucun fichier n'est ouvert. Ouvrez un fichier.
