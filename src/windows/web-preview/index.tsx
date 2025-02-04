@@ -14,7 +14,6 @@ import { ToolbarAddressBar } from "../../features/windows/contents";
 import {
   RoundedButton,
   MaterialButtonGroup,
-  MaterialIcon,
 } from "../../features/ui/materialComponents";
 
 import OpenExternalLinkDialog from "../dialogs/OpenExternalLinkDialog";
@@ -32,6 +31,10 @@ import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 
 import CloseIcon from "@mui/icons-material/Close";
+import PublicRoundedIcon from '@mui/icons-material/PublicRounded';
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import RefreshSharpIcon from '@mui/icons-material/RefreshSharp';
 
 import { isAbsoluteUrl, objectMap, useInterval } from "../../utils";
 import { FilePreview } from "src/state/types";
@@ -349,7 +352,7 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
       className={styles.WebPreviewWindow}
       title="Prévisualisation"
       aria-label="Prévisualisation"
-      icon={<MaterialIcon.Rounded name="public" />}
+      icon={<PublicRoundedIcon />}
       tabs={tabs}
       activeTabId={ideState.activeHtmlFile ? "1" : null}
       onMaximize={onMaximize}
@@ -359,17 +362,17 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
           <>
             <MaterialButtonGroup>
               <RoundedButton
-                icon={<MaterialIcon.Rounded name="arrow_back" />}
+                icon={<ArrowBackRoundedIcon />}
                 disabled={true}
                 round={true}
               />
               <RoundedButton
-                icon={<MaterialIcon.Rounded name="arrow_forward" />}
+                icon={<ArrowForwardRoundedIcon />}
                 disabled={true}
                 round={true}
               />
               <RoundedButton
-                icon={<MaterialIcon.Sharp name="refresh" />}
+                icon={<RefreshSharpIcon />}
                 disabled={ideState.settings.previewIsLive}
                 round={true}
                 onClick={() => ideStateDispatch({ type: "update_preview" })}

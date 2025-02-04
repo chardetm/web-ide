@@ -224,9 +224,6 @@
 
 .tabIcon {
   margin-right: 8px;
-  & :global(.material-symbols) {
-    font-variation-settings: "FILL" 0, "wght" 700, "GRAD" 0, "opsz" 48;
-  }
 }
 
 .closeButton {
@@ -239,11 +236,6 @@
   height: 24px !important;
   min-width: 24px !important;
   min-height: 24px !important;
-}
-
-.tabIcon > *,
-.closeButton :global(.material-symbols) {
-  font-size: 14px !important;
 }
 
 .tabTitle {
@@ -284,11 +276,6 @@
 
 .addTabButton {
   margin-left: 8px;
-  font-weight: 900;
-  & :global(.material-symbols) {
-    font-variation-settings: "FILL" 0, "wght" 700, "GRAD" 0, "opsz" 48;
-    font-size: 20px !important;
-  }
 }
 
 .topbar {

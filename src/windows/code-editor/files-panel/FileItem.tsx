@@ -9,11 +9,12 @@ import {
   useIDEInitialStateDispatch,
 } from "../../../contexts/IDEStateProvider";
 
-import {
-  downloadBlob,
-  downloadTextFile,
-  getMime,
-} from "../../../utils";
+import { downloadBlob, downloadTextFile, getMime } from "../../../utils";
+
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import TextFieldsOutlinedIcon from "@mui/icons-material/TextFieldsOutlined";
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import MoreVertOutlinedIcon from "@mui/icons-material/MoreVertOutlined";
 
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -28,11 +29,17 @@ import Download from "@mui/icons-material/Download";
 import Edit from "@mui/icons-material/Edit";
 
 import { v4 as uuid } from "uuid";
-import { mimeToIcon } from "../../../features/code-editor/utils";
-import { MaterialButtonGroup, MaterialIcon, RoundedButton } from "../../../features/ui/materialComponents";
+import { MimeIcon } from "../../../features/code-editor/utils";
+import {
+  MaterialButtonGroup,
+  RoundedButton,
+} from "../../../features/ui/materialComponents";
 
-
-export default function FileItem({ fileName, onRequestRename, onRequestDelete }) {
+export default function FileItem({
+  fileName,
+  onRequestRename,
+  onRequestDelete,
+}) {
   const ideState = useIDEChosenState();
   const ideStateDispatch = useIDEChosenStateDispatch();
   const ideInitialState = useIDEInitialState();
@@ -149,7 +156,9 @@ export default function FileItem({ fileName, onRequestRename, onRequestDelete })
         }}
       >
         <span className={styles.filesPaneFileName} title={fileName}>
-          <span className={styles.filesPaneFileIcon}>{mimeToIcon(mime)}</span>
+          <span className={styles.filesPaneFileIcon}>
+            <MimeIcon mimeType={mime} textSize="1rem" />
+          </span>
           <Typography variant="body1" component="span">
             {fileName}
           </Typography>
@@ -178,7 +187,11 @@ export default function FileItem({ fileName, onRequestRename, onRequestDelete })
                 aria-label="edit"
                 title={`Permission d'édition (${fileName})`}
               >
-                <MaterialIcon name={"edit"} />
+                <EditOutlinedIcon
+                  sx={{
+                    fontSize: "1.2rem",
+                  }}
+                />
               </ToggleButton>
               {ideInitialState.studentSettings.canSeeFilesList && (
                 <ToggleButton
@@ -186,7 +199,11 @@ export default function FileItem({ fileName, onRequestRename, onRequestDelete })
                   aria-label="rename"
                   title={`Permission de renommage (${fileName})`}
                 >
-                  <MaterialIcon name={"text_fields"} />
+                  <TextFieldsOutlinedIcon
+                    sx={{
+                      fontSize: "1.2rem",
+                    }}
+                  />
                 </ToggleButton>
               )}
               {ideInitialState.studentSettings.canSeeFilesList && (
@@ -195,13 +212,17 @@ export default function FileItem({ fileName, onRequestRename, onRequestDelete })
                   aria-label="delete"
                   title={`Permission de suppression (${fileName})`}
                 >
-                  <MaterialIcon name={"delete"} />
+                  <DeleteOutlinedIcon
+                    sx={{
+                      fontSize: "1.2rem",
+                    }}
+                  />
                 </ToggleButton>
               )}
             </ToggleButtonGroup>
           )}
           <RoundedButton
-            icon={<MaterialIcon name={"more_vert"} />}
+            icon={<MoreVertOutlinedIcon />}
             round={true}
             border={false}
             onClick={(e) => {

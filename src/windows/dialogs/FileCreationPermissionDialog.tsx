@@ -29,7 +29,7 @@ import {
   useIDEInitialState,
   useIDEInitialStateDispatch,
 } from "../../contexts/IDEStateProvider";
-import { mimeToEditor, mimeToIcon } from "../../features/code-editor/utils";
+import { mimeToEditor } from "../../features/code-editor/utils";
 
 import styles from "./dialogs.module.scss";
 import { appendClassnames } from "../../utils";

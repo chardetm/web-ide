@@ -1,9 +1,13 @@
 import React from "react";
 import styles from "./style.module.scss";
 import { BasicButton } from "../ui/basicComponents";
-import { MaterialIcon, RoundedButton } from "../ui/materialComponents";
+import { RoundedButton } from "../ui/materialComponents";
 import { appendClassnames } from "../../utils";
 import { SectionProps } from "react-html-props";
+
+import MinimizeRoundedIcon from "@mui/icons-material/MinimizeRounded";
+import FullscreenRoundedIcon from "@mui/icons-material/FullscreenRounded";
+import FullscreenExitRoundedIcon from "@mui/icons-material/FullscreenExitRounded";
 
 export function WindowButton({ children, ...props }) {
   return (
@@ -41,7 +45,7 @@ export function BaseWindow({
         {onHide && (
           <RoundedButton
             className={styles.addTabButton}
-            icon={<MaterialIcon.Rounded name="minimize" />}
+            icon={<MinimizeRoundedIcon />}
             round={true}
             onClick={function () {
               if (onDemaximize) {
@@ -54,7 +58,7 @@ export function BaseWindow({
         {onMaximize && (
           <RoundedButton
             className={styles.addTabButton}
-            icon={<MaterialIcon.Rounded name="fullscreen" />}
+            icon={<FullscreenRoundedIcon />}
             round={true}
             onClick={onMaximize}
           />
@@ -62,7 +66,7 @@ export function BaseWindow({
         {onDemaximize && (
           <RoundedButton
             className={styles.addTabButton}
-            icon={<MaterialIcon.Rounded name="fullscreen_exit" />}
+            icon={<FullscreenExitRoundedIcon />}
             round={true}
             onClick={onDemaximize}
           />

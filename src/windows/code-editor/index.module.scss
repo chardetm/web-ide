@@ -94,10 +94,6 @@
   &[active-file="true"] {
     background-color: white;
   }
-  & :global(.material-symbols) {
-    font-variation-settings: "FILL" 0, "wght" 700, "GRAD" 0, "opsz" 48;
-    font-size: 16px !important;
-  }
 }
 
 .filesPaneFileIcon {

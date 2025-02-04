@@ -1,6 +1,11 @@
 import styles from "./fileIcons.module.scss";
 
-import { MaterialIcon } from "../ui/materialComponents";
+import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
+import FormatColorFillRoundedIcon from "@mui/icons-material/FormatColorFillRounded";
+import JavascriptRoundedIcon from "@mui/icons-material/JavascriptRounded";
+import ImageRoundedIcon from "@mui/icons-material/ImageRounded";
+import AudiotrackRoundedIcon from "@mui/icons-material/AudiotrackRounded";
+import DescriptionRoundedIcon from "@mui/icons-material/DescriptionRounded";
 
 import { HTMLCodeEditor } from "./HTMLCodeEditor";
 import { CSSCodeEditor } from "./CSSCodeEditor";
@@ -8,7 +13,7 @@ import { JSCodeEditor } from "./JSCodeEditor";
 import { ImageViewer } from "../viewers/ImageViewer";
 import { AudioViewer } from "../viewers/AudioViewer";
 import { FileType } from "../../appSettings";
-import { ReactElement } from "react";
+import { FC, ReactElement } from "react";
 
 export type CodeEditorType =
   | typeof HTMLCodeEditor
@@ -27,39 +32,75 @@ export function mimeToEditor(mimeType?: FileType): CodeEditorType | null {
   return null;
 }
 
-export function mimeToIcon(mimeType?: string): ReactElement | null {
+export const MimeIcon: FC<{ mimeType?: string; textSize: string }> = ({
+  mimeType,
+  textSize,
+}) => {
+  return (
+    <div className={"mimeIcon"} style={{ fontSize: textSize, display: "flex" }}>
+      {mimeToIcon(mimeType)}
+    </div>
+  );
+};
+
+function mimeToIcon(mimeType?: string): ReactElement | null {
   switch (mimeType) {
     case "text/html":
-      return <MaterialIcon.Rounded name="code" className={styles.htmlIcon} />;
+      return (
+        <CodeRoundedIcon
+          className={styles.htmlIcon}
+          style={{
+            fontSize: "100%",
+            scale: "120%",
+          }}
+        />
+      );
     case "text/css":
       return (
-        <MaterialIcon.Rounded
-          name="format_color_fill"
+        <FormatColorFillRoundedIcon
           className={styles.cssIcon}
+          style={{
+            fontSize: "100%",
+          }}
         />
       );
     case "application/javascript":
       return (
-        <MaterialIcon.Rounded name="javascript" className={styles.jsIcon} />
+        <JavascriptRoundedIcon
+          className={styles.jsIcon}
+          style={{
+            fontSize: "100%",
+            scale: "200%",
+          }}
+        />
       );
     default:
       if (mimeType.startsWith("image/")) {
         return (
-          <MaterialIcon.Rounded name="image" className={styles.imageIcon} />
+          <ImageRoundedIcon
+            className={styles.imageIcon}
+            style={{
+              fontSize: "100%",
+            }}
+          />
         );
       }
       if (mimeType.startsWith("audio/")) {
         return (
-          <MaterialIcon.Rounded
-            name="audiotrack"
+          <AudiotrackRoundedIcon
             className={styles.audioIcon}
+            style={{
+              fontSize: "100%",
+            }}
           />
         );
       }
       return (
-        <MaterialIcon.Rounded
-          name="description"
+        <DescriptionRoundedIcon
           className={styles.unknownIcon}
+          style={{
+            fontSize: "100%",
+          }}
         />
       );
   }

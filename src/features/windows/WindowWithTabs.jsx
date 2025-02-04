@@ -2,11 +2,13 @@ import { React, useState, useMemo, Fragment } from "react";
 import { Spacer } from "../ui/basicComponents";
 import { RoundedButton } from "../ui/materialComponents";
 import { BaseWindow } from "./BaseWindow";
-import { MaterialIcon } from "../ui/materialComponents";
 
 import styles from "./style.module.scss";
 import { appendClassnames } from "../../utils";
 import { Toolbar, WindowContent } from "./contents";
+
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 
 export function WindowTab({
   children,
@@ -48,7 +50,7 @@ function Tab({
       {onClose && (
         <div className={styles.closeButton}>
           <RoundedButton
-            icon={<MaterialIcon.Outlined name="close" />}
+            icon={<CloseRoundedIcon sx={{fontSize: "1rem !important"}} />}
             title="Fermer l'onglet"
             onClick={(e) => {
               e.stopPropagation();
@@ -131,7 +133,7 @@ export function TabbedWindow({
             {onNewTab && (
               <RoundedButton
                 className={styles.addTabButton}
-                icon={<MaterialIcon.Rounded name="add" />}
+                icon={<AddRoundedIcon />}
                 round={true}
                 onClick={onNewTab}
               />

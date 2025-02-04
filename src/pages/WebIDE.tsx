@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 
-import "./WebIDE.scss";
 import styles from "./WebIDE.module.scss";
 
 import CodeEditorWindow from "../windows/code-editor";

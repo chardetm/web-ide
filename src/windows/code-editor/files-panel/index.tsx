@@ -18,8 +18,12 @@ import { useIDEChosenState } from "../../../contexts/IDEStateProvider";
 import { downloadZip } from "client-zip";
 import { saveAs } from "file-saver";
 
+import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import KeyboardArrowDownOutlinedIcon from "@mui/icons-material/KeyboardArrowDownOutlined";
+import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
+
 import {
-  MaterialIcon,
   RoundedButton,
   MaterialButtonGroup,
 } from "../../../features/ui/materialComponents";
@@ -105,13 +109,11 @@ export default function FilesPanel({
               {ideState.settings.allowedNewTextFileTypes.length > 0 && (
                 <RoundedButton
                   icon={
-                    <MaterialIcon
-                      name={
-                        permissionsPanelOpen
-                          ? "keyboard_arrow_down"
-                          : "keyboard_arrow_left"
-                      }
-                    />
+                    permissionsPanelOpen ? (
+                      <KeyboardArrowDownOutlinedIcon />
+                    ) : (
+                      <KeyboardArrowLeftOutlinedIcon />
+                    )
                   }
                   round={true}
                   border={false}
@@ -131,7 +133,7 @@ export default function FilesPanel({
           {acceptedUploadFileTypesStr !== "" && (
             <>
               <RoundedButton
-                icon={<MaterialIcon name={"upload"} />}
+                icon={<FileUploadOutlinedIcon />}
                 round={true}
                 border={false}
                 onClick={function () {
@@ -170,7 +172,7 @@ export default function FilesPanel({
           )}
           {ideState.settings.allowedNewTextFileTypes.length > 0 && (
             <RoundedButton
-              icon={<MaterialIcon name={"add"} />}
+              icon={<AddOutlinedIcon />}
               round={true}
               border={false}
               onClick={onRequestCreateFile}

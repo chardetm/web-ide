@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TabbedWindow } from "../../features/windows/WindowWithTabs";
 import { Spacer } from "../../features/ui/basicComponents";
 import {
-  MaterialIcon,
   RoundedButton,
   MaterialButtonGroup,
   MaterialButtonSeparator,
@@ -11,6 +10,13 @@ import {
 
 import ZoomInRoundedIcon from "@mui/icons-material/ZoomInRounded";
 import ZoomOutRoundedIcon from "@mui/icons-material/ZoomOutRounded";
+import EditNoteRoundedIcon from "@mui/icons-material/EditNoteRounded";
+import RestoreRoundedIcon from "@mui/icons-material/RestoreRounded";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
+import SpellcheckRoundedIcon from "@mui/icons-material/SpellcheckRounded";
+import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
+import FolderOffOutlinedIcon from "@mui/icons-material/FolderOffOutlined";
 
 import styles from "./index.module.scss";
 
@@ -34,7 +40,10 @@ import { RenameFileDialog } from "../dialogs/RenameFileDialog";
 import { DeleteFileDialog } from "../dialogs/DeleteFileDialog";
 import { ResetFileDialog } from "../dialogs/ResetFileDialog";
 import { allowedTextFileTypes } from "../../appSettings";
-import { mimeToEditor, mimeToIcon } from "../../features/code-editor/utils";
+import {
+  MimeIcon,
+  mimeToEditor,
+} from "../../features/code-editor/utils";
 import FilesPanel from "./files-panel/index";
 import { useAppStore } from "../../store";
 
@@ -90,7 +99,7 @@ export default function CodeEditorWindow({
               mime === "text/html" && ideState.settings.onlySeeBody
                 ? "corps"
                 : null,
-            icon: mimeToIcon(mime),
+            icon: <MimeIcon mimeType={mime} textSize="0.9rem" />,
             onClose: ideState.settings.canOpenAndCloseTabs
               ? () => {
                   ideStateDispatch({
@@ -159,7 +168,7 @@ export default function CodeEditorWindow({
           : null
       )}
       aria-label="Éditeur de code"
-      icon={<MaterialIcon.Rounded name="edit_note" />}
+      icon={<EditNoteRoundedIcon />}
       title="Éditeur de code"
       tabs={tabs}
       activeTabId={ideState.activeFile}
@@ -180,9 +189,11 @@ export default function CodeEditorWindow({
                   className={styles.filesPanelToggle}
                   round={true}
                   icon={
-                    <MaterialIcon.Outlined
-                      name={filesPanelOpen ? "folder_off" : "folder"}
-                    />
+                    filesPanelOpen ? (
+                      <FolderOffOutlinedIcon />
+                    ) : (
+                      <FolderOutlinedIcon />
+                    )
                   }
                   border={false}
                   onClick={() => {
@@ -198,7 +209,7 @@ export default function CodeEditorWindow({
                   activeFileData.contentType === "text") && (
                   <RoundedButton
                     label="Réinitialiser"
-                    icon={<MaterialIcon.Rounded name="device_reset" />}
+                    icon={<RestoreRoundedIcon />}
                     border={true}
                     disabled={
                       activeFileData.contentType ===
@@ -216,7 +227,7 @@ export default function CodeEditorWindow({
               {ideState.settings.canDownloadFiles && (
                 <RoundedButton
                   label="Télécharger"
-                  icon={<MaterialIcon.Rounded name="download" />}
+                  icon={<FileDownloadOutlinedIcon />}
                   border={true}
                   onClick={function () {
                     downloadFile(
@@ -237,7 +248,7 @@ export default function CodeEditorWindow({
                   <MaterialButtonGroup>
                     <RoundedButton
                       label="Définir zone visible"
-                      icon={<MaterialIcon.Rounded name="visibility" />}
+                      icon={<VisibilityRoundedIcon />}
                       border={true}
                       onClick={function () {
                         console.log(editorRef); // TODO: remove
@@ -266,7 +277,7 @@ export default function CodeEditorWindow({
               {activeFileMime in ideState.settings.allowedSyntaxCheckers && (
                 <RoundedButton
                   label="Vérifier la syntaxe"
-                  icon={<MaterialIcon.Rounded name="spellcheck" />}
+                  icon={<SpellcheckRoundedIcon />}
                   border={true}
                   onClick={function () {
                     alert("Bientôt disponible !");

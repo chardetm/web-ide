@@ -50,40 +50,6 @@ export function MaterialButtonSeparator() {
   return <div className={styles.materialButtonSeparator} />;
 }
 
-export function MaterialIcon({
-  name,
-  variant = "material-symbols-outlined",
-  className = null,
-}) {
-  return (
-    <span
-      className={`material-symbols ${variant}${
-        className ? ` ${className}` : ""
-      }`}
-    >
-      {name}
-    </span>
-  );
-}
-
-MaterialIcon.Outlined = function ({ name, ...props }) {
-  return (
-    <MaterialIcon name={name} variant="material-symbols-outlined" {...props} />
-  );
-};
-
-MaterialIcon.Rounded = function ({ name, ...props }) {
-  return (
-    <MaterialIcon name={name} variant="material-symbols-rounded" {...props} />
-  );
-};
-
-MaterialIcon.Sharp = function ({ name, ...props }) {
-  return (
-    <MaterialIcon name={name} variant="material-symbols-sharp" {...props} />
-  );
-};
-
 export function MaterialTileSelector({
   options,
   selected,
