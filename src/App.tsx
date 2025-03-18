@@ -9,7 +9,7 @@ function App() {
     <div className="App" id="app">
       <IDEStateProvider>
         <FileBackendProvider>
-          <WebIDE />
+          <WebIDE previewIframeUrl="https://capytale3p.ac-paris.fr/vanilla/web/_previewContainerCode.html" />
         </FileBackendProvider>
       </IDEStateProvider>
     </div>

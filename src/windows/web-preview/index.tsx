@@ -31,14 +31,15 @@ import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 
 import CloseIcon from "@mui/icons-material/Close";
-import PublicRoundedIcon from '@mui/icons-material/PublicRounded';
-import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
-import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
-import RefreshSharpIcon from '@mui/icons-material/RefreshSharp';
+import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
+import RefreshSharpIcon from "@mui/icons-material/RefreshSharp";
 
 import { isAbsoluteUrl, objectMap, useInterval } from "../../utils";
 import { FilePreview } from "src/state/types";
 import FormSubmitDialog from "../dialogs/FormSubmitDialog";
+import { useAppStore } from "../../store";
 
 const MESSAGE_INTERVAL_MS = 500;
 
@@ -109,12 +110,10 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
     setHtmlIframeNode(node);
   }, []);
 
-  const [externalLinkDialogOpen, setExternalLinkDialogOpen] =
-    useState(false);
+  const [externalLinkDialogOpen, setExternalLinkDialogOpen] = useState(false);
   const [externalLink, setExternalLink] = useState(null);
 
-  const [formSubmitDialogOpen, setFormSubmitDialogOpen] =
-    useState(false);
+  const [formSubmitDialogOpen, setFormSubmitDialogOpen] = useState(false);
   const [formSubmitData, setFormSubmitData] = useState<Object>(null);
   const [formSubmitMethod, setFormSubmitMethod] = useState<
     "post" | "get" | String | null
@@ -124,6 +123,8 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
   const [iframeIsReady, setIframeIsReady] = useState(false);
   const [iframeUpdateMessageNumber, setIframeUpdateMessageNumber] = useState(0);
   const [iframeUpdateNextMessage, setIframeUpdateNextMessage] = useState(null);
+
+  const previewIframeUrl = useAppStore((state) => state.previewIframeUrl);
 
   useInterval(() => {
     if (iframeIsReady) {
@@ -409,7 +410,8 @@ export default function WebPreviewWindow({ onMaximize, onDemaximize }) {
       <iframe
         className={styles.preview_iframe}
         title="Prévisualisation"
-        srcDoc={previewContainerCode}
+        src={previewIframeUrl === "" ? undefined : previewIframeUrl}
+        srcDoc={previewIframeUrl === "" ? previewContainerCode : undefined}
         sandbox="allow-same-origin allow-scripts allow-modals allow-forms"
         ref={htmlIframeRef}
       />

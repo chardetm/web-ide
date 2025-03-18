@@ -26,6 +26,7 @@ import {
 
 import { DivProps } from "react-html-props";
 import { appendClassnames } from "../utils";
+import { useAppStore } from "../store";
 
 enum LoadStatus {
   INITIAL,
@@ -37,19 +38,30 @@ export type WebIDELayout = "auto" | "horizontal" | "vertical";
 
 interface WebIDEProps {
   className?: string;
+  previewIframeUrl?: string;
   props?: DivProps;
 }
 
-function WebIDE({ className, ...props }: WebIDEProps) {
+function WebIDE({ className, previewIframeUrl, ...props }: WebIDEProps) {
   const ideStateDispatch = useIDEStateDispatch();
   const ideInitialState = useIDEInitialState();
   const ideInitialStateDispatch = useIDEInitialStateDispatch();
   const backendInitialData = useBackendInitialdata();
   const [loadStatus, setLoadStatus] = useState<LoadStatus>(LoadStatus.INITIAL);
+  const setPreviewIframeURL = useAppStore((state) => state.setPreviewIframeUrl);
 
   useEffect(() => {
     setLoadStatus(LoadStatus.INITIAL);
   }, [backendInitialData]);
+
+  useEffect(() => {
+    if (previewIframeUrl) {
+      setPreviewIframeURL(previewIframeUrl);
+    }
+    return () => {
+      setPreviewIframeURL("");
+    };
+  }, [previewIframeUrl]);
 
   useEffect(() => {
     if (loadStatus === LoadStatus.INITIAL) {
