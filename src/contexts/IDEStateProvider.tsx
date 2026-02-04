@@ -1,4 +1,10 @@
-import React, { ReactNode, createContext, useContext, useReducer } from "react";
+import React, {
+  ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useReducer,
+} from "react";
 import ideStateReducer, { IDEStateAction } from "../state/reducer";
 import { exportV2 } from "../state/state";
 import { ExportV2, IDEState } from "src/state/types";
@@ -23,16 +29,19 @@ export function IDEStateProvider({ children }: IDEStateProviderProps) {
   const [initialState, initialDispatch] = useReducer(ideStateReducer, null);
   const [state, dispatch] = useReducer(ideStateReducer, null);
 
+  const exportData = useCallback(
+    async (isAttempt: boolean) => {
+      return exportV2(initialState, state, isAttempt);
+    },
+    [initialState, state],
+  );
+
   return (
     <IDEInitialStateContext.Provider value={initialState}>
       <IDEInitialStateDispatchContext.Provider value={initialDispatch}>
         <IDEStateContext.Provider value={state}>
           <IDEStateDispatchContext.Provider value={dispatch}>
-            <IDEGetExportDataContext.Provider
-              value={(isAttempt) => {
-                return exportV2(initialState, state, isAttempt);
-              }}
-            >
+            <IDEGetExportDataContext.Provider value={exportData}>
               {children}
             </IDEGetExportDataContext.Provider>
           </IDEStateDispatchContext.Provider>
