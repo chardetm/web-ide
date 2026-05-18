@@ -227,7 +227,7 @@ export function importV2CurrentState(
     activeFile: filesList.includes(attempt.activeFile)
       ? attempt.activeFile
       : null,
-    activeHtmlFile: filesList.includes(attempt.activeHtmlFile)
+    activeHtmlFile: filesList.includes(attempt.activeHtmlFile) && filesPreview[attempt.activeHtmlFile]
       ? attempt.activeHtmlFile
       : null,
     openedFiles: attempt.openedFiles.filter((fileName) =>
@@ -320,7 +320,7 @@ export function importV2InitialState(exportedData: ExportV2): IDEState {
     activeFile: filesList.includes(activity.activeFile)
       ? activity.activeFile
       : null,
-    activeHtmlFile: filesList.includes(activity.activeHtmlFile)
+    activeHtmlFile: filesList.includes(activity.activeHtmlFile) && filesPreview[activity.activeHtmlFile]
       ? activity.activeHtmlFile
       : null,
     previewAnchor: null,
